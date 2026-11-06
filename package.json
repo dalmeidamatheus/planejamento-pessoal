@@ -1,0 +1,26 @@
+{
+  "name": "norte",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Norte: organização pessoal all-in-one — calendário, finanças, tarefas, hábitos, notas, desejos, viagens e aniversários.",
+  "license": "MIT",
+  "keywords": [
+    "calendar",
+    "personal-finance",
+    "kanban",
+    "habit-tracker",
+    "wishlist",
+    "supabase",
+    "vercel",
+    "pwa",
+    "pt-br"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "check": "node scripts/check.js",
+    "build": "node scripts/build-config.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
