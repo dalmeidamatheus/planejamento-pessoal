@@ -10,13 +10,9 @@
 ![Vercel](https://img.shields.io/badge/deploy-Vercel-000000.svg)
 ![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-2b5bd7.svg)
 
-[![Deploy com a Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSEU-USUARIO%2Fnorte&env=SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET&envDescription=Chaves%20do%20Supabase%20e%20segredo%20do%20cron&project-name=norte)
-
-<img src="docs/screenshots/inicio.jpg" alt="Página inicial do Norte" width="880">
+<img src="docs/screenshots/inicio.jpg" alt="Página inicial" width="880">
 
 </div>
-
-> Troque `SEU-USUARIO` pelo seu usuário do GitHub no botão acima depois de subir o repositório.
 
 ---
 
@@ -30,7 +26,6 @@
 - [Stack e decisões de projeto](#stack-e-decisões-de-projeto)
 - [Arquitetura](#arquitetura)
 - [Estrutura do repositório](#estrutura-do-repositório)
-- [Publicar: GitHub, Supabase e Vercel](#publicar-github-supabase-e-vercel)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Rodar localmente](#rodar-localmente)
 - [Modelo de dados](#modelo-de-dados)
@@ -65,7 +60,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 
 > As imagens usam os dados de exemplo (*Ajustes → Carregar dados de exemplo*).
 
-| Calendário (semana, conflitos e 🎂) | Cartões, fatura e limite |
+| Calendário (semana, conflitos e aniversários) | Cartões, fatura e limite |
 |---|---|
 | <img src="docs/screenshots/calendario.jpg" alt="Calendário semanal"> | <img src="docs/screenshots/cartoes.jpg" alt="Cartões de crédito"> |
 
@@ -88,7 +83,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Fusos horários:** cada compromisso tem seu fuso; a exibição usa o seu fuso, e há relógios extras na barra lateral.
 - **Lembretes:** de 0 min a 1 dia antes, com central de notificações no app e alertas do navegador.
 - **Detalhes do compromisso:** prioridade (alta, média, baixa), categorias coloridas (Trabalho, Saúde, Lazer, Estudos, Pessoal), subtarefas, links e anexos por URL, dia inteiro.
-- **Aniversários 🎂:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes.
+- **Aniversários:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes.
 - **Exportação `.ics`:** compromissos e aniversários, compatível com Google Agenda, Apple Calendar e Outlook.
 
 ### Finanças
@@ -249,35 +244,6 @@ norte/
 └── .env.example
 ```
 
-## Publicar: GitHub, Supabase e Vercel
-
-### 1. GitHub
-
-```bash
-cd norte
-git init
-git add .
-git commit -m "Norte: primeira versão"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/norte.git
-git push -u origin main
-```
-
-### 2. Supabase (gratuito)
-
-1. Crie um projeto em [supabase.com](https://supabase.com).
-2. Abra **SQL Editor → New query**, cole o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e execute. Isso cria `user_data` e `price_watch` com RLS.
-3. Em **Authentication → Providers**, mantenha **Email** habilitado. Se quiser entrar sem confirmar o e-mail, desative *Confirm email*.
-4. Em **Settings → API**, copie **Project URL**, a chave **anon public** e a chave **service_role** (esta é secreta).
-5. Depois do primeiro deploy, em **Authentication → URL Configuration**, coloque a URL do seu site em *Site URL*.
-
-### 3. Vercel
-
-1. **Add New → Project** e importe o repositório. Não altere nada: o [`vercel.json`](vercel.json) já define o comando de build, a pasta de saída e o cron.
-2. Em **Settings → Environment Variables**, crie as variáveis da tabela abaixo.
-3. Faça o **Deploy** (ou *Redeploy* após criar as variáveis).
-4. Abra o site, crie sua conta na tela de login e, se quiser, use *Ajustes → Carregar dados de exemplo*.
-
 ## Variáveis de ambiente
 
 | Variável | Obrigatória | Para quê |
@@ -342,14 +308,6 @@ A tabela `price_watch` (`user_id`, `item_id`, `url`, `last_price`, `last_checked
 - **Anexos:** são links; arquivos exigiriam Supabase Storage.
 - **Moeda:** tudo em reais (BRL).
 
-## Roadmap
-
-- [ ] Notificações push com o app fechado (Web Push)
-- [ ] Anexos de arquivo via Supabase Storage
-- [ ] Sincronização por tabelas relacionais (sem “última gravação vence”)
-- [ ] Importação de `.ics` e de extratos (OFX/CSV)
-- [ ] Orçamento de viagem em moeda estrangeira com cotação
-- [ ] Testes automatizados de interface
 
 ## Contribuindo
 
