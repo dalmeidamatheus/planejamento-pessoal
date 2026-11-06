@@ -25,8 +25,7 @@ function finInv() {
     if (i0 < 0) i0 = all.length;
   }
   const stats = all.slice(i0), vis = all.slice(Math.max(0, i0 - 1));
-  const value = list.reduce((s, a) => s + assetVal(a), 0), last = all[all.length - 1];
-  const cost = last ? last.cost + list.reduce((s, a) => s + (a.moves || []).filter((m) => m.d > last.d).reduce((q, m) => q + m.a, 0), 0) : list.reduce((s, a) => s + assetInv(a), 0);
+  const { value, cost } = invSummary(list), last = all[all.length - 1];
   const yTotal = value - cost, yRange = stats.reduce((s, p) => s + p.yld, 0), mvRange = stats.reduce((s, p) => s + p.moves, 0);
   const twr = stats.reduce((t, p) => t * (1 + p.ret), 1) - 1, allRange = ui.inv.range === "all";
   const tipP = (p) => `<b>${fmtDayL(p.d)}/${p.d.slice(0, 4)}</b><br>Saldo: ${brl(p.v)}<br>Aportado: ${brl(p.cost)}<br>Rendimento acumulado: ${signBrl(p.cum)}`;
@@ -37,7 +36,7 @@ function finInv() {
   const byT = {};
   S.assets.forEach((a) => byT[a.type] = (byT[a.type] || 0) + assetVal(a));
   const alloc = Object.entries(byT).filter((x) => x[1] > 0).map(([k, v], i) => ({ l: ATYPES[k], v, c: PAL[i % PAL.length] }));
-  const recs = list.flatMap((a) => [...(a.checks || []).map((c) => ({ k: "check", a, id: c.id, d: c.d, v: c.v })), ...(a.moves || []).map((m) => ({ k: "move", a, id: m.id, d: m.d, v: m.a }))]).sort((x, y) => y.d.localeCompare(x.d)).slice(0, 40);
+  const recs = list.flatMap((a) => [...(a.checks || []).map((c) => ({ k: "check", a, id: c.id, d: c.d, v: c.v })), ...(a.moves || []).map((m) => ({ k: "move", a, id: m.id, d: m.d, v: m.a, cash: m.cash, tx: m.tx }))]).sort((x, y) => y.d.localeCompare(x.d)).slice(0, 40);
   const y12 = ymd(addDays(wd(todayStr()), -365)), ids = new Set(list.map((a) => a.id));
   const divs = S.divs.filter((d) => ids.has(d.assetId)).sort((a, b) => b.date.localeCompare(a.date));
   const dv12 = divs.filter((d) => d.date >= y12).reduce((s, d) => s + d.amount, 0);
@@ -58,18 +57,31 @@ function finInv() {
   <div class="card" style="margin-bottom:14px"><div class="hd"><h2>Histórico por conferência</h2><span class="muted sm">rendimento = variação do saldo − o que você aportou ou resgatou</span></div>
    ${stats.length ? `<table class="tb"><thead><tr><th>Conferência</th><th class="num">Saldo</th><th class="num">Movimentação</th><th class="num">Rendimento</th><th class="num">Rentab.</th></tr></thead><tbody>${[...stats].reverse().map((p) => `<tr><td class="muted">${fmtDay(p.d)}/${p.d.slice(2, 4)}</td><td class="num">${brl(p.v)}</td><td class="num ${signCls(p.moves)}">${p.moves ? signBrl(p.moves) : "—"}</td><td class="num ${signCls(p.yld)}">${signBrl(p.yld)}</td><td class="num ${signCls(p.ret)}">${pcRet(p.ret)}</td></tr>`).join("")}</tbody></table>` : hint}</div>
   <div class="cols c2"><div class="card"><div class="hd"><h2>Registros</h2><span class="muted sm">conferências e movimentações</span></div>
-   ${recs.length ? `<div class="list">${recs.map((r) => `<div class="it" style="cursor:default"><span class="muted sm" style="width:58px">${fmtDay(r.d)}/${r.d.slice(2, 4)}</span><span class="pill ${r.k === "check" ? "" : r.v >= 0 ? "blue" : "warn"}">${r.k === "check" ? "Saldo" : r.v >= 0 ? "Aporte" : "Resgate"}</span><div class="grow">${esc(r.a.name)}</div><div class="num ${r.k === "move" ? signCls(r.v) : ""}">${r.k === "move" ? signBrl(r.v) : brl(r.v)}</div><button class="btn sm ghost" data-act="invRecDel" data-k="${r.k}" data-a="${r.a.id}" data-id="${r.id}" title="Excluir registro">${ic("x", 13)}</button></div>`).join("")}</div>` : '<div class="empty">Sem registros</div>'}</div>
+   ${recs.length ? `<div class="list">${recs.map((r) => `<div class="it" style="cursor:default"><span class="muted sm" style="width:58px">${fmtDay(r.d)}/${r.d.slice(2, 4)}</span><span class="pill ${r.k === "check" ? "" : r.v >= 0 ? "blue" : "warn"}">${r.k === "check" ? "Saldo" : r.v >= 0 ? "Aporte" : "Resgate"}</span><div class="grow">${esc(r.a.name)}</div>${r.k === "move" ? moveBadge(r) : ""}<div class="num ${r.k === "move" ? signCls(r.v) : ""}">${r.k === "move" ? signBrl(r.v) : brl(r.v)}</div><button class="btn sm ghost" data-act="invRecDel" data-k="${r.k}" data-a="${r.a.id}" data-id="${r.id}" title="Excluir registro">${ic("x", 13)}</button></div>`).join("")}</div>` : '<div class="empty">Sem registros</div>'}</div>
    <div class="card"><div class="hd"><h2>Proventos</h2><span class="muted sm">12 meses: ${brl(dv12)}</span></div>${divs.length ? `<div class="list">${divs.slice(0, 10).map((d) => `<div class="it" style="cursor:default"><span class="muted sm" style="width:58px">${fmtDay(d.date)}/${d.date.slice(2, 4)}</span><div class="grow">${esc(S.assets.find((a) => a.id === d.assetId)?.name || "—")}</div><div class="num pos">${brl(d.amount)}</div></div>`).join("")}</div>` : '<div class="empty">Sem proventos</div>'}</div></div>`;
 }
 ACT.invRange = (el) => {
   ui.inv.range = el.dataset.r;
   render();
 };
+const moveBadge = (r) => r.tx ? '<span class="pill ok" title="Lançado em Transações">no dinheiro</span>' : `<button class="pill ${r.cash ? "ok" : ""}" style="border:0;cursor:pointer" data-act="invMoveCash" data-a="${r.a.id}" data-id="${r.id}" title="Clique para ${r.cash ? "não " : ""}descontar do dinheiro disponível">${r.cash ? "no dinheiro" : "fora do dinheiro"}</button>`;
+ACT.invMoveCash = (el) => {
+  const m = S.assets.find((x) => x.id === el.dataset.a)?.moves.find((x) => x.id === el.dataset.id);
+  if (!m) return;
+  m.cash = !m.cash;
+  save();
+  render();
+  toast(m.cash ? "Agora essa movimentação conta no dinheiro disponível" : "Essa movimentação deixou de afetar o dinheiro disponível");
+};
 ACT.invRecDel = (el) => {
   const a = S.assets.find((x) => x.id === el.dataset.a);
   if (!a || !confirmDlg("Excluir este registro?")) return;
   if (el.dataset.k === "check") a.checks = a.checks.filter((c) => c.id !== el.dataset.id);
-  else a.moves = a.moves.filter((m) => m.id !== el.dataset.id);
+  else {
+    const m = a.moves.find((x) => x.id === el.dataset.id);
+    if (m?.tx) S.tx = S.tx.filter((t) => t.id !== m.tx);
+    a.moves = a.moves.filter((x) => x.id !== el.dataset.id);
+  }
   save();
   render();
 };
@@ -130,7 +142,7 @@ SUBMIT.check = (f, fd) => {
   const v = R2(+fd.get("v")), d = fd.get("d"), before = assetVal(a, d);
   a.checks = a.checks.filter((c) => c.d !== d);
   const hadBefore = (a.checks || []).some((c) => c.d < d) || a.moves.some((m) => m.d <= d);
-  a.checks.push({ id: uid(), d, v });
+  a.checks.push({ id: uid(), d, v, ts: Date.now() });
   save();
   closeModal();
   render();
@@ -141,15 +153,21 @@ ACT.newMove = () => {
   modal(`<form data-form="move"><h2>Movimentar</h2><p class="muted sm">Registre só o dinheiro que <b>você</b> colocou ou tirou. Todo o resto da variação entre duas conferências é contado como rendimento.</p>
   <label class="field"><span>Investimento</span><select name="a">${assetOpts(defAsset())}</select></label>
   <div class="grid3"><label class="field"><span>Tipo</span><select name="k"><option value="aporte">Aporte (coloquei)</option><option value="resgate">Resgate (tirei)</option></select></label><label class="field"><span>Valor (R$)</span><input type="number" step="0.01" min="0.01" name="v" required></label><label class="field"><span>Data</span><input type="date" name="d" value="${todayStr()}" required></label></div>
-  <label class="row sm"><input type="checkbox" name="tx" checked> Lançar também em Transações (Investimentos / Resgate)</label>
+  <label class="row sm"><input type="checkbox" name="cash" checked> Descontar do (ou creditar no) <b>dinheiro disponível</b></label>
+  <label class="row sm"><input type="checkbox" name="tx"> Lançar também em Transações (aparece na lista e nos relatórios)</label>
   <div class="foot"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
 };
 SUBMIT.move = (f, fd) => {
   const a = S.assets.find((x) => x.id === fd.get("a"));
   if (!a) return;
   const sign = fd.get("k") === "resgate" ? -1 : 1, v = R2(+fd.get("v")), d = fd.get("d");
-  a.moves.push({ id: uid(), d, a: sign * v });
-  if (fd.get("tx")) S.tx.push({ id: uid(), type: sign > 0 ? "out" : "in", desc: (sign > 0 ? "Aporte — " : "Resgate — ") + a.name, amount: v, date: d, cat: sign > 0 ? "Investimentos" : "Resgate", sub: ATYPES[a.type], method: "transfer", status: "paid" });
+  const withTx = !!fd.get("tx"), mv = { id: uid(), d, a: sign * v, ts: Date.now(), cash: !!fd.get("cash") && !withTx };
+  if (withTx) {
+    const t = { id: uid(), type: sign > 0 ? "out" : "in", desc: (sign > 0 ? "Aporte — " : "Resgate — ") + a.name, amount: v, date: d, cat: sign > 0 ? "Investimentos" : "Resgate", sub: ATYPES[a.type], method: "transfer", status: "paid" };
+    S.tx.push(t);
+    mv.tx = t.id;
+  }
+  a.moves.push(mv);
   save();
   closeModal();
   render();

@@ -39,7 +39,7 @@ ACT.seed = () => {
   mk("Restaurante", 187.4, 1, d(-2), "Alimentação", 0);
   S.budgets.push({ id: uid(), cat: "Alimentação", limit: 900 }, { id: uid(), cat: "Lazer", limit: 300 }, { id: uid(), cat: "Transporte", limit: 400 });
   S.goals.push({ id: uid(), name: "Economizar no mês", kind: "mensal", target: 1500, saved: 0, deadline: "" }, { id: uid(), name: "Reserva de emergência", kind: "obj", target: 3e4, saved: 8200, deadline: "" });
-  const mv = (m, v) => ({ id: uid(), d: addM(cur, -m) + "-06", a: v });
+  const mv = (m, v) => ({ id: uid(), d: addM(cur, -m) + "-06", a: v, cash: true });
   const ck = (m, day, v) => ({ id: uid(), d: addM(cur, -m) + "-" + day, v });
   S.assets.push(
     { id: "a1", name: "Tesouro Selic", type: "rf", moves: [mv(5, 1500), mv(3, 1500), mv(1, 1e3)], checks: [ck(5, "20", 1512.4), ck(4, "20", 1531.1), ck(3, "28", 3052.8), ck(2, "20", 3081.3), ck(1, "28", 4103.9), ck(0, "01", 4128.5)] },

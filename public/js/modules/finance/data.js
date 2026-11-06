@@ -36,7 +36,7 @@ function assetVal(a, at) {
   const d = at || todayStr();
   const checks = (a.checks || []).filter((c) => c.d <= d).sort((x, y) => x.d.localeCompare(y.d));
   const last = checks[checks.length - 1];
-  const moved = (a.moves || []).filter((m) => m.d <= d && (!last || m.d > last.d)).reduce((s2, m) => s2 + m.a, 0);
+  const moved = (a.moves || []).filter((m) => m.d <= d && (!last || m.d > last.d || m.d === last.d && (m.ts || 0) > (last.ts || 0))).reduce((s2, m) => s2 + m.a, 0);
   return (last ? last.v : 0) + moved;
 }
 const assetInv = (a, at) => (a.moves || []).filter((m) => !at || m.d <= at).reduce((s, m) => s + m.a, 0);
@@ -73,10 +73,26 @@ function perfSeries(list) {
   });
   return pts;
 }
+const moveCash = (m) => !!m.cash || !!m.tx && !S.tx.some((t) => t.id === m.tx);
+function cashAvailable(at) {
+  const base = (S.settings.opening || 0) + S.tx.filter((t) => t.status === "paid" && t.date <= at).reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
+  const moved = S.assets.flatMap((a) => a.moves || []).filter((m) => moveCash(m) && m.d <= at).reduce((s, m) => s + m.a, 0);
+  return base - moved;
+}
+function investFlows() {
+  const rows = [];
+  S.tx.filter((t) => t.status === "paid" && (t.cat === "Investimentos" && t.type === "out" || t.cat === "Resgate" && t.type === "in")).forEach((t) => rows.push({ d: t.date, v: t.type === "out" ? -t.amount : t.amount, n: t.desc.replace(/^(Aporte|Resgate) — /, "") }));
+  S.assets.forEach((a) => (a.moves || []).filter(moveCash).forEach((m) => rows.push({ d: m.d, v: -m.a, n: a.name })));
+  return rows.sort((x, y) => y.d.localeCompare(x.d));
+}
+function invSummary(list = S.assets) {
+  const all = perfSeries(list), last = all[all.length - 1];
+  const value = list.reduce((s, a) => s + assetVal(a), 0);
+  const cost = last ? last.cost + list.reduce((s, a) => s + (a.moves || []).filter((m) => m.d > last.d).reduce((q, m) => q + m.a, 0), 0) : list.reduce((s, a) => s + assetInv(a), 0);
+  return { value, cost, yld: value - cost };
+}
 function netWorth(at) {
-  const cash = (S.settings.opening || 0) + S.tx.filter((t) => t.status === "paid" && t.date <= at).reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
-  const inv = S.assets.reduce((s, a) => s + assetVal(a, at), 0);
-  return cash + inv;
+  return cashAvailable(at) + S.assets.reduce((s, a) => s + assetVal(a, at), 0);
 }
 const cardUsed = (c) => S.tx.filter((t) => t.cardId === c.id && t.status !== "paid").reduce((s, t) => s + t.amount, 0);
 const invYm = (c, d) => +d.slice(8, 10) > c.closing ? addM(d.slice(0, 7), 1) : d.slice(0, 7);

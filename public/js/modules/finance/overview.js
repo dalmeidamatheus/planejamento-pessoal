@@ -22,7 +22,8 @@ function finGeral() {
    <div class="card stat"><div class="l">Entradas</div><div class="v pos">${brl(T.in)}</div><div class="s">${brl(T.inP)} recebido</div></div>
    <div class="card stat"><div class="l">Saídas</div><div class="v neg">${brl(T.out)}</div><div class="s">${brl(T.outP)} pago</div></div>
    <div class="card stat"><div class="l">Saldo do mês</div><div class="v ${T.in - T.out < 0 ? "neg" : ""}">${brl(T.in - T.out)}</div><div class="s">${T.in ? Math.round((T.in - T.out) / T.in * 100) + "% da renda poupada" : "—"}</div></div>
-   <div class="card stat"><div class="l">Patrimônio líquido</div><div class="v">${brl(netWorth(todayStr()))}</div><div class="s">Caixa + investimentos</div></div></div>
+   ${statCash()}</div>
+  <div class="cols c2" style="margin-bottom:14px">${statInv()}${statNet()}</div>
   <div class="cols c21" style="margin-bottom:14px"><div class="card"><div class="hd"><h2>Fluxo de caixa</h2><div class="row"><div class="row sm muted"><span class="dot" style="--c:#16a34a"></span>Entradas <span class="dot" style="--c:#e5484d"></span>Saídas</div><div class="seg">${[6, 12, 24].map((n) => `<button class="${ui.fin.ov.months === n ? "on" : ""}" data-act="ovMonths" data-n="${n}">${n}m</button>`).join("")}</div></div></div>${barsChart(rows)}</div>
    <div class="card"><div class="hd"><h2>${ui.fin.ov.kind === "out" ? "Despesas" : "Entradas"} por categoria</h2><div class="seg"><button class="${ui.fin.ov.kind === "out" ? "on" : ""}" data-act="ovKind" data-k="out">Saídas</button><button class="${ui.fin.ov.kind === "in" ? "on" : ""}" data-act="ovKind" data-k="in">Entradas</button></div></div>${donut(cats)}</div></div>
   <div class="cols c21"><div class="card"><div class="hd"><h2>Evolução patrimonial</h2><span class="muted sm">12 meses</span></div>${lineChart(nw)}</div>
@@ -36,3 +37,15 @@ ACT.ovKind = (el) => {
   ui.fin.ov.kind = el.dataset.k;
   render();
 };
+function statCash() {
+  const c = cashAvailable(todayStr()), fl = investFlows().slice(0, 3);
+  return `<div class="card stat"><div class="l">Dinheiro disponível</div><div class="v ${c < 0 ? "neg" : ""}">${brl(c)}</div><div class="s">já descontando o que foi para investimentos</div><div class="mini">${fl.length ? fl.map((f) => `${fmtDay(f.d)} · ${f.v < 0 ? "aporte" : "resgate"} ${signBrl(f.v)} · ${esc(f.n)}`).join("<br>") : "sem movimentações em investimentos"}</div></div>`;
+}
+function statInv() {
+  const s = invSummary();
+  return `<div class="card stat"><div class="l">Investimentos</div><div class="v">${brl(s.value)}</div><div class="s">rendimento <b class="${signCls(s.yld)}">${signBrl(s.yld)}</b>${s.cost > 0 ? " (" + pcRet(s.yld / s.cost) + ")" : ""} sobre ${brl(s.cost)} aportados</div></div>`;
+}
+function statNet() {
+  const c = cashAvailable(todayStr()), i = invSummary().value;
+  return `<div class="card stat"><div class="l">Patrimônio líquido</div><div class="v">${brl(c + i)}</div><div class="s">dinheiro disponível ${brl(c)} + investimentos ${brl(i)}</div></div>`;
+}

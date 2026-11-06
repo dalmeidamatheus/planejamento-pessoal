@@ -77,7 +77,9 @@ Exceções (`ex`) removem ocorrências por data. Mover **uma** ocorrência de um
 - **Fatura de cartão:** compra feita *depois* do dia de fechamento entra na fatura do mês seguinte (`invYm`). O vencimento (`dueDate`) cai no mês seguinte ao do fechamento quando o dia de vencimento é menor ou igual ao de fechamento.
 - **Parcelamento:** o total é dividido em centavos (o resto vai para as primeiras parcelas); cada parcela guarda `invoice`, `no` e `of`.
 - **Limite:** `limite − soma das transações do cartão ainda não pagas`.
-- **Patrimônio:** saldo inicial + transações pagas até a data + valor dos investimentos na data.
+- **Dinheiro disponível:** `cashAvailable(data)` = saldo inicial + transações pagas até a data − aportes (e + resgates) marcados com `cash: true` nas movimentações dos investimentos. Movimentações que geraram uma transação (`tx`) já estão no caixa por ela e não são contadas duas vezes; se a transação for apagada, a movimentação volta a valer no caixa. Movimentações sem `cash` (inclusive as antigas) não mexem no caixa.
+- **Patrimônio:** `netWorth(data)` = dinheiro disponível + valor dos investimentos na data.
+- **Ordem no mesmo dia:** registros de investimento guardam `ts`. Uma movimentação criada depois da conferência de saldo do mesmo dia soma ao valor do investimento; criada antes, já está incluída no saldo conferido.
 - **Investimentos (saldo conferido):** cada investimento guarda `checks` (`{d, v}`: saldo visto em uma data) e `moves` (`{d, a}`: aporte positivo ou resgate negativo feitos pelo usuário). O valor em uma data é o último saldo conferido até ela mais as movimentações posteriores a essa conferência (`assetVal`). Entre duas conferências consecutivas, `rendimento = saldo_atual − saldo_anterior − movimentações_do_intervalo`; a rentabilidade do intervalo usa o método de Dietz modificado, `rendimento / (saldo_anterior + movimentações / 2)`, e a rentabilidade total encadeia os intervalos. O capital aportado é o saldo da primeira conferência (menos o rendimento até ali) mais as movimentações. Dados antigos (`contribs` e `manual`) são migrados na carga (`normAssets`).
 
 ## 5. Lista de desejos e monitor de preço
