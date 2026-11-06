@@ -1,8 +1,8 @@
 <div align="center">
 
-# Planejamento Pessoal
+# Norte
 
-**Organização pessoal all-in-one: calendário, finanças, tarefas, hábitos, notas, lista de desejos, viagens e aniversários em um só lugar.**
+**Organização pessoal all-in-one: calendário, finanças, tarefas, hábitos, notas, lista de desejos, viagens e aniversários — num só lugar.**
 
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-1d1c1a.svg)](LICENSE)
 ![Sem build](https://img.shields.io/badge/front--end-HTML%20%2B%20CSS%20%2B%20JS%20puro-1d1c1a.svg)
@@ -10,9 +10,13 @@
 ![Vercel](https://img.shields.io/badge/deploy-Vercel-000000.svg)
 ![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-2b5bd7.svg)
 
-<img src="docs/screenshots/inicio.jpg" alt="Página inicial" width="880">
+[![Deploy com a Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSEU-USUARIO%2Fnorte&env=SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET&envDescription=Chaves%20do%20Supabase%20e%20segredo%20do%20cron&project-name=norte)
+
+<img src="docs/screenshots/inicio.jpg" alt="Página inicial do Norte" width="880">
 
 </div>
+
+> Troque `SEU-USUARIO` pelo seu usuário do GitHub no botão acima depois de subir o repositório.
 
 ---
 
@@ -26,6 +30,7 @@
 - [Stack e decisões de projeto](#stack-e-decisões-de-projeto)
 - [Arquitetura](#arquitetura)
 - [Estrutura do repositório](#estrutura-do-repositório)
+- [Publicar: GitHub, Supabase e Vercel](#publicar-github-supabase-e-vercel)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Rodar localmente](#rodar-localmente)
 - [Modelo de dados](#modelo-de-dados)
@@ -60,9 +65,13 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 
 > As imagens usam os dados de exemplo (*Ajustes → Carregar dados de exemplo*).
 
-| Calendário (semana, conflitos e aniversários) | Cartões, fatura e limite |
+| Calendário (semana, conflitos, filtros e 🎂) | Transações (período, filtros e agrupamento) |
 |---|---|
-| <img src="docs/screenshots/calendario.jpg" alt="Calendário semanal"> | <img src="docs/screenshots/cartoes.jpg" alt="Cartões de crédito"> |
+| <img src="docs/screenshots/calendario.jpg" alt="Calendário semanal"> | <img src="docs/screenshots/transacoes.jpg" alt="Transações com filtros"> |
+
+| Investimentos: saldo × aportado, rendimento por período | Cartões, fatura e limite |
+|---|---|
+| <img src="docs/screenshots/investimentos.jpg" alt="Investimentos"> | <img src="docs/screenshots/cartoes.jpg" alt="Cartões de crédito"> |
 
 | Lista de desejos | Histórico de preço (só datas em que mudou) |
 |---|---|
@@ -83,21 +92,34 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Fusos horários:** cada compromisso tem seu fuso; a exibição usa o seu fuso, e há relógios extras na barra lateral.
 - **Lembretes:** de 0 min a 1 dia antes, com central de notificações no app e alertas do navegador.
 - **Detalhes do compromisso:** prioridade (alta, média, baixa), categorias coloridas (Trabalho, Saúde, Lazer, Estudos, Pessoal), subtarefas, links e anexos por URL, dia inteiro.
-- **Aniversários:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes.
+- **Aniversários 🎂:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes.
 - **Exportação `.ics`:** compromissos e aniversários, compatível com Google Agenda, Apple Calendar e Outlook.
 
 ### Finanças
 
 - **Painel:** entradas × saídas dos últimos 6 meses, despesas por categoria (rosca) e evolução patrimonial de 12 meses.
 - **Transações:** entradas e saídas com categoria, subcategoria, forma de pagamento (cartão, Pix, débito, boleto, dinheiro, transferência) e status **pago, pendente ou atrasado** (calculado pela data). Lançamentos **recorrentes mensais** (a cada N meses, com data final) viram pendências automáticas; você pode pagar, editar ou pular um mês.
+- **Ver todas, por período e com filtros:** mês, 3, 6 ou 12 meses, ano, **tudo** ou período personalizado; filtros por tipo, status, categoria, subcategoria, forma de pagamento, cartão, faixa de valor e busca por texto; ordenação por data, valor ou descrição. Um resumo mostra lançamentos, entradas, saídas e saldo do filtro.
+- **Visão agrupada:** agrupe o resultado por categoria, subcategoria, descrição (onde você gastou), forma de pagamento, cartão, mês ou status, com participação percentual; clique numa linha para ver os lançamentos daquele grupo.
 - **Cartões de crédito:** limite, dia de fechamento e vencimento, **melhor dia de compra**, fatura por mês e botão de pagar fatura.
 - **Parcelamento:** a compra é dividida em até 60 parcelas, cada uma na fatura correta (compras após o fechamento caem na fatura seguinte). O **limite** é consumido pelas parcelas em aberto e liberado quando a fatura é paga; compras acima do limite pedem confirmação.
 - **Comprometimento da renda futura:** gráfico de 12 meses com tudo que já está parcelado ou em fatura e o percentual da sua renda.
-- **Investimentos:** ativos por tipo (renda fixa, ações, cripto, fundos imobiliários, fundos), aportes, rentabilidade estimada a.a., valor atual (estimado ou manual), alocação e proventos recebidos. Aportes e proventos podem gerar a transação correspondente.
+- **Investimentos pelo saldo conferido:** do mesmo jeito de uma planilha de acompanhamento. Você registra o **saldo** que vê no app do banco (*Conferir saldo*) e, quando você mesmo coloca ou tira dinheiro, registra a **movimentação** (aporte ou resgate). **Tudo o que não foi movimentação sua é rendimento**, positivo ou negativo. Mostra saldo × capital aportado, rendimento por período (barras verdes e vermelhas), rendimento acumulado, rentabilidade (método de Dietz modificado), histórico por conferência e alocação, por investimento ou pela carteira inteira, em 3, 6, 12 meses ou tudo. Proventos recebidos continuam à parte. Aportes e resgates podem gerar a transação correspondente.
 - **Orçamentos e metas:** teto por categoria com barra que fica **amarela em 80% e vermelha em 100%**; metas de economia mensal, anual (calculadas sozinhas) e por objetivo.
-- **Exportação CSV** das transações do mês, respeitando os filtros (separador `;`, abre direto no Excel).
+- **Exportação CSV** do período e dos filtros atuais (separador `;`, abre direto no Excel).
 
 > As despesas no cartão entram no mês de **vencimento da fatura**, cada parcela no seu mês.
+
+### Filtros e análises nas demais páginas
+
+- **Visão geral:** fluxo de caixa em 6, 12 ou 24 meses e rosca de saídas ou de entradas por categoria.
+- **Cartões:** filtro por cartão, que também acompanha o gráfico de comprometimento da renda futura.
+- **Calendário:** filtros por categoria (em chips), prioridade, busca por texto e ocultar concluídos.
+- **Tarefas:** filtros por prioridade, categoria e texto, além de Todas, Hoje e Atrasadas.
+- **Desejos:** prioridade, preço máximo, texto e somente monitorados, além do status e da ordenação.
+- **Viagens:** todas, próximas ou passadas, e busca por nome ou destino.
+- **Notas:** ordenação (recentes, antigas, título) e filtro por com vínculo ou reuniões gravadas.
+- **Hábitos:** gráfico de aderência em 30, 60 ou 90 dias.
 
 ### Tarefas, hábitos e notas
 
@@ -132,7 +154,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **PWA:** instalável e abre offline (service worker com “rede primeiro”).
 - **Backup:** exporta e importa tudo em JSON.
 - **Dados de exemplo** para conhecer o sistema e **apagar tudo** quando quiser.
-- Responsivo, com tema claro refinado, fonte Inter, bordas discretas e microinterações leves.
+- Responsivo, com tema claro moderno (azul-acinzentado, cantos suaves, sombras discretas), fonte Inter e microinterações leves.
 
 ## Criar por texto (Ctrl+K)
 
@@ -244,6 +266,35 @@ norte/
 └── .env.example
 ```
 
+## Publicar: GitHub, Supabase e Vercel
+
+### 1. GitHub
+
+```bash
+cd norte
+git init
+git add .
+git commit -m "Norte: primeira versão"
+git branch -M main
+git remote add origin https://github.com/SEU-USUARIO/norte.git
+git push -u origin main
+```
+
+### 2. Supabase (gratuito)
+
+1. Crie um projeto em [supabase.com](https://supabase.com).
+2. Abra **SQL Editor → New query**, cole o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e execute. Isso cria `user_data` e `price_watch` com RLS.
+3. Em **Authentication → Providers**, mantenha **Email** habilitado. Se quiser entrar sem confirmar o e-mail, desative *Confirm email*.
+4. Em **Settings → API**, copie **Project URL**, a chave **anon public** e a chave **service_role** (esta é secreta).
+5. Depois do primeiro deploy, em **Authentication → URL Configuration**, coloque a URL do seu site em *Site URL*.
+
+### 3. Vercel
+
+1. **Add New → Project** e importe o repositório. Não altere nada: o [`vercel.json`](vercel.json) já define o comando de build, a pasta de saída e o cron.
+2. Em **Settings → Environment Variables**, crie as variáveis da tabela abaixo.
+3. Faça o **Deploy** (ou *Redeploy* após criar as variáveis).
+4. Abra o site, crie sua conta na tela de login e, se quiser, use *Ajustes → Carregar dados de exemplo*.
+
 ## Variáveis de ambiente
 
 | Variável | Obrigatória | Para quê |
@@ -280,7 +331,7 @@ Cada usuário tem uma linha em `user_data` com um documento JSON:
 | `tx` | transações: tipo, valor, data, categoria, forma de pagamento, status, cartão, fatura, parcela |
 | `recur` | modelos de lançamentos mensais recorrentes |
 | `cards`, `budgets`, `goals` | cartões, orçamentos por categoria e metas |
-| `assets`, `divs` | investimentos (com aportes) e proventos |
+| `assets`, `divs` | investimentos (conferências de saldo `checks` e movimentações `moves`) e proventos |
 | `tasks`, `habits`, `notes` | tarefas, hábitos (com histórico) e notas |
 | `birthdays` | aniversários (nome, dia, mês, ano opcional, antecedência) |
 | `wishlist` | desejos (link, preço, parcelas, juros, alvo, histórico local de preço) |
@@ -308,6 +359,14 @@ A tabela `price_watch` (`user_id`, `item_id`, `url`, `last_price`, `last_checked
 - **Anexos:** são links; arquivos exigiriam Supabase Storage.
 - **Moeda:** tudo em reais (BRL).
 
+## Roadmap
+
+- [ ] Notificações push com o app fechado (Web Push)
+- [ ] Anexos de arquivo via Supabase Storage
+- [ ] Sincronização por tabelas relacionais (sem “última gravação vence”)
+- [ ] Importação de `.ics` e de extratos (OFX/CSV)
+- [ ] Orçamento de viagem em moeda estrangeira com cotação
+- [ ] Testes automatizados de interface
 
 ## Contribuindo
 

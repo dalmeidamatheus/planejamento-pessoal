@@ -5,7 +5,7 @@ Obrigado por querer ajudar! O projeto é propositalmente simples: HTML, CSS e Ja
 ## Como começar
 
 ```bash
-git clone https://github.com/dalmeidamatheus/norte.git
+git clone https://github.com/SEU-USUARIO/norte.git
 cd norte
 npm run dev      # http://localhost:3000 (modo local, sem Supabase)
 ```

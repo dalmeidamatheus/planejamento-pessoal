@@ -1,0 +1,12 @@
+#overlay .scrim{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto;z-index:50;animation:fade .12s}
+.modal{background:#fff;border-radius:18px;box-shadow:0 28px 70px -14px rgba(15,23,42,.35);width:460px;max-width:100%;padding:24px;animation:pop .16s ease}
+.modal.wide{width:620px}
+@keyframes pop{from{opacity:0;transform:scale(.98) translateY(6px)}to{opacity:1;transform:none}}
+.modal h2{font-size:16px;margin-bottom:14px}
+.modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;align-items:center}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:90}
+.toast{background:var(--ink);color:#fff;padding:9px 13px;border-radius:var(--r);font-size:13px;box-shadow:var(--sh);animation:pop .18s;max-width:340px}
+.toast.warn{background:#8a5a12}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;padding:5px 8px;border-radius:5px;z-index:99;opacity:0;transition:opacity .1s;max-width:260px}
+#notifPop{position:fixed;top:50px;right:60px;width:340px;max-height:60vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh);z-index:60;padding:6px}
+#notifPop .n{padding:8px;border-radius:5px;font-size:13px}#notifPop .n.u{background:var(--accent-bg)}
