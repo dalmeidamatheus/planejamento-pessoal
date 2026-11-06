@@ -1,8 +1,8 @@
 <div align="center">
 
-# Norte
+# Planejamento Pessoal
 
-**Organização pessoal all-in-one: calendário, finanças, tarefas, hábitos, notas, lista de desejos, viagens e aniversários — num só lugar.**
+**Organização pessoal all-in-one: calendário, finanças, tarefas, hábitos, notas, lista de desejos, viagens e aniversários em um só lugar.**
 
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-1d1c1a.svg)](LICENSE)
 ![Sem build](https://img.shields.io/badge/front--end-HTML%20%2B%20CSS%20%2B%20JS%20puro-1d1c1a.svg)
