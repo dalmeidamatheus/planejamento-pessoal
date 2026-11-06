@@ -21,7 +21,7 @@ function openWish(id) {
     <div class="card flat stat" style="padding:10px"><div class="l">Total parcelado</div><div class="v" style="font-size:18px">${brl(fin.total)}</div><div class="s ${fin.juros > 5e-3 ? "neg" : ""}">${fin.juros > 5e-3 ? "juros: " + brl(fin.juros) : fin.n > 1 ? "sem juros" : "à vista"}</div></div></div>
    ${it.by ? `<div class="sm" style="margin-bottom:10px">📅 Para comprar até ${fmtDay(it.by)}/${it.by.slice(0, 4)}, separe <b>${brl(need)}/mês</b> (${fmtPct(pctOf(need))} do salário).</div>` : ""}
    <div class="hd" style="display:flex;justify-content:space-between;margin:14px 0 6px"><h2>Histórico de preço</h2><span class="muted sm">apenas datas em que o preço mudou</span></div>
-   ${h.length ? lineChart(rows, { h: 190, c: "#2f9e6b", zero: false, step: true, fmt: (v) => "R$" + Math.round(v) }) : ""}
+   ${h.length ? lineChart(rows, { h: 190, c: "#16a34a", zero: false, step: true, fmt: (v) => "R$" + Math.round(v) }) : ""}
    ${h.length < 2 ? `<div class="muted sm" style="margin:6px 0">Ainda sem alterações. ${it.monitor ? "O monitor registra aqui quando o preço mudar." : "Ative o monitoramento ou atualize o preço manualmente para formar o histórico."}</div>` : `<div class="row sm muted" style="margin:6px 0"><span>Menor: <b style="color:var(--ok)">${brl(ch.min)}</b></span><span>Maior: <b>${brl(ch.max)}</b></span></div>
     <div class="list sm" style="max-height:130px;overflow:auto">${[...h].reverse().slice(0, 8).map((x, k, a) => {
     const prev = a[k + 1];

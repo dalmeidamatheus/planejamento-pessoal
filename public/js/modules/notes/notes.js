@@ -1,4 +1,18 @@
 "use strict";
+ui.notes = Object.assign({ sort: "recent", filter: "all" }, ui.notes);
+function noteQuery() {
+  const q = norm(ui.notes.q), f = ui.notes.filter, s = ui.notes.sort;
+  const sorters = { recent: (a, b) => b.updated - a.updated, old: (a, b) => a.created - b.created, az: (a, b) => (a.title || "").localeCompare(b.title || "", "pt-BR") };
+  return [...S.notes].filter((n) => (!q || norm(n.title + " " + n.body).includes(q)) && (f === "all" || f === "linked" && n.link || f === "meeting" && n.body.includes("## Transcrição"))).sort(sorters[s] || sorters.recent);
+}
+INP.noteSort = (el) => {
+  ui.notes.sort = el.value;
+  render();
+};
+INP.noteFilter = (el) => {
+  ui.notes.filter = el.value;
+  render();
+};
 const curNote = () => S.notes.find((n) => n.id === ui.notes.sel);
 const fmtTs = (ts) => new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 function linkLabel(l) {
@@ -11,11 +25,11 @@ function linkLabel(l) {
   return t ? "💰 " + t.desc + " (" + brl(t.amount) + ")" : "";
 }
 VIEWS.notes = () => {
-  const q = norm(ui.notes.q), L = [...S.notes].sort((a, b) => b.updated - a.updated).filter((n2) => !q || norm(n2.title + " " + n2.body).includes(q));
+  const q = norm(ui.notes.q), L = noteQuery();
   if (!ui.notes.sel || !S.notes.some((n2) => n2.id === ui.notes.sel)) ui.notes.sel = L[0]?.id || null;
   const n = curNote(), mode = ui.notes.mode, recHere = REC.on && n && REC.noteId === n.id;
   const evs = [...S.events].sort((a, b) => b.start.localeCompare(a.start)).slice(0, 60), txs = [...S.tx].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
-  return `<div class="notes"><div class="card nlist"><div class="row" style="padding:4px 4px 8px"><input type="text" placeholder="Buscar notas…" value="${esc(ui.notes.q)}" data-in="noteQ"></div><div id="nl">${noteList(L)}</div></div>
+  return `<div class="notes"><div class="card nlist"><div class="row" style="padding:4px 4px 8px"><input type="text" placeholder="Buscar notas…" value="${esc(ui.notes.q)}" data-in="noteQ"></div><div class="row" style="padding:0 4px 8px;gap:6px"><select data-ch="noteSort"><option value="recent" ${ui.notes.sort === "recent" ? "selected" : ""}>Mais recentes</option><option value="old" ${ui.notes.sort === "old" ? "selected" : ""}>Mais antigas</option><option value="az" ${ui.notes.sort === "az" ? "selected" : ""}>Título A–Z</option></select><select data-ch="noteFilter"><option value="all" ${ui.notes.filter === "all" ? "selected" : ""}>Todas</option><option value="linked" ${ui.notes.filter === "linked" ? "selected" : ""}>Com vínculo</option><option value="meeting" ${ui.notes.filter === "meeting" ? "selected" : ""}>Reuniões gravadas</option></select></div><div id="nl">${noteList(L)}</div></div>
   <div class="card editor">${n ? `
    <div class="ebar"><div class="seg">${[["edit", "Editar"], ["both", "Dividir"], ["view", "Ler"]].map(([k, t]) => `<button class="${mode === k ? "on" : ""}" data-act="noteMode" data-m="${k}">${t}</button>`).join("")}</div>
     ${recHere ? `<button class="btn danger" data-act="recStop">${ic("stop")}Parar gravação</button>` : `<button class="btn" data-act="recStart">${ic("mic")}Gravar reunião</button>`}
@@ -73,7 +87,7 @@ ACT.noteDel = () => {
 INP.noteQ = (el) => {
   ui.notes.q = el.value;
   const q = norm(el.value);
-  $("#nl").innerHTML = noteList([...S.notes].sort((a, b) => b.updated - a.updated).filter((n) => !q || norm(n.title + " " + n.body).includes(q)));
+  $("#nl").innerHTML = noteList(noteQuery());
 };
 INP.noteTitle = (el) => {
   const n = curNote();

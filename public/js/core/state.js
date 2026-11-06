@@ -60,6 +60,7 @@ async function loadData() {
   const base = emptyData();
   S = Object.assign(base, d || {});
   S.settings = Object.assign(base.settings, S.settings || {});
+  normAssets();
   if (sb && d === local && local) pushCloud();
 }
 window.addEventListener("beforeunload", () => {

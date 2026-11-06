@@ -1,7 +1,7 @@
-.auth{min-height:100vh;display:grid;place-items:center;padding:20px}
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 480px at 50% -8%,#dbe8ff,transparent 70%),var(--bg)}
 .auth .box{width:372px;max-width:100%}
 .auth .brand{font-size:18px;margin-bottom:6px}
 .auth p{color:var(--ink2);margin:0 0 18px}
-.auth .card{padding:22px}
+.auth .card{padding:30px;border-radius:18px}
 .auth .err{color:var(--bad);font-size:12.5px;min-height:18px;margin:2px 0 8px}
-.banner{font-size:12px;background:#fbf1de;color:#7a5410;border-radius:var(--r);padding:7px 10px;margin-top:12px}
+.banner{font-size:12px;background:#fdf0d9;color:#7a5410;border-radius:var(--r);padding:7px 10px;margin-top:12px}

@@ -1,8 +1,0 @@
-@media(max-width:900px){
- .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto}
- .side{flex-direction:row;align-items:center;padding:8px;overflow-x:auto;gap:8px;border-right:0;border-bottom:1px solid var(--line)}
- .nav{flex-direction:row}.clocks,.side-foot .who,.brand span:not(.logo),.search-btn span,.search-btn kbd{display:none}.side-foot{margin:0 0 0 auto;flex-direction:row}
- main,.shell{height:auto}#main{padding:14px 12px}.c2,.c3,.c4,.c21,.kanban,.grid2{grid-template-columns:1fr}
- .notes{grid-template-columns:1fr;height:auto}.mcell{min-height:70px}.top{padding:0 12px}
- .hgrid{grid-template-columns:110px repeat(14,24px) 50px 50px;overflow-x:auto}
-}

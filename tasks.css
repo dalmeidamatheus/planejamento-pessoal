@@ -1,9 +1,0 @@
-.kanban{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
-.kcol{background:#eef2f7;border-radius:14px;padding:12px;min-height:240px;transition:background .12s}
-.kcol.drop{background:#e5ebfa}
-.kcol .kh{display:flex;justify-content:space-between;font-weight:600;font-size:13px;margin-bottom:8px;padding:0 2px}
-.kcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:8px;cursor:grab;transition:box-shadow .12s,transform .12s}
-.kcard:hover{box-shadow:var(--sh)}.kcard.dg{opacity:.4}
-.kcard .m{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.kcard.done .tt{text-decoration:line-through;color:var(--ink3)}
-.kadd input{background:transparent;border-style:dashed}

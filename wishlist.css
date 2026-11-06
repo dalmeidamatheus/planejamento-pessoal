@@ -1,9 +1,0 @@
-.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.wcard{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform .14s,box-shadow .14s,border-color .14s}
-.wcard:hover{transform:translateY(-2px);border-color:#cbd5e1}
-.wcard.bought{opacity:.6}
-.wimg{position:relative;height:124px;background:#eef2f7;display:grid;place-items:center;font-size:34px;overflow:hidden}
-.wimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#fff}
-.wbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
-.wt{font-weight:600;line-height:1.3}
-.wp{font-size:20px;font-weight:600;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}

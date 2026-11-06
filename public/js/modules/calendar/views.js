@@ -1,4 +1,37 @@
 "use strict";
+ui.cal.f = { tags: [], prio: "", q: "", hideDone: false };
+function occsF(a, b) {
+  const f = ui.cal.f, q = norm(f.q);
+  return occs(a, b).filter((o) => (!f.tags.length || f.tags.includes(o.e.tag)) && (!f.prio || o.e.prio === f.prio) && (!f.hideDone || !o.e.done) && (!q || norm(o.e.title + " " + (o.e.notes || "")).includes(q)));
+}
+function calFilters() {
+  const f = ui.cal.f, any = f.tags.length || f.prio || f.q || f.hideDone;
+  return `<div class="toolbar" style="margin-top:-4px">${Object.entries(TAGS).map(([k, v]) => `<button class="fchip ${f.tags.includes(k) ? "on" : ""}" style="--c:${v.c}" data-act="calTag" data-t="${k}"><span class="dot" style="--c:${v.c}"></span>${v.n}</button>`).join("")}
+   <select style="width:140px" data-ch="calPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select>
+   <input type="text" style="width:190px" placeholder="Buscar compromissos…" value="${esc(f.q)}" data-in="calQ">
+   <label class="row sm"><input type="checkbox" data-ch="calDone" ${f.hideDone ? "checked" : ""}> Ocultar concluídos</label>${any ? `<button class="btn sm ghost" data-act="calClear">Limpar filtros</button>` : ""}</div>`;
+}
+ACT.calTag = (el) => {
+  const t = ui.cal.f.tags, k = el.dataset.t;
+  ui.cal.f.tags = t.includes(k) ? t.filter((x) => x !== k) : [...t, k];
+  render();
+};
+INP.calPrio = (el) => {
+  ui.cal.f.prio = el.value;
+  render();
+};
+INP.calDone = (el) => {
+  ui.cal.f.hideDone = el.checked;
+  render();
+};
+INP.calQ = (el) => {
+  ui.cal.f.q = el.value;
+  renderKeep(el);
+};
+ACT.calClear = () => {
+  ui.cal.f = { tags: [], prio: "", q: "", hideDone: false };
+  render();
+};
 ui.cal.d = null;
 function calRange() {
   const d = dayStart(ui.cal.d), m = ui.cal.mode;
@@ -30,7 +63,7 @@ VIEWS.calendar = () => {
   const [rs, re] = calRange();
   let body = "";
   if (m === "month") {
-    const os = occs(rs, re), cm = ui.cal.d.getUTCMonth(), ts = todayStr();
+    const os = occsF(rs, re), cm = ui.cal.d.getUTCMonth(), ts = todayStr();
     body = `<div class="cal"><div class="mgrid">${DSEM.map((x) => `<div class="dn">${x}</div>`).join("")}`;
     for (let i = 0; i < 42; i++) {
       const d = addDays(rs, i), k = ymd(d), L = os.filter((o) => o.ds < addDays(d, 1) && o.de > d);
@@ -42,10 +75,10 @@ VIEWS.calendar = () => {
     for (let d = rs; d < re; d = addDays(d, 1)) days.push(d);
     body = timeGrid(days);
   } else body = agenda(rs);
-  return tb + body;
+  return tb + calFilters() + body;
 };
 function timeGrid(days) {
-  const os = occs(days[0], addDays(days[days.length - 1], 1)), ts = todayStr(), n = days.length, now = todayWall();
+  const os = occsF(days[0], addDays(days[days.length - 1], 1)), ts = todayStr(), n = days.length, now = todayWall();
   let h = `<div class="cal"><div class="tg-head" style="--n:${n}"><div></div>${days.map((d) => `<div class="hd ${ymd(d) === ts ? "today" : ""}"><span>${DSEM[d.getUTCDay()]}</span><b>${d.getUTCDate()}</b></div>`).join("")}</div>
   <div class="tg-ad" style="--n:${n}"><div class="gut">dia todo</div>${days.map((d) => `<div class="adc" data-date="${ymd(d)}">${os.filter((o) => o.allDay && o.ds < addDays(d, 1) && o.de > d).map(chipH).join("")}</div>`).join("")}</div>
   <div class="tg-scroll"><div class="tg-body" style="--n:${n}"><div class="gutc">${Array.from({ length: 23 }, (_, i) => `<div class="hr" style="top:${(i + 1) * HH}px">${pad(i + 1)}:00</div>`).join("")}</div>`;
@@ -84,7 +117,7 @@ function timeGrid(days) {
   return h + "</div></div></div>";
 }
 function agenda(rs) {
-  const os = occs(rs, addDays(rs, 60));
+  const os = occsF(rs, addDays(rs, 60));
   if (!os.length) return `<div class="cal"><div class="empty">Nada agendado nos próximos 60 dias.</div></div>`;
   const by = {};
   os.forEach((o) => {

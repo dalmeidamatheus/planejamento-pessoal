@@ -39,8 +39,14 @@ ACT.seed = () => {
   mk("Restaurante", 187.4, 1, d(-2), "Alimentação", 0);
   S.budgets.push({ id: uid(), cat: "Alimentação", limit: 900 }, { id: uid(), cat: "Lazer", limit: 300 }, { id: uid(), cat: "Transporte", limit: 400 });
   S.goals.push({ id: uid(), name: "Economizar no mês", kind: "mensal", target: 1500, saved: 0, deadline: "" }, { id: uid(), name: "Reserva de emergência", kind: "obj", target: 3e4, saved: 8200, deadline: "" });
-  const ct = (a, m, v) => ({ date: addM(cur, -m) + "-06", amount: v });
-  S.assets.push({ id: "a1", name: "Tesouro Selic", type: "rf", rate: 10.5, manual: null, contribs: [ct(0, 5, 1500), ct(0, 3, 1500), ct(0, 1, 1e3)] }, { id: "a2", name: "PETR4", type: "acoes", rate: 14, manual: null, contribs: [ct(0, 4, 800), ct(0, 2, 600)] }, { id: "a3", name: "Bitcoin", type: "cripto", rate: 20, manual: null, contribs: [ct(0, 3, 500)] }, { id: "a4", name: "HGLG11", type: "fii", rate: 9, manual: null, contribs: [ct(0, 4, 1200), ct(0, 1, 700)] });
+  const mv = (m, v) => ({ id: uid(), d: addM(cur, -m) + "-06", a: v });
+  const ck = (m, day, v) => ({ id: uid(), d: addM(cur, -m) + "-" + day, v });
+  S.assets.push(
+    { id: "a1", name: "Tesouro Selic", type: "rf", moves: [mv(5, 1500), mv(3, 1500), mv(1, 1e3)], checks: [ck(5, "20", 1512.4), ck(4, "20", 1531.1), ck(3, "28", 3052.8), ck(2, "20", 3081.3), ck(1, "28", 4103.9), ck(0, "01", 4128.5)] },
+    { id: "a2", name: "PETR4", type: "acoes", moves: [mv(4, 800), mv(2, 600)], checks: [ck(4, "25", 812), ck(3, "25", 776), ck(2, "25", 1391), ck(1, "25", 1430), ck(0, "02", 1388)] },
+    { id: "a3", name: "Bitcoin", type: "cripto", moves: [mv(3, 500)], checks: [ck(3, "20", 505), ck(2, "20", 590), ck(1, "20", 540), ck(0, "03", 612)] },
+    { id: "a4", name: "HGLG11", type: "fii", moves: [mv(4, 1200), mv(1, 700)], checks: [ck(4, "28", 1204), ck(3, "28", 1211), ck(2, "28", 1218), ck(1, "28", 1925), ck(0, "03", 1936)] }
+  );
   S.divs.push({ id: uid(), assetId: "a4", date: d(-30), amount: 11.4 }, { id: uid(), assetId: "a4", date: d(-3), amount: 15.8 }, { id: uid(), assetId: "a2", date: d(-40), amount: 32 });
   S.tasks.push({ id: uid(), title: "Enviar proposta ao cliente", col: "todo", prio: "alta", tag: "trabalho", due: d(0), notes: "" }, { id: uid(), title: "Renovar seguro do carro", col: "todo", prio: "media", tag: "pessoal", due: d(2), notes: "" }, { id: uid(), title: "Preparar apresentação", col: "doing", prio: "alta", tag: "trabalho", due: d(1), notes: "" }, { id: uid(), title: "Ler capítulo 4", col: "doing", prio: "baixa", tag: "estudos", due: "", notes: "" }, { id: uid(), title: "Marcar dentista", col: "done", prio: "baixa", tag: "saude", due: "", notes: "" });
   ["Beber 2L de água", "Meditar 10 min", "Exercício", "Ler 20 páginas"].forEach((name, k) => {

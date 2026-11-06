@@ -1,6 +1,6 @@
 "use strict";
 const CATS_OUT = ["Moradia", "Alimentação", "Transporte", "Saúde", "Lazer", "Educação", "Assinaturas", "Compras", "Impostos", "Investimentos", "Viagens", "Outros"];
-const CATS_IN = ["Salário", "Freela", "Rendimentos", "Reembolso", "Outros"];
+const CATS_IN = ["Salário", "Freela", "Rendimentos", "Resgate", "Reembolso", "Outros"];
 const METHODS = { credit: "Cartão de crédito", pix: "Pix", debit: "Débito", boleto: "Boleto", cash: "Dinheiro", transfer: "Transferência" };
 const ATYPES = { rf: "Renda fixa", acoes: "Ações", cripto: "Cripto", fii: "Fundos imobiliários", fundos: "Fundos", outro: "Outros" };
 const catColor = (c) => {
@@ -33,15 +33,46 @@ function totals(ym) {
   return { in: s("in"), out: s("out"), inP: s("in", 1), outP: s("out", 1), L };
 }
 function assetVal(a, at) {
-  const now = at ? wd(at) : wd(todayStr());
-  if (!at && a.manual != null && a.manual !== "") return +a.manual;
-  return (a.contribs || []).reduce((s, c) => {
-    if (wd(c.date) > now) return s;
-    const y = (now - wd(c.date)) / (365.25 * 864e5);
-    return s + c.amount * Math.pow(1 + (a.rate || 0) / 100, y);
-  }, 0);
+  const d = at || todayStr();
+  const checks = (a.checks || []).filter((c) => c.d <= d).sort((x, y) => x.d.localeCompare(y.d));
+  const last = checks[checks.length - 1];
+  const moved = (a.moves || []).filter((m) => m.d <= d && (!last || m.d > last.d)).reduce((s2, m) => s2 + m.a, 0);
+  return (last ? last.v : 0) + moved;
 }
-const assetInv = (a, at) => (a.contribs || []).filter((c) => !at || c.date <= at).reduce((s, c) => s + c.amount, 0);
+const assetInv = (a, at) => (a.moves || []).filter((m) => !at || m.d <= at).reduce((s, m) => s + m.a, 0);
+function normAssets() {
+  (S.assets || []).forEach((a) => {
+    if (!a.checks) a.checks = [];
+    if (!a.moves) a.moves = (a.contribs || []).map((c) => ({ id: uid(), d: c.date, a: c.amount }));
+    if (a.manual != null && a.manual !== "" && !a.checks.length) a.checks.push({ id: uid(), d: todayStr(), v: +a.manual });
+    delete a.contribs;
+    delete a.manual;
+    delete a.rate;
+  });
+}
+function perfSeries(list) {
+  const dates = [...new Set(list.flatMap((a) => (a.checks || []).map((c) => c.d)))].sort();
+  const pts = [];
+  dates.forEach((d, i) => {
+    const v = list.reduce((s, a) => s + assetVal(a, d), 0);
+    if (!i) {
+      const inv = list.reduce((s, a) => s + assetInv(a, d), 0);
+      const yld = inv > 0 ? v - inv : 0;
+      pts.push({ d, v, moves: 0, yld, ret: inv > 0 ? yld / inv : 0, cost: v - yld });
+      return;
+    }
+    const p = pts[i - 1];
+    const moves = list.reduce((s, a) => s + (a.moves || []).filter((m) => m.d > p.d && m.d <= d).reduce((q, m) => q + m.a, 0), 0);
+    const yld = v - p.v - moves, den = p.v + moves / 2;
+    pts.push({ d, v, moves, yld, ret: den > 0 ? yld / den : 0, cost: p.cost + moves });
+  });
+  let cum = 0;
+  pts.forEach((p) => {
+    cum += p.yld;
+    p.cum = cum;
+  });
+  return pts;
+}
 function netWorth(at) {
   const cash = (S.settings.opening || 0) + S.tx.filter((t) => t.status === "paid" && t.date <= at).reduce((s, t) => s + (t.type === "in" ? t.amount : -t.amount), 0);
   const inv = S.assets.reduce((s, a) => s + assetVal(a, at), 0);

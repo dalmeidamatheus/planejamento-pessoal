@@ -9,7 +9,7 @@ const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-
 const MES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 const DSEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const DSEML = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
-const TAGS = { trabalho: { n: "Trabalho", c: "#3b6fd4" }, saude: { n: "Saúde", c: "#2f9e6b" }, lazer: { n: "Lazer", c: "#d9822b" }, estudos: { n: "Estudos", c: "#7b61b8" }, pessoal: { n: "Pessoal", c: "#7a766d" } };
+const TAGS = { trabalho: { n: "Trabalho", c: "#2563eb" }, saude: { n: "Saúde", c: "#16a34a" }, lazer: { n: "Lazer", c: "#f59e0b" }, estudos: { n: "Estudos", c: "#8b5cf6" }, pessoal: { n: "Pessoal", c: "#64748b" } };
 const PRIO = { alta: { n: "Alta", c: "bad" }, media: { n: "Média", c: "warn" }, baixa: { n: "Baixa", c: "" } };
 const I = {
   home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',

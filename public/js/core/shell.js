@@ -133,3 +133,15 @@ document.addEventListener("keydown", (e) => {
     ACT.subAdd();
   }
 });
+function renderKeep(el) {
+  const pos = el.selectionStart, sel = `[data-in="${el.dataset.in}"]` + (el.dataset.k ? `[data-k="${el.dataset.k}"]` : "");
+  render();
+  const n = $(sel);
+  if (n) {
+    n.focus();
+    try {
+      n.setSelectionRange(pos, pos);
+    } catch {
+    }
+  }
+}

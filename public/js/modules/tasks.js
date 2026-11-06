@@ -1,4 +1,29 @@
 "use strict";
+ui.tasks = Object.assign({ prio: "", tag: "", q: "" }, ui.tasks);
+const taskMatch = (t) => {
+  const f = ui.tasks, q = norm(f.q);
+  return (!f.prio || t.prio === f.prio) && (!f.tag || t.tag === f.tag) && (!q || norm(t.title + " " + (t.notes || "")).includes(q));
+};
+function taskFilters() {
+  const f = ui.tasks;
+  return `<select style="width:140px" data-ch="taskPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><select style="width:150px" data-ch="taskTag"><option value="">Toda categoria</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${f.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><input type="text" style="width:190px" placeholder="Buscar tarefas…" value="${esc(f.q)}" data-in="taskQ">${f.prio || f.tag || f.q ? `<button class="btn sm ghost" data-act="taskClear">Limpar</button>` : ""}`;
+}
+INP.taskPrio = (el) => {
+  ui.tasks.prio = el.value;
+  render();
+};
+INP.taskTag = (el) => {
+  ui.tasks.tag = el.value;
+  render();
+};
+INP.taskQ = (el) => {
+  ui.tasks.q = el.value;
+  renderKeep(el);
+};
+ACT.taskClear = () => {
+  Object.assign(ui.tasks, { prio: "", tag: "", q: "" });
+  render();
+};
 const KCOLS = [["todo", "A fazer"], ["doing", "Em andamento"], ["done", "Concluído"]];
 function setTaskCol(id, col) {
   const t = S.tasks.find((x) => x.id === id);
@@ -17,8 +42,8 @@ function taskCard(t) {
 }
 VIEWS.tasks = () => {
   const f = ui.tasks.filter, ts = todayStr();
-  const L = S.tasks.filter((t) => f === "all" || f === "today" && t.col !== "done" && t.due && t.due <= ts || f === "late" && t.col !== "done" && t.due && t.due < ts);
-  return `<div class="toolbar"><div class="seg">${[["all", "Todas"], ["today", "Hoje"], ["late", "Atrasadas"]].map(([k, n]) => `<button class="${f === k ? "on" : ""}" data-act="taskFilter" data-f="${k}">${n}</button>`).join("")}</div><div class="grow"></div><button class="btn primary" data-act="newTask">${ic("plus")}Tarefa</button></div>
+  const L = S.tasks.filter((t) => f === "all" || f === "today" && t.col !== "done" && t.due && t.due <= ts || f === "late" && t.col !== "done" && t.due && t.due < ts).filter(taskMatch);
+  return `<div class="toolbar"><div class="seg">${[["all", "Todas"], ["today", "Hoje"], ["late", "Atrasadas"]].map(([k, n]) => `<button class="${f === k ? "on" : ""}" data-act="taskFilter" data-f="${k}">${n}</button>`).join("")}</div>${taskFilters()}<div class="grow"></div><button class="btn primary" data-act="newTask">${ic("plus")}Tarefa</button></div>
   <div class="kanban">${KCOLS.map(([k, n]) => {
     const C = L.filter((t) => t.col === k);
     return `<div class="kcol" data-col="${k}"><div class="kh"><span>${n}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}

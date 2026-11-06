@@ -1,7 +1,0 @@
-.pal{width:560px;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;animation:pop .14s}
-.pal input{height:48px;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:0 16px;font-size:15px;box-shadow:none!important}
-.pal .res{max-height:50vh;overflow:auto;padding:6px}
-.pal .g{font-size:11px;color:var(--ink3);padding:8px 10px 3px;font-weight:500}
-.pal .r{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer}
-.pal .r.on{background:var(--accent-bg)}.pal .r small{margin-left:auto;color:var(--ink3)}
-.pal .hint{font-size:11.5px;color:var(--ink3);padding:8px 14px;border-top:1px solid var(--line)}
