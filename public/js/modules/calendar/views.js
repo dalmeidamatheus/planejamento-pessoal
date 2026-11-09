@@ -7,7 +7,7 @@ function occsF(a, b) {
 function calFilters() {
   const f = ui.cal.f, any = f.tags.length || f.prio || f.q || f.hideDone;
   return `<div class="toolbar" style="margin-top:-4px">${Object.entries(TAGS).map(([k, v]) => `<button class="fchip ${f.tags.includes(k) ? "on" : ""}" style="--c:${v.c}" data-act="calTag" data-t="${k}"><span class="dot" style="--c:${v.c}"></span>${v.n}</button>`).join("")}
-   <select style="width:140px" data-ch="calPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select>
+   <select style="width:170px" data-ch="calPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select>
    <input type="text" style="width:190px" placeholder="Buscar compromissos…" value="${esc(f.q)}" data-in="calQ">
    <label class="row sm"><input type="checkbox" data-ch="calDone" ${f.hideDone ? "checked" : ""}> Ocultar concluídos</label>${any ? `<button class="btn sm ghost" data-act="calClear">Limpar filtros</button>` : ""}</div>`;
 }

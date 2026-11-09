@@ -72,9 +72,9 @@ function txRows() {
    <div class="card stat"><div class="l">Saldo do filtro</div><div class="v ${signCls(S0.net)}">${signBrl(S0.net)}</div></div></div>`;
   if (!L.length) return cards + `<div class="card"><div class="empty">Nenhuma transação neste filtro.</div></div>`;
   if (f.view === "group") {
-    const G = txGroups(L), tot = f.type === "in" ? S0.inn : S0.out || S0.inn;
+    const G = txGroups(L), tot = f.type === "in" ? S0.inn : S0.out;
     return cards + `<div class="card" style="padding:6px 10px"><table class="tb"><thead><tr><th>${TX_GROUPS.find((x) => x[0] === f.group)[1]}</th><th class="num">Lanç.</th><th class="num">Entradas</th><th class="num">Saídas</th><th class="num">Saldo</th><th style="width:26%">Participação</th></tr></thead><tbody>${G.map((g) => {
-      const val = f.type === "in" ? g.inn : g.out || g.inn, p = tot ? val / tot * 100 : 0;
+      const val = f.type === "in" ? g.inn : g.out, p = tot ? Math.min(100, val / tot * 100) : 0;
       return `<tr class="cl" data-act="txDrill" data-k="${esc(g.k)}" title="Ver os lançamentos"><td>${esc(g.l)}</td><td class="num muted">${g.n}</td><td class="num ${g.inn ? "pos" : "muted"}">${g.inn ? brl(g.inn) : "—"}</td><td class="num">${g.out ? brl(g.out) : "—"}</td><td class="num ${signCls(g.inn - g.out)}">${signBrl(g.inn - g.out)}</td><td><div class="row"><div class="bar-t grow"><i style="width:${p}%"></i></div><span class="sm muted" style="width:38px;text-align:right">${p.toFixed(0)}%</span></div></td></tr>`;
     }).join("")}</tbody></table></div>`;
   }

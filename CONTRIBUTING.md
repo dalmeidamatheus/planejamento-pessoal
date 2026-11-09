@@ -19,6 +19,10 @@ npm run dev      # http://localhost:3000 (modo local, sem Supabase)
 5. Não inclua chaves, tokens nem dados pessoais. A `service_role` do Supabase nunca vai para o front-end.
 6. Se criar um arquivo JS novo, adicione-o ao `public/index.html` e a `scripts/js-order.json`.
 
+## Revisão de interface
+
+Para achar textos cortados, campos estreitos e elementos fora da tela: abra o app com os dados de exemplo (*Ajustes → Carregar dados de exemplo*), cole o conteúdo de `scripts/audit-ui.js` no console do navegador e rode `await __audit()`. A varredura abre todas as telas e janelas e lista os problemas encontrados. Repita em larguras de 390, 820, 1040 e 1360 px (modo dispositivo do navegador).
+
 ## Convenções
 
 - Código sem comentários: prefira nomes claros e funções pequenas. A documentação fica no `README.md` e em `docs/ARCHITECTURE.md`.

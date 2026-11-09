@@ -61,8 +61,9 @@ function openGoal(id) {
   const g = id ? S.goals.find((x) => x.id === id) : { name: "", kind: "mensal", target: "", saved: 0, deadline: "" };
   dGoal = id;
   modal(`<form data-form="goal"><h2>${id ? "Editar" : "Nova"} meta</h2><label class="field"><span>Nome</span><input type="text" name="name" value="${esc(g.name)}" required placeholder="Reserva de emergência, Viagem…"></label>
-  <div class="grid2"><label class="field"><span>Tipo</span><select name="kind"><option value="mensal" ${g.kind === "mensal" ? "selected" : ""}>Economia mensal (automática)</option><option value="anual" ${g.kind === "anual" ? "selected" : ""}>Economia anual (automática)</option><option value="obj" ${g.kind === "obj" ? "selected" : ""}>Objetivo (manual)</option></select></label><label class="field"><span>Valor alvo (R$)</span><input type="number" step="0.01" min="1" name="target" value="${g.target}" required></label></div>
+  <div class="grid2"><label class="field"><span>Tipo</span><select name="kind"><option value="mensal" ${g.kind === "mensal" ? "selected" : ""}>Economia mensal</option><option value="anual" ${g.kind === "anual" ? "selected" : ""}>Economia anual</option><option value="obj" ${g.kind === "obj" ? "selected" : ""}>Objetivo</option></select></label><label class="field"><span>Valor alvo (R$)</span><input type="number" step="0.01" min="1" name="target" value="${g.target}" required></label></div>
   <div class="grid2"><label class="field"><span>Já guardado (objetivo)</span><input type="number" step="0.01" name="saved" value="${g.saved || 0}"></label><label class="field"><span>Prazo (opcional)</span><input type="date" name="deadline" value="${g.deadline || ""}"></label></div>
+  <div class="muted sm">Economia mensal e anual são calculadas sozinhas pelas suas transações; Objetivo você atualiza em “Já guardado”.</div>
   <div class="foot">${id ? `<button type="button" class="btn danger" data-act="goalDel">Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
 }
 SUBMIT.goal = (f, fd) => {

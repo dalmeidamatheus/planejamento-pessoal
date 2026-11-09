@@ -154,7 +154,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **PWA:** instalável e abre offline (service worker com “rede primeiro”).
 - **Backup:** exporta e importa tudo em JSON.
 - **Dados de exemplo** para conhecer o sistema e **apagar tudo** quando quiser.
-- Responsivo, com tema claro moderno (azul-acinzentado, cantos suaves, sombras discretas), fonte Inter e microinterações leves.
+- Responsivo (revisado de 390 a 1360 px, sem textos cortados), com tema claro moderno (azul-acinzentado, cantos suaves, sombras discretas), fonte Inter e microinterações leves.
 
 ## Criar por texto (Ctrl+K)
 

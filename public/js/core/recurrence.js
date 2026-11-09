@@ -9,15 +9,23 @@ function recLabel(r) {
   if (r.freq === "monthly") return iv === 1 ? "Todo mês" : `A cada ${iv} meses`;
   return iv === 1 ? "Todo ano" : `A cada ${iv} anos`;
 }
+const REC_UNIT_TEXT = { daily: "dia(s)", weekly: "semana(s)", monthly: "mês(es)", yearly: "ano(s)" };
+function recSummary(r, until) {
+  if (!r || r.freq === "none") return "Não repete";
+  return "↻ " + recLabel(r) + (until ? " · até " + fmtDay(until) + "/" + until.slice(0, 4) : "");
+}
 function recFields(r) {
   r = r || { freq: "none" };
   const p = r.freq || "none", on = p !== "none", unit = on ? p : "daily";
-  return `<div class="recbox">
-   <div class="grid3"><label class="field"><span>Repetir</span><select name="rec_p" data-ch="recPreset">${REC_PRESETS.map(([k, n]) => `<option value="${k}" ${p === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-    <label class="field rec-iv ${on ? "" : "hidden"}"><span>A cada (intervalo)</span><input type="number" name="rec_n" min="1" max="999" value="${r.interval || 1}"></label>
-    <label class="field rec-until ${on ? "" : "hidden"}"><span>Até (opcional)</span><input type="date" name="rec_until" value="${esc(r.until || "")}"></label></div>
-   <label class="field rec-unit hidden"><span>Unidade do intervalo (personalizado)</span><select name="rec_u" data-ch="recUnit">${REC_UNITS.map(([k, n]) => `<option value="${k}" ${unit === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-   <div class="field rec-wk ${p === "weekly" ? "" : "hidden"}"><span>Nos dias (ex.: toda terça e quinta · quinzenal = a cada 2)</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n[0]}</span></label>`).join("")}</div></div></div>`;
+  return `<div class="repeat">
+   <div class="repeat-row">
+    <label class="field"><span>Repetir</span><select name="rec_p" data-ch="recPreset">${REC_PRESETS.map(([k, n]) => `<option value="${k}" ${p === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+    <label class="field rec-iv ${on ? "" : "hidden"}"><span>A cada</span><div class="iv-wrap"><input type="number" name="rec_n" min="1" max="999" value="${r.interval || 1}" data-in="recUpd"><span class="iv-unit">${REC_UNIT_TEXT[unit]}</span></div></label>
+    <label class="field rec-until ${on ? "" : "hidden"}"><span>Até (opcional)</span><input type="date" name="rec_until" value="${esc(r.until || "")}" data-in="recUpd"></label>
+   </div>
+   <label class="field rec-unit hidden"><span>Unidade do intervalo</span><select name="rec_u" data-ch="recUnit">${REC_UNITS.map(([k, n]) => `<option value="${k}" ${unit === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+   <div class="field rec-wk ${p === "weekly" ? "" : "hidden"}"><span>Nos dias da semana</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" data-ch="recUpd" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n}</span></label>`).join("")}</div><small class="muted">Deixe sem marcar para repetir no mesmo dia da semana do início. Para quinzenal, use “A cada 2”.</small></div>
+   <p class="rec-sum">${recSummary(r, r.until)}</p></div>`;
 }
 function recFromForm(fd) {
   const p = fd.get("rec_p") || "none", until = fd.get("rec_until") || "";
@@ -26,14 +34,18 @@ function recFromForm(fd) {
   return { freq, interval: Math.max(1, +fd.get("rec_n") || 1), days: freq === "weekly" ? fd.getAll("rec_wd").map(Number) : [], until };
 }
 const recSync = (el) => {
-  const box = el.closest(".recbox"), p = $("[name=rec_p]", box).value, unit = $("[name=rec_u]", box).value;
+  const box = el.closest(".repeat"), p = $("[name=rec_p]", box).value, unit = p === "custom" ? $("[name=rec_u]", box).value : p;
   $(".rec-iv", box).classList.toggle("hidden", p === "none");
   $(".rec-until", box).classList.toggle("hidden", p === "none");
   $(".rec-unit", box).classList.toggle("hidden", p !== "custom");
-  $(".rec-wk", box).classList.toggle("hidden", !(p === "weekly" || p === "custom" && unit === "weekly"));
+  $(".rec-wk", box).classList.toggle("hidden", unit !== "weekly");
+  $(".iv-unit", box).textContent = REC_UNIT_TEXT[unit] || "";
+  const fd = new FormData(el.closest("form"));
+  $(".rec-sum", box).textContent = recSummary(recFromForm(fd), fd.get("rec_until"));
 };
 INP.recPreset = recSync;
 INP.recUnit = recSync;
+INP.recUpd = recSync;
 function nextDate(baseStr, r) {
   const base = wd(baseStr), iv = Math.max(1, +r.interval || 1), dim = (y, m) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
   if (r.freq === "daily") return ymd(addDays(base, iv));

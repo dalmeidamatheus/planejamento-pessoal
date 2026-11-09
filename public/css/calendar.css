@@ -39,14 +39,5 @@ body.dnd{cursor:grabbing;user-select:none}
 .ag-day .dl{width:70px;flex:none;font-weight:600}.ag-day .dl small{display:block;color:var(--ink3);font-weight:400}
 .ag-it{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:5px;cursor:pointer}.ag-it:hover{background:#f7f9fc}
 .ag-it .tm{width:96px;color:var(--ink2);font-variant-numeric:tabular-nums;font-size:12.5px}
-.wdays{display:flex;gap:4px}.wd{position:relative}.wd input{position:absolute;opacity:0}
-.wd span{display:grid;place-items:center;width:28px;height:28px;border:1px solid var(--line);border-radius:var(--r);font-size:12px;cursor:pointer}
-.wd input:checked+span{background:var(--ink);color:#fff;border-color:var(--ink)}
-.warnbox{background:#fdf0ee;color:var(--bad);border-radius:var(--r);padding:7px 10px;font-size:12.5px;margin-bottom:10px}
-.subs{list-style:none;margin:0 0 6px;padding:0}.subs li{display:flex;align-items:center;gap:8px;padding:3px 0}
 .selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;margin-bottom:12px;background:var(--accent-bg);border:1px solid #bcd3ff;border-radius:12px}
 .selbar select{height:30px;padding:0 8px}
-.tb tr.cl.sel td,.tb tr.cl.sel:hover td{background:var(--accent-bg)}
-.tb input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-.infobox{background:#fff7e6;color:#92400e;border:1px solid #fde1a8;border-radius:var(--r);padding:7px 10px;font-size:12.5px;margin-bottom:10px}
-.pill.info{background:#fff3d6;color:#92400e}

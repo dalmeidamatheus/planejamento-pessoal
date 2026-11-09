@@ -6,7 +6,7 @@ const tripMatch = (t) => {
 };
 function tripFilters() {
   const f = ui.trip;
-  return `<div class="seg">${[["all", "Todas"], ["next", "Próximas"], ["past", "Passadas"]].map(([k, n]) => `<button class="${f.status === k ? "on" : ""}" data-act="tripStatus" data-s="${k}">${n}</button>`).join("")}</div><input type="text" style="width:200px" placeholder="Buscar viagem ou destino…" value="${esc(f.q)}" data-in="tripQ">`;
+  return `<div class="seg">${[["all", "Todas"], ["next", "Próximas"], ["past", "Passadas"]].map(([k, n]) => `<button class="${f.status === k ? "on" : ""}" data-act="tripStatus" data-s="${k}">${n}</button>`).join("")}</div><input type="text" style="width:250px" placeholder="Buscar viagem ou destino…" value="${esc(f.q)}" data-in="tripQ">`;
 }
 ACT.tripStatus = (el) => {
   ui.trip.status = el.dataset.s;

@@ -1,0 +1,92 @@
+window.__audit = async function () {
+  const issues = new Map();
+  const cv = document.createElement("canvas").getContext("2d");
+  const font = (cs) => `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const textW = (cs, t) => { cv.font = font(cs); return cv.measureText(t).width; };
+  const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none"; };
+  let state = "";
+  const add = (kind, el, extra) => {
+    const key = kind + "|" + el.tagName + "|" + (el.className || "") + "|" + (el.name || "") + "|" + (el.textContent || el.value || "").trim().slice(0, 28);
+    if (!issues.has(key)) issues.set(key, { kind, state, tag: el.tagName.toLowerCase(), cls: String(el.className || "").slice(0, 40), name: el.name || "", text: (el.tagName === "SELECT" ? el.options[el.selectedIndex]?.text : el.value || el.textContent || "").trim().slice(0, 40), ...extra });
+  };
+  const scan = () => {
+    const roots = [...document.querySelectorAll("#main, .modal, .pal")];
+    roots.forEach((root) => {
+      root.querySelectorAll("select").forEach((el) => {
+        if (!vis(el)) return;
+        const cs = getComputedStyle(el), o = el.options[el.selectedIndex]; if (!o) return;
+        const avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 24;
+        const need = textW(cs, o.text);
+        if (need > avail + 1) add("select cortado", el, { w: Math.round(el.clientWidth), need: Math.round(need + 24 + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight)) });
+      });
+      root.querySelectorAll("input").forEach((el) => {
+        if (!vis(el) || ["checkbox", "radio", "hidden", "file"].includes(el.type)) return;
+        const cs = getComputedStyle(el), avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        if (el.type === "date" && el.clientWidth < 132) add("data estreita", el, { w: el.clientWidth, need: 132 });
+        else if (el.type === "time" && el.clientWidth < 96) add("hora estreita", el, { w: el.clientWidth, need: 96 });
+        else if (el.type === "number" && el.value && textW(cs, el.value) + 24 > avail) add("numero cortado", el, { w: el.clientWidth });
+        else if ((el.type === "text" || el.type === "url" || el.type === "email") && !el.value && el.placeholder && textW(cs, el.placeholder) > avail + 1) add("placeholder cortado", el, { w: el.clientWidth, need: Math.round(textW(cs, el.placeholder)) + 24 });
+      });
+      root.querySelectorAll("button, .btn, .pill, .fchip, .seg button, th, .stat .l, .stat .v, .stat .s, h1, h2, .wt, label.field > span").forEach((el) => {
+        if (!vis(el)) return;
+        if (el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflow !== "visible") add("texto cortado", el, { w: el.clientWidth, need: el.scrollWidth });
+      });
+      root.querySelectorAll("*").forEach((el) => {
+        if (!vis(el)) return;
+        const cs = getComputedStyle(el);
+        if ((cs.overflowX === "hidden" || cs.overflowX === "clip") && cs.textOverflow !== "ellipsis" && el.scrollWidth > el.clientWidth + 2 && el.children.length === 0 && el.textContent.trim().length > 3) add("overflow oculto", el, { w: el.clientWidth, need: el.scrollWidth });
+        const r = el.getBoundingClientRect();
+        if (r.right > innerWidth + 2 && !el.closest("#notifPop") && !scrolled(el)) add("fora da tela", el, { right: Math.round(r.right), tela: innerWidth });
+      });
+    });
+    if (document.documentElement.scrollWidth > innerWidth + 2) issues.set("pagina|" + state, { kind: "rolagem horizontal da página", state, w: innerWidth, need: document.documentElement.scrollWidth });
+  };
+  const scrolled = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) { const cs = getComputedStyle(a); if (/(auto|scroll)/.test(cs.overflowX) && a.getBoundingClientRect().right <= innerWidth + 2) return true; } return false; };
+  const wait = (ms = 30) => new Promise((r) => setTimeout(r, ms));
+  const step = async (name, fn) => { state = name; closeModal(); try { await fn(); } catch (e) { issues.set("erro|" + name, { kind: "erro no estado", state: name, text: String(e).slice(0, 80) }); } await wait(); scan(); };
+  const t = todayStr();
+  const goV = (v) => { view = v; render(); };
+  await step("início", () => goV("home"));
+  for (const m of ["month", "week", "day", "agenda", "list"]) await step("calendário " + m, () => { ui.cal.mode = m; ui.cal.d = dayStart(todayWall()); goV("calendar"); });
+  await step("calendário lista selecionada", () => { ui.cal.mode = "list"; goV("calendar"); S.events.slice(0, 3).forEach((e) => ui.cl.sel.add(e.id)); render(); });
+  ui.cl.sel.clear();
+  await step("calendário filtros ativos", () => { ui.cal.mode = "week"; ui.cal.f = { tags: ["trabalho"], prio: "alta", q: "reunião muito longa de teste", hideDone: true }; goV("calendar"); });
+  ui.cal.f = { tags: [], prio: "", q: "", hideDone: false };
+  await step("tarefas", () => goV("tasks"));
+  for (const tab of ["geral", "tx", "cards", "inv", "bud"]) await step("finanças " + tab, () => { ui.fin.tab = tab; goV("finance"); });
+  await step("finanças tx agrupado", () => { Object.assign(ui.fin.f, { period: "all", view: "group", group: "desc" }); ui.fin.tab = "tx"; goV("finance"); });
+  await step("finanças tx período", () => { Object.assign(ui.fin.f, { period: "range", view: "list", from: "2026-01-01", to: "2026-12-31", cat: "Alimentação" }); goV("finance"); });
+  Object.assign(ui.fin.f, { period: "month", cat: "", from: "", to: "", view: "list" });
+  await step("hábitos", () => goV("habits"));
+  await step("notas", () => goV("notes"));
+  await step("desejos", () => goV("wishlist"));
+  await step("viagens", () => goV("trips"));
+  await step("modal evento novo", () => openEvent(null, null, { start: t + "T09:00", end: t + "T10:00" }));
+  await step("modal evento semanal", () => { openEvent(null, null, { start: t + "T09:00", end: t + "T10:00", rec: { freq: "weekly", interval: 2, days: [1, 3], until: "" } }); });
+  await step("modal evento personalizado", () => { openEvent(null, null, { start: t + "T09:00", end: t + "T10:00" }); const f = $("form[data-form=event]"); f.rec_p.value = "custom"; INP.recPreset(f.rec_p); f.rec_u.value = "weekly"; INP.recUnit(f.rec_u); });
+  await step("modal tarefa", () => openTask(null));
+  await step("modal tarefa existente", () => openTask(S.tasks[0].id));
+  await step("modal transação", () => openTx(null));
+  await step("modal transação cartão", () => openTx(null, { method: "credit" }));
+  await step("modal cartão", () => openCard());
+  await step("modal investimento", () => openAsset());
+  await step("modal conferir saldo", () => ACT.newCheck());
+  await step("modal movimentar", () => ACT.newMove());
+  await step("modal provento", () => ACT.newDiv());
+  await step("modal orçamento", () => openBudget());
+  await step("modal meta", () => openGoal());
+  await step("modal hábito", () => openHabit());
+  await step("modal desejo novo", () => openWishForm(null));
+  await step("modal desejo detalhe", () => openWish(S.wishlist[0].id));
+  await step("modal viagem novo", () => openTripForm(null));
+  await step("modal viagem detalhe", () => openTrip(S.trips[0].id));
+  await step("modal aniversários", () => ACT.birthdays());
+  await step("modal aniversário", () => openBirthday(null));
+  await step("modal ajustes", () => ACT.settings());
+  await step("modal repetir em massa", () => { ui.cl.sel.add(S.events[0].id); ACT.clRepeat(); });
+  ui.cl.sel.clear();
+  await step("paleta", () => openPalette("rep"));
+  await step("atalhos", () => { closeModal(); document.dispatchEvent(new KeyboardEvent("keydown", { key: "?" })); });
+  closeModal(); goV("home");
+  return [...issues.values()];
+};

@@ -6,7 +6,7 @@ const wishMatch = (i) => {
 };
 function wishFilters() {
   const f = ui.wish;
-  return `<select style="width:140px" data-ch="wishPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><input type="number" min="0" step="0.01" style="width:110px" placeholder="Preço até" value="${esc(f.max)}" data-in="wishMax"><input type="text" style="width:170px" placeholder="Buscar…" value="${esc(f.q)}" data-in="wishQ"><label class="row sm"><input type="checkbox" data-ch="wishMon" ${f.mon ? "checked" : ""}> Só monitorados</label>${f.prio || f.q || f.mon || f.max !== "" ? `<button class="btn sm ghost" data-act="wishClear">Limpar</button>` : ""}`;
+  return `<select style="width:170px" data-ch="wishPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><input type="number" min="0" step="0.01" style="width:110px" placeholder="Preço até" value="${esc(f.max)}" data-in="wishMax"><input type="text" style="width:170px" placeholder="Buscar…" value="${esc(f.q)}" data-in="wishQ"><label class="row sm"><input type="checkbox" data-ch="wishMon" ${f.mon ? "checked" : ""}> Só monitorados</label>${f.prio || f.q || f.mon || f.max !== "" ? `<button class="btn sm ghost" data-act="wishClear">Limpar</button>` : ""}`;
 }
 INP.wishPrio = (el) => {
   ui.wish.prio = el.value;

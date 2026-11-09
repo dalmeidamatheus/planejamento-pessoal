@@ -152,7 +152,7 @@ ACT.newMove = () => {
   if (!needAsset()) return;
   modal(`<form data-form="move"><h2>Movimentar</h2><p class="muted sm">Registre só o dinheiro que <b>você</b> colocou ou tirou. Todo o resto da variação entre duas conferências é contado como rendimento.</p>
   <label class="field"><span>Investimento</span><select name="a">${assetOpts(defAsset())}</select></label>
-  <div class="grid3"><label class="field"><span>Tipo</span><select name="k"><option value="aporte">Aporte (coloquei)</option><option value="resgate">Resgate (tirei)</option></select></label><label class="field"><span>Valor (R$)</span><input type="number" step="0.01" min="0.01" name="v" required></label><label class="field"><span>Data</span><input type="date" name="d" value="${todayStr()}" required></label></div>
+  <div class="grid3"><label class="field"><span>Tipo</span><select name="k"><option value="aporte">Aporte</option><option value="resgate">Resgate</option></select></label><label class="field"><span>Valor (R$)</span><input type="number" step="0.01" min="0.01" name="v" required></label><label class="field"><span>Data</span><input type="date" name="d" value="${todayStr()}" required></label></div>
   <label class="row sm"><input type="checkbox" name="cash" checked> Descontar do (ou creditar no) <b>dinheiro disponível</b></label>
   <label class="row sm"><input type="checkbox" name="tx"> Lançar também em Transações (aparece na lista e nos relatórios)</label>
   <div class="foot"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);

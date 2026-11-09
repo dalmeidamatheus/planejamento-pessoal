@@ -2,7 +2,18 @@
  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto}
  .side{flex-direction:row;align-items:center;padding:8px;overflow-x:auto;gap:8px;border-right:0;border-bottom:1px solid var(--line)}
  .nav{flex-direction:row}.clocks,.side-foot .who,.brand span:not(.logo),.search-btn span,.search-btn kbd{display:none}.side-foot{margin:0 0 0 auto;flex-direction:row}
- main,.shell{height:auto}#main{padding:14px 12px}.c2,.c3,.c4,.c21,.kanban,.grid2{grid-template-columns:1fr}
- .notes{grid-template-columns:1fr;height:auto}.mcell{min-height:70px}.top{padding:0 12px}
+ main,.shell{height:auto}#main{padding:14px 12px}.top{padding:0 12px}
+ .c2,.c3,.c4,.c21,.kanban,.grid2{grid-template-columns:minmax(0,1fr)}
+ .cols>*,.kanban>*,.notes>*{min-width:0}
+ .notes{grid-template-columns:minmax(0,1fr);height:auto}.mcell{min-height:70px}
  .hgrid{grid-template-columns:110px repeat(14,24px) 50px 50px;overflow-x:auto}
+ table.tb{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .cal{overflow-x:auto}.mgrid{min-width:620px}.tg-head,.tg-ad,.tg-body{min-width:640px}
+}
+@media(max-width:560px){
+ .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+ .modal{padding:18px;border-radius:14px}
+ .ag-day{flex-direction:column;gap:8px}.ag-it{flex-wrap:wrap}.ag-it .tm{width:auto}
+ .toolbar select,.toolbar input{max-width:100%}
+ .top h1{font-size:16px}
 }

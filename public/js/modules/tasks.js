@@ -6,7 +6,7 @@ const taskMatch = (t) => {
 };
 function taskFilters() {
   const f = ui.tasks;
-  return `<select style="width:140px" data-ch="taskPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><select style="width:150px" data-ch="taskTag"><option value="">Toda categoria</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${f.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><input type="text" style="width:190px" placeholder="Buscar tarefas…" value="${esc(f.q)}" data-in="taskQ">${f.prio || f.tag || f.q ? `<button class="btn sm ghost" data-act="taskClear">Limpar</button>` : ""}`;
+  return `<select style="width:170px" data-ch="taskPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><select style="width:150px" data-ch="taskTag"><option value="">Toda categoria</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${f.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select><input type="text" style="width:190px" placeholder="Buscar tarefas…" value="${esc(f.q)}" data-in="taskQ">${f.prio || f.tag || f.q ? `<button class="btn sm ghost" data-act="taskClear">Limpar</button>` : ""}`;
 }
 INP.taskPrio = (el) => {
   ui.tasks.prio = el.value;

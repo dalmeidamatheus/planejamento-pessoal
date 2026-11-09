@@ -13,7 +13,7 @@ function finTx() {
    ${f.period === "range" ? `<input type="date" style="width:150px" value="${esc(f.from)}" data-ch="finF" data-k="from"><span class="muted sm">até</span><input type="date" style="width:150px" value="${esc(f.to)}" data-ch="finF" data-k="to">` : ""}
    <div class="grow"></div>
    <div class="seg"><button class="${f.view === "list" ? "on" : ""}" data-act="finView" data-v="list">Lista</button><button class="${f.view === "group" ? "on" : ""}" data-act="finView" data-v="group">Agrupado</button></div>
-   ${f.view === "group" ? `<select style="width:210px" data-ch="finF" data-k="group">${TX_GROUPS.map(([v, l]) => opt(v, f.group, "Agrupar por " + l.toLowerCase())).join("")}</select>` : ""}
+   ${f.view === "group" ? `<select style="width:260px" data-ch="finF" data-k="group">${TX_GROUPS.map(([v, l]) => opt(v, f.group, "Agrupar por " + l.toLowerCase())).join("")}</select>` : ""}
    <button class="btn" data-act="txCsv">Exportar CSV</button><button class="btn primary" data-act="newTx">${ic("plus")}Transação</button></div>
   <div class="toolbar">
    <input type="text" style="width:190px" placeholder="Buscar…" value="${esc(f.q)}" data-in="finF" data-k="q">
