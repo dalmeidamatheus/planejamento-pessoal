@@ -39,7 +39,7 @@ ACT.ovKind = (el) => {
 };
 function statCash() {
   const c = cashAvailable(todayStr()), fl = investFlows().slice(0, 3);
-  return `<div class="card stat"><div class="l">Dinheiro disponível</div><div class="v ${c < 0 ? "neg" : ""}">${brl(c)}</div><div class="s">já descontando o que foi para investimentos</div><div class="mini">${fl.length ? fl.map((f) => `${fmtDay(f.d)} · ${f.v < 0 ? "aporte" : "resgate"} ${signBrl(f.v)} · ${esc(f.n)}`).join("<br>") : "sem movimentações em investimentos"}</div></div>`;
+  return `<div class="card stat"><div class="l" style="display:flex;justify-content:space-between;align-items:center">Dinheiro disponível<button class="btn sm ghost" style="margin:-6px -8px -6px 0" data-act="settings">Ajustar</button></div><div class="v ${c < 0 ? "neg" : ""}">${brl(c)}</div><div class="s">já descontando o que foi para investimentos</div><div class="mini">${cashLine()}</div><div class="mini">${fl.length ? fl.map((f) => `${fmtDay(f.d)} · ${f.v < 0 ? "aporte" : "resgate"} ${signBrl(f.v)} · ${esc(f.n)}`).join("<br>") : "sem movimentações em investimentos"}</div></div>`;
 }
 function statInv() {
   const s = invSummary();
@@ -48,4 +48,8 @@ function statInv() {
 function statNet() {
   const c = cashAvailable(todayStr()), i = invSummary().value;
   return `<div class="card stat"><div class="l">Patrimônio líquido</div><div class="v">${brl(c + i)}</div><div class="s">dinheiro disponível ${brl(c)} + investimentos ${brl(i)}</div></div>`;
+}
+function cashLine() {
+  const b = cashBreakdown(todayStr());
+  return `entradas ${brl(b.inn)} − saídas ${brl(b.out)}${b.opening ? ` ${b.opening > 0 ? "+" : "−"} ajuste ${brl(Math.abs(b.opening))}` : ""}${b.moved ? ` − investido ${brl(b.moved)}` : ""}`;
 }

@@ -79,6 +79,15 @@ function cashAvailable(at) {
   const moved = S.assets.flatMap((a) => a.moves || []).filter((m) => moveCash(m) && m.d <= at).reduce((s, m) => s + m.a, 0);
   return base - moved;
 }
+function cashBreakdown(at) {
+  const paid = S.tx.filter((t) => t.status === "paid" && t.date <= at);
+  return {
+    inn: paid.filter((t) => t.type === "in").reduce((s, t) => s + t.amount, 0),
+    out: paid.filter((t) => t.type === "out").reduce((s, t) => s + t.amount, 0),
+    opening: S.settings.opening || 0,
+    moved: S.assets.flatMap((a) => a.moves || []).filter((m) => moveCash(m) && m.d <= at).reduce((s, m) => s + m.a, 0)
+  };
+}
 function investFlows() {
   const rows = [];
   S.tx.filter((t) => t.status === "paid" && (t.cat === "Investimentos" && t.type === "out" || t.cat === "Resgate" && t.type === "in")).forEach((t) => rows.push({ d: t.date, v: t.type === "out" ? -t.amount : t.amount, n: t.desc.replace(/^(Aporte|Resgate) — /, "") }));
