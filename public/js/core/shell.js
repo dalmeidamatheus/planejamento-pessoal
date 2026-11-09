@@ -62,13 +62,24 @@ function toast(msg, warn) {
 function modal(html, { wide = false, onMount } = {}) {
   $("#overlay").innerHTML = `<div class="scrim" data-act="scrim"><div class="modal ${wide ? "wide" : ""}">${html}</div></div>`;
   onMount?.($("#overlay .modal"));
-  const f = $("#overlay input:not([type=hidden]):not([type=checkbox])");
+  modalSnap = modalState();
+}
+let modalSnap = "";
+function modalState() {
+  const m = $("#overlay .modal");
+  if (!m) return "";
+  return [...m.querySelectorAll("input,textarea,select")].map((x) => (x.type === "checkbox" || x.type === "radio" ? +x.checked : x.value)).join("") + "" + (m.querySelector(".subs")?.innerHTML || "");
+}
+const modalDirty = () => !!$("#overlay .modal form") && modalState() !== modalSnap;
+function tryClose() {
+  if (modalDirty() && !window.confirm("Descartar as alterações que você ainda não salvou?")) return;
+  closeModal();
 }
 const closeModal = () => {
   $("#overlay").innerHTML = "";
 };
 ACT.scrim = (el, e) => {
-  if (e.target === el && !$("#overlay .pal")) closeModal();
+  if (e.target === el && !$("#overlay .pal")) tryClose();
 };
 ACT.close = () => closeModal();
 function confirmDlg(msg) {
@@ -121,7 +132,8 @@ document.addEventListener("keydown", (e) => {
   }
   if (e.key === "Escape") {
     if ($("#overlay .scrim")) {
-      closeModal();
+      if ($("#overlay .pal")) closeModal();
+      else tryClose();
     } else $("#notifPop")?.remove();
   }
   if (e.altKey && /^[1-8]$/.test(e.key) && user) {

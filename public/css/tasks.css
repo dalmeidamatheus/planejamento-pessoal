@@ -19,3 +19,9 @@
 .kcard:hover .ced,.kcard .ced:focus-visible{opacity:1}
 .kcard .tt{padding-right:22px}
 @media(hover:none){.kcard .ced{opacity:.6}}
+.kcard .tdone{margin-top:4px;border-radius:8px;background:#f5f7fb}
+.kcard .tdone summary{cursor:pointer;list-style:none;font-size:11.5px;color:var(--ink3);padding:4px 8px;display:flex;align-items:center;gap:6px;user-select:none}
+.kcard .tdone summary::-webkit-details-marker{display:none}
+.kcard .tdone summary::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.kcard .tdone[open] summary::before{transform:rotate(45deg)}
+.kcard .tdone .tsr{margin:0;padding:3px 8px}

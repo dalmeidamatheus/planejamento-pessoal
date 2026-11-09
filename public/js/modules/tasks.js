@@ -217,8 +217,10 @@ const subCount = (t) => ({ n: (t.subs || []).length, d: (t.subs || []).filter((x
 function subsHtml(t) {
   const { n, d } = subCount(t);
   if (!n) return "";
+  const row = (x) => `<div class="tsr" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`;
+  const open = t.subs.filter((x) => !x.d), done = t.subs.filter((x) => x.d);
   return `<div class="tsub"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>
-   <div class="tsub-list">${t.subs.slice(0, 5).map((x) => `<div class="tsr" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`).join("")}${n > 5 ? `<div class="sm muted">+${n - 5} subtarefa${n - 5 > 1 ? "s" : ""}</div>` : ""}</div>`;
+   <div class="tsub-list">${open.slice(0, 5).map(row).join("")}${open.length > 5 ? `<div class="sm muted">+${open.length - 5} pendente${open.length - 5 > 1 ? "s" : ""}</div>` : ""}${done.length ? `<details class="tdone" data-act="nop" ${ui.tasks.openDone?.[t.id] ? "open" : ""} data-id="${t.id}"><summary>${done.length} concluída${done.length > 1 ? "s" : ""}</summary>${done.map(row).join("")}</details>` : ""}</div>`;
 }
 function subAuto(t) {
   const { n, d } = subCount(t);
@@ -263,3 +265,8 @@ INP.tsubChk = (el) => {
   dTaskSubs[+el.dataset.i].d = el.checked;
   renderTSubs();
 };
+document.addEventListener("toggle", (e) => {
+  const d = e.target;
+  if (d.classList?.contains("tdone")) (ui.tasks.openDone || (ui.tasks.openDone = {}))[d.dataset.id] = d.open;
+}, true);
+ACT.nop = () => {};
