@@ -25,10 +25,36 @@ ACT.taskClear = () => {
   render();
 };
 const KCOLS = [["todo", "A fazer"], ["doing", "Em andamento"], ["done", "Concluído"]];
-function setTaskCol(id, col) {
+function spawnNext(t) {
+  const r = t.rec;
+  if (!r || r.freq === "none") return;
+  let nd = nextDate(t.due || todayStr(), r), guard = 0;
+  while (nd <= todayStr() && guard++ < 400) nd = nextDate(nd, r);
+  if (r.until && nd > r.until) {
+    t.rec = { freq: "none" };
+    return;
+  }
+  const n = { ...clone(t), id: uid(), col: "todo", due: nd };
+  delete n.eventId;
+  delete n.nextId;
+  const e = t.eventId && S.events.find((x) => x.id === t.eventId);
+  if (e) {
+    const start = nd + "T" + e.start.slice(11), dur = wd(e.end) - wd(e.start);
+    const ne = { ...clone(e), id: uid(), start, end: fmtDT(new Date(wd(start).getTime() + dur)), done: false, taskId: n.id };
+    S.events.push(ne);
+    n.eventId = ne.id;
+  }
+  S.tasks.push(n);
+  t.rec = { freq: "none" };
+  t.nextId = n.id;
+  toast("↻ Próxima repetição criada para " + fmtDay(nd) + "/" + nd.slice(2, 4));
+}
+function setTaskCol(id, col, prev) {
   const t = S.tasks.find((x) => x.id === id);
   if (!t) return;
+  prev = prev ?? t.col;
   t.col = col;
+  if (col === "done" && prev !== "done") spawnNext(t);
   if (t.eventId) {
     const e = S.events.find((x) => x.id === t.eventId);
     if (e) e.done = col === "done";
@@ -38,7 +64,7 @@ function taskCard(t) {
   const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done";
   return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><div class="tt">${esc(t.title)}</div><div class="m">
    ${t.prio ? `<span class="pill ${PRIO[t.prio].c}">${PRIO[t.prio].n}</span>` : ""}${t.tag ? `<span class="pill"><span class="dot" style="--c:${TAGS[t.tag].c}"></span>${TAGS[t.tag].n}</span>` : ""}
-   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}</div></div>`;
+   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}</div></div>`;
 }
 VIEWS.tasks = () => {
   const f = ui.tasks.filter, ts = todayStr();
@@ -106,6 +132,7 @@ function openTask(id) {
    <label class="field"><span>Prioridade</span><select name="prio">${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${t.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label>
    <label class="field"><span>Categoria</span><select name="tag"><option value="">—</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${t.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label></div>
   <label class="field"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label>
+  ${recFields(t.rec)}
   <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(t.notes || "")}</textarea></label>
   <div class="card flat" style="padding:12px"><div class="row" style="margin-bottom:8px"><b>${ic("calendar", 15)} Bloco no calendário</b>${ev ? '<span class="pill blue">agendado</span>' : ""}</div>
    <div class="grid3"><label class="field"><span>Data</span><input type="date" name="sd" value="${sd}"></label><label class="field"><span>Hora</span><input type="time" name="st" value="${st}"></label><label class="field"><span>Duração (min)</span><input type="number" name="sdur" min="15" step="15" value="${dur}"></label></div>
@@ -114,14 +141,15 @@ function openTask(id) {
 }
 function taskFromForm(f) {
   const fd = new FormData(f);
-  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes") };
+  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd) };
 }
 SUBMIT.task = (f, fd) => {
   const o = taskFromForm(f);
   if (dTask) {
     const t = S.tasks.find((x) => x.id === dTask);
+    const was = t.col;
     Object.assign(t, o);
-    setTaskCol(t.id, o.col);
+    setTaskCol(t.id, o.col, was);
     const e = t.eventId && S.events.find((x) => x.id === t.eventId);
     if (e) e.title = o.title;
   } else S.tasks.push({ id: uid(), ...o });

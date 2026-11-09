@@ -7,6 +7,7 @@
   "js/core/shell.js",
   "js/core/charts.js",
   "js/core/markdown.js",
+  "js/core/recurrence.js",
   "js/modules/calendar/occurrences.js",
   "js/modules/calendar/views.js",
   "js/modules/calendar/dragdrop.js",

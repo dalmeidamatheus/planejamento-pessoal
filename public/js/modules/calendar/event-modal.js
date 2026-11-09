@@ -26,10 +26,7 @@ function openEvent(id, key, pre) {
    <label class="field"><span>Término</span><div class="row"><input type="date" name="ed" value="${edDisp}" data-in="evChk" required><input type="time" name="et" value="${et || "10:00"}" data-in="evChk" class="tm ${allDay ? "hidden" : ""}"></div></label></div>
   <label class="field tm ${allDay ? "hidden" : ""}"><span>Fuso horário do compromisso</span><select name="tz" data-ch="evChk">${tzOptions(e.tz || dtz())}</select></label>
   <div id="evConf"></div>
-  <div class="grid3"><label class="field"><span>Repetir</span><select name="rf" data-ch="evRec">${[["none", "Não repete"], ["daily", "Diariamente"], ["weekly", "Semanalmente"], ["monthly", "Mensalmente"], ["yearly", "Anualmente"]].map(([k, n]) => `<option value="${k}" ${r.freq === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-   <label class="field rec ${r.freq === "none" ? "hidden" : ""}"><span>A cada (intervalo)</span><input type="number" name="ri" min="1" value="${r.interval || 1}"></label>
-   <label class="field rec ${r.freq === "none" ? "hidden" : ""}"><span>Até (opcional)</span><input type="date" name="ru" value="${r.until || ""}"></label></div>
-  <div class="field rec wk ${r.freq === "weekly" ? "" : "hidden"}"><span>Nos dias (ex.: toda terça e quinta · quinzenal = a cada 2)</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="wd" value="${i}" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n[0]}</span></label>`).join("")}</div></div>
+  ${recFields(r)}
   ${(e.ex || []).length ? `<div class="sm muted" style="margin-bottom:8px">Exceções: ${e.ex.map((x) => `<span class="pill">${fmtDay(x)} <a href="#" data-act="exDel" data-k="${x}" style="color:inherit">×</a></span>`).join(" ")}</div>` : ""}
   <div class="field"><span>Subtarefas</span><ul class="subs" id="subs"></ul><div class="row"><input type="text" id="subIn" placeholder="Adicionar subtarefa e Enter"><button type="button" class="btn" data-act="subAdd">${ic("plus")}</button></div></div>
   <label class="field"><span>Links e anexos (um por linha; “nome | url”)</span><textarea name="links" rows="2" placeholder="Pauta | https://docs.google.com/...">${esc((e.links || []).map((l) => l.label ? l.label + " | " + l.url : l.url).join("\n"))}</textarea></label>
@@ -69,11 +66,6 @@ INP.evAllDay = (el) => {
   $$(".tm", el.closest("form")).forEach((x) => x.classList.toggle("hidden", el.checked));
   INP.evChk();
 };
-INP.evRec = (el) => {
-  const f = el.closest("form"), v = el.value;
-  $$(".rec", f).forEach((x) => x.classList.toggle("hidden", v === "none"));
-  $(".wk", f).classList.toggle("hidden", v !== "weekly");
-};
 function evTimes(f) {
   const fd = new FormData(f), ad = fd.get("allDay");
   let tz = ad ? dtz() : fd.get("tz") || dtz();
@@ -107,7 +99,7 @@ SUBMIT.event = (f, fd) => {
     toast("O término precisa ser depois do início", true);
     return;
   }
-  const e = dEv, rf = fd.get("rf");
+  const e = dEv;
   Object.assign(e, {
     title: fd.get("title").trim(),
     tag: fd.get("tag"),
@@ -122,7 +114,7 @@ SUBMIT.event = (f, fd) => {
       const p = x.split("|").map((y) => y.trim());
       return p.length > 1 ? { label: p[0], url: p.slice(1).join("|").trim() } : { label: "", url: p[0] };
     }),
-    rec: rf === "none" ? { freq: "none" } : { freq: rf, interval: Math.max(1, +fd.get("ri") || 1), days: rf === "weekly" ? fd.getAll("wd").map(Number) : [], until: fd.get("ru") || "" }
+    rec: recFromForm(fd)
   });
   const isNew = e._new;
   delete e._key;
