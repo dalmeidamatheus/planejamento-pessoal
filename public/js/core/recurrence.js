@@ -1,24 +1,6 @@
 "use strict";
-const REC_PRESETS = [["none", "Não repete"], ["d1", "Todo dia"], ["wd", "Dias úteis (seg a sex)"], ["w1", "Toda semana"], ["d15", "A cada 15 dias"], ["m1", "Todo mês"], ["y1", "Todo ano"], ["custom", "Personalizado…"]];
-const REC_DEF = {
-  d1: { freq: "daily", interval: 1, days: [] },
-  wd: { freq: "weekly", interval: 1, days: [1, 2, 3, 4, 5] },
-  w1: { freq: "weekly", interval: 1, days: [] },
-  d15: { freq: "daily", interval: 15, days: [] },
-  m1: { freq: "monthly", interval: 1, days: [] },
-  y1: { freq: "yearly", interval: 1, days: [] }
-};
-function recToPreset(r) {
-  if (!r || r.freq === "none") return "none";
-  const iv = r.interval || 1, days = [...r.days || []].sort().join(",");
-  if (r.freq === "daily" && iv === 1) return "d1";
-  if (r.freq === "daily" && iv === 15) return "d15";
-  if (r.freq === "weekly" && iv === 1 && days === "1,2,3,4,5") return "wd";
-  if (r.freq === "weekly" && iv === 1 && !days) return "w1";
-  if (r.freq === "monthly" && iv === 1) return "m1";
-  if (r.freq === "yearly" && iv === 1) return "y1";
-  return "custom";
-}
+const REC_PRESETS = [["none", "Não repete"], ["daily", "Diariamente"], ["weekly", "Semanalmente"], ["monthly", "Mensalmente"], ["yearly", "Anualmente"], ["custom", "Personalizado…"]];
+const REC_UNITS = [["daily", "dia(s)"], ["weekly", "semana(s)"], ["monthly", "mês(es)"], ["yearly", "ano(s)"]];
 function recLabel(r) {
   if (!r || r.freq === "none") return "";
   const iv = r.interval || 1, names = r.days && r.days.length ? " (" + r.days.map((d) => DSEM[d]).join(", ") + ")" : "";
@@ -29,28 +11,26 @@ function recLabel(r) {
 }
 function recFields(r) {
   r = r || { freq: "none" };
-  const p = recToPreset(r), custom = p === "custom", unit = r.freq === "none" ? "daily" : r.freq;
+  const p = r.freq || "none", on = p !== "none", unit = on ? p : "daily";
   return `<div class="recbox">
-   <div class="grid2"><label class="field"><span>Repetir</span><select name="rec_p" data-ch="recPreset">${REC_PRESETS.map(([k, n]) => `<option value="${k}" ${p === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-   <label class="field rec-until ${p === "none" ? "hidden" : ""}"><span>Repetir até (opcional)</span><input type="date" name="rec_until" value="${esc(r.until || "")}"></label></div>
-   <div class="rec-custom ${custom ? "" : "hidden"}"><div class="grid2"><label class="field"><span>A cada</span><input type="number" min="1" max="999" name="rec_n" value="${r.interval || 1}"></label>
-    <label class="field"><span>Unidade</span><select name="rec_u" data-ch="recUnit">${[["daily", "dia(s)"], ["weekly", "semana(s)"], ["monthly", "mês(es)"], ["yearly", "ano(s)"]].map(([k, n]) => `<option value="${k}" ${unit === k ? "selected" : ""}>${n}</option>`).join("")}</select></label></div>
-    <div class="field rec-wk ${custom && unit === "weekly" ? "" : "hidden"}"><span>Nos dias da semana (opcional)</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n[0]}</span></label>`).join("")}</div></div></div></div>`;
+   <div class="grid3"><label class="field"><span>Repetir</span><select name="rec_p" data-ch="recPreset">${REC_PRESETS.map(([k, n]) => `<option value="${k}" ${p === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+    <label class="field rec-iv ${on ? "" : "hidden"}"><span>A cada (intervalo)</span><input type="number" name="rec_n" min="1" max="999" value="${r.interval || 1}"></label>
+    <label class="field rec-until ${on ? "" : "hidden"}"><span>Até (opcional)</span><input type="date" name="rec_until" value="${esc(r.until || "")}"></label></div>
+   <label class="field rec-unit hidden"><span>Unidade do intervalo (personalizado)</span><select name="rec_u" data-ch="recUnit">${REC_UNITS.map(([k, n]) => `<option value="${k}" ${unit === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+   <div class="field rec-wk ${p === "weekly" ? "" : "hidden"}"><span>Nos dias (ex.: toda terça e quinta · quinzenal = a cada 2)</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n[0]}</span></label>`).join("")}</div></div></div>`;
 }
 function recFromForm(fd) {
   const p = fd.get("rec_p") || "none", until = fd.get("rec_until") || "";
   if (p === "none") return { freq: "none" };
-  if (p === "custom") {
-    const freq = fd.get("rec_u") || "daily";
-    return { freq, interval: Math.max(1, +fd.get("rec_n") || 1), days: freq === "weekly" ? fd.getAll("rec_wd").map(Number) : [], until };
-  }
-  return { ...REC_DEF[p], days: [...REC_DEF[p].days], until };
+  const freq = p === "custom" ? fd.get("rec_u") || "daily" : p;
+  return { freq, interval: Math.max(1, +fd.get("rec_n") || 1), days: freq === "weekly" ? fd.getAll("rec_wd").map(Number) : [], until };
 }
 const recSync = (el) => {
   const box = el.closest(".recbox"), p = $("[name=rec_p]", box).value, unit = $("[name=rec_u]", box).value;
+  $(".rec-iv", box).classList.toggle("hidden", p === "none");
   $(".rec-until", box).classList.toggle("hidden", p === "none");
-  $(".rec-custom", box).classList.toggle("hidden", p !== "custom");
-  $(".rec-wk", box).classList.toggle("hidden", !(p === "custom" && unit === "weekly"));
+  $(".rec-unit", box).classList.toggle("hidden", p !== "custom");
+  $(".rec-wk", box).classList.toggle("hidden", !(p === "weekly" || p === "custom" && unit === "weekly"));
 };
 INP.recPreset = recSync;
 INP.recUnit = recSync;
