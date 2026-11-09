@@ -67,6 +67,8 @@ Exceções (`ex`) removem ocorrências por data. Mover **uma** ocorrência de um
 
 **Arrastar e soltar** (`calendar/dragdrop.js`): usa *pointer events*. O deslocamento vertical é arredondado a 15 min; o dia de destino vem de `elementFromPoint` (`[data-date]`). Ao soltar, o deslocamento é aplicado sobre o instante e convertido de volta para o fuso do evento.
 
+**Lista e ações em massa** (`calendar/list.js`): a Lista mostra um compromisso por linha (séries contam como um) e guarda a seleção em `ui.cl.sel`. As ações em massa alteram `tag`, `prio`, `remind` e `rec` dos eventos selecionados; concluir um compromisso ligado a uma tarefa passa pela tarefa (`setTaskCol`), para manter os dois em sincronia.
+
 **Aniversários** não são eventos gravados: `birthdayOccs()` injeta ocorrências de dia inteiro, ano a ano, dentro de `occs()`. O `birthdayTick()` dispara as notificações.
 
 ## 4. Regras financeiras

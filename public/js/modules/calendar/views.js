@@ -57,8 +57,8 @@ const chipH = (o) => `<div class="chip ${o.conflict ? "conf" : ""} ${o.e.done ? 
 VIEWS.calendar = () => {
   if (!ui.cal.d) ui.cal.d = dayStart(todayWall());
   const m = ui.cal.mode;
-  const tb = `<div class="toolbar"><button class="btn" data-act="calToday">Hoje</button><button class="icon-btn" data-act="calPrev">${ic("left")}</button><button class="icon-btn" data-act="calNext">${ic("right")}</button><div class="cal-title">${calTitle()}</div><div class="grow"></div>
-   <div class="seg">${[["month", "Mês"], ["week", "Semana"], ["day", "Dia"], ["agenda", "Agenda"]].map(([k, n]) => `<button class="${m === k ? "on" : ""}" data-act="calMode" data-m="${k}">${n}</button>`).join("")}</div>
+  const tb = `<div class="toolbar">${m === "list" ? `<div class="cal-title" style="text-transform:none">Todos os compromissos</div>` : `<button class="btn" data-act="calToday">Hoje</button><button class="icon-btn" data-act="calPrev">${ic("left")}</button><button class="icon-btn" data-act="calNext">${ic("right")}</button><div class="cal-title">${calTitle()}</div>`}<div class="grow"></div>
+   <div class="seg">${[["month", "Mês"], ["week", "Semana"], ["day", "Dia"], ["agenda", "Agenda"], ["list", "Lista"]].map(([k, n]) => `<button class="${m === k ? "on" : ""}" data-act="calMode" data-m="${k}">${n}</button>`).join("")}</div>
    <button class="btn" data-act="birthdays">🎂 Aniversários</button><button class="btn primary" data-act="newEvent">${ic("plus")}Evento</button></div>`;
   const [rs, re] = calRange();
   let body = "";
@@ -74,7 +74,8 @@ VIEWS.calendar = () => {
     const days = [];
     for (let d = rs; d < re; d = addDays(d, 1)) days.push(d);
     body = timeGrid(days);
-  } else body = agenda(rs);
+  } else if (m === "list") body = calList();
+  else body = agenda(rs);
   return tb + calFilters() + body;
 };
 function timeGrid(days) {

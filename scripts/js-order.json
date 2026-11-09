@@ -10,6 +10,7 @@
   "js/core/recurrence.js",
   "js/modules/calendar/occurrences.js",
   "js/modules/calendar/views.js",
+  "js/modules/calendar/list.js",
   "js/modules/calendar/dragdrop.js",
   "js/modules/calendar/event-modal.js",
   "js/modules/calendar/notifications.js",

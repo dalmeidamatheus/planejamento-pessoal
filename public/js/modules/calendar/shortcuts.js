@@ -5,7 +5,7 @@ document.addEventListener("keydown", (e) => {
   if (t.closest?.("input,textarea,select,[contenteditable]") || $("#overlay .scrim")) return;
   const k = e.key.toLowerCase();
   if (k === "?") {
-    modal(`<h2>Atalhos de teclado</h2><table class="tb"><tbody>${[["Ctrl + K", "Buscar / criar por texto"], ["Alt + 1…8", "Ir para cada aba"], ["N", "Novo (compromisso, transação, tarefa ou nota conforme a aba)"], ["T", "Calendário: hoje"], ["← →", "Calendário: período anterior / próximo"], ["M  S  D  A", "Calendário: mês, semana, dia, agenda"], ["Esc", "Fechar / cancelar arrasto"]].map(([a, b]) => `<tr><td><kbd>${a}</kbd></td><td>${b}</td></tr>`).join("")}</tbody></table><div class="foot"><button class="btn" data-act="close">Fechar</button></div>`);
+    modal(`<h2>Atalhos de teclado</h2><table class="tb"><tbody>${[["Ctrl + K", "Buscar / criar por texto"], ["Alt + 1…8", "Ir para cada aba"], ["N", "Novo (compromisso, transação, tarefa ou nota conforme a aba)"], ["T", "Calendário: hoje"], ["← →", "Calendário: período anterior / próximo"], ["M  S  D  A  L", "Calendário: mês, semana, dia, agenda, lista"], ["Esc", "Fechar / cancelar arrasto"]].map(([a, b]) => `<tr><td><kbd>${a}</kbd></td><td>${b}</td></tr>`).join("")}</tbody></table><div class="foot"><button class="btn" data-act="close">Fechar</button></div>`);
     return;
   }
   if (k === "n") {
@@ -18,8 +18,8 @@ document.addEventListener("keydown", (e) => {
   if (k === "t") ACT.calToday();
   else if (e.key === "ArrowLeft") ACT.calPrev();
   else if (e.key === "ArrowRight") ACT.calNext();
-  else if ({ m: "month", s: "week", d: "day", a: "agenda" }[k]) {
-    ui.cal.mode = { m: "month", s: "week", d: "day", a: "agenda" }[k];
+  else if ({ m: "month", s: "week", d: "day", a: "agenda", l: "list" }[k]) {
+    ui.cal.mode = { m: "month", s: "week", d: "day", a: "agenda", l: "list" }[k];
     render();
   }
 });

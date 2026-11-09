@@ -75,15 +75,16 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 |---|---|
 | <img src="docs/screenshots/desejos.jpg" alt="Lista de desejos"> | <img src="docs/screenshots/preco-historico.jpg" alt="Gráfico de preço do item"> |
 
-| Caixinhas de viagem |
-|---|
-| <img src="docs/screenshots/viagens.jpg" alt="Caixinhas de viagem"> |
+| Lista de compromissos com ações em massa | Caixinhas de viagem |
+|---|---|
+| <img src="docs/screenshots/lista-compromissos.jpg" alt="Lista de compromissos com seleção"> | <img src="docs/screenshots/viagens.jpg" alt="Caixinhas de viagem"> |
 
 ## Recursos
 
 ### Calendário e gestão de tempo
 
-- **Visões:** mês, semana, dia e agenda em lista.
+- **Visões:** mês, semana, dia, agenda por dia e **Lista** de todos os compromissos.
+- **Lista com seleção e ações em massa:** marque vários compromissos e altere de uma vez a **categoria**, a **prioridade**, o **lembrete** e a **repetição** (ou conclua, reabra e exclua). Dá para filtrar por próximos, passados, que se repetem ou concluídos, ordenar por data, título, categoria ou prioridade, e combinar com os filtros de categoria, prioridade e busca.
 - **Arrastar e soltar:** mova compromissos entre horários e dias (passos de 15 min) e **redimensione** o bloco pela borda inferior. `Esc` cancela o arrasto.
 - **Conflitos:** sobreposições são detectadas automaticamente e marcadas com listras e aviso, tanto ao criar quanto ao mover.
 - **Recorrências:** diária, semanal (inclusive “toda terça e quinta”), quinzenal (semanal a cada 2), mensal e anual, com intervalo e data final. Ao arrastar uma ocorrência o sistema pergunta se vale só para ela (cria uma exceção) ou para a série toda.
@@ -177,7 +178,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 | `Alt + 1…8` | Ir para cada aba |
 | `N` | Novo item da aba atual |
 | `T` · `←` `→` | Calendário: hoje · período anterior/próximo |
-| `M` `S` `D` `A` | Calendário: mês, semana, dia, agenda |
+| `M` `S` `D` `A` `L` | Calendário: mês, semana, dia, agenda, lista |
 | `?` | Lista de atalhos |
 | `Esc` | Fecha janelas e cancela o arrasto |
 
