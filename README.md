@@ -43,7 +43,7 @@
 ## Visão geral
 
 O Norte reúne em uma interface limpa e rápida (inspirada em Notion, Linear e Raycast) tudo o que costuma ficar espalhado em vários aplicativos:
-
+https://planejamento-pessoal-blush.vercel.app
 | Área | O que resolve |
 |---|---|
 | **Calendário** | Agenda com arrastar e soltar, conflitos, recorrências complexas, fusos horários e lembretes |
