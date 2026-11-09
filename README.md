@@ -96,6 +96,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Lembretes:** de 0 min a 1 dia antes, com central de notificações no app e alertas do navegador.
 - **Detalhes do compromisso:** prioridade (alta, média, baixa), categorias coloridas (Trabalho, Saúde, Lazer, Estudos, Pessoal), subtarefas, links e anexos por URL, dia inteiro.
 - **Aniversários 🎂:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes. No calendário (inclusive na visão em lista) há um filtro para mostrar, ocultar ou ver só aniversários.
+- **Feriados 🎉:** feriados nacionais do Brasil (fixos e móveis, como Carnaval, Sexta-feira Santa e Corpus Christi) calculados sem depender de serviço externo. Aparecem no calendário e na visão em lista, e dá para ocultar pela caixa “Feriados”.
 - **Exportação `.ics`:** compromissos e aniversários, compatível com Google Agenda, Apple Calendar e Outlook.
 
 ### Finanças

@@ -10,6 +10,10 @@ function openEvent(id, key, pre) {
     openBirthday(id.slice(3));
     return;
   }
+  if (id && String(id).startsWith("hol:")) {
+    openHoliday(id.slice(4));
+    return;
+  }
   const ex = id && S.events.find((x) => x.id === id);
   dEv = ex ? clone(ex) : Object.assign({ id: uid(), title: "", start: "", end: "", tz: dtz(), tag: "trabalho", prio: "media", allDay: false, rec: { freq: "none", interval: 1, days: [], until: "" }, ex: [], subtasks: [], links: [], notes: "", remind: 15 }, pre || {});
   dEv._key = key;

@@ -52,7 +52,7 @@ function occs(fromW, toW, { exclude } = {}) {
       out.push(o);
     });
   });
-  out.push(...birthdayOccs(fromW, toW));
+  out.push(...birthdayOccs(fromW, toW), ...holidayOccs(fromW, toW));
   out.sort((a, b) => a.sMs - b.sMs || b.eMs - a.eMs);
   const tm = out.filter((o) => !o.allDay);
   for (let i = 0; i < tm.length; i++) for (let j = i + 1; j < tm.length && tm[j].sMs < tm[i].eMs; j++) {

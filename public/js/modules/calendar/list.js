@@ -18,6 +18,11 @@ function clBdRows() {
     return { e, b, bd: true, past: false, o: { sMs: fromWall(n.date, dtz()), eMs: fromWall(addDays(n.date, 1), dtz()) } };
   }).filter((r) => !q || norm(r.e.title + " " + (r.b.notes || "")).includes(q));
 }
+function clHolRows() {
+  const f = ui.cal.f, q = norm(f.q), sc = ui.cl.scope;
+  if (S.settings.showHolidays === false || f.bd || f.prio || f.hideDone || sc === "past" || sc === "done" || sc === "rec" || f.tags.length && !f.tags.includes("lazer")) return [];
+  return holidayList().map((h) => ({ e: holEvent(h), h, hol: true, past: false, o: { sMs: fromWall(h.date, dtz()), eMs: fromWall(addDays(h.date, 1), dtz()) } })).filter((r) => !q || norm(r.e.title).includes(q));
+}
 function clBase() {
   const f = ui.cal.f, q = norm(f.q), sc = ui.cl.scope;
   if (f.bd === "only") return [];
@@ -33,8 +38,12 @@ function clSortRows(rows) {
   return rows.sort(by[ui.cl.sort] || ((a, b) => a.past - b.past || (!a.o) - (!b.o) || (a.o && b.o ? a.past ? b.o.sMs - a.o.sMs : a.o.sMs - b.o.sMs : 0)));
 }
 const clRows = () => clSortRows(clBase());
-const clAllRows = () => clSortRows([...clBase(), ...clBdRows()]);
+const clAllRows = () => clSortRows([...clBase(), ...clBdRows(), ...clHolRows()]);
 function clRow(r) {
+  if (r.hol) {
+    const ds = toWall(r.o.sMs, dtz());
+    return `<tr class="cl" data-act="holOpen" data-id="${ymd(r.h.date)}"><td></td><td><span class="dot" style="--c:${tagC(r.e)}"></span> ${esc(r.e.title)}</td><td class="muted">${fmtDay(ymd(ds))}/${ymd(ds).slice(2, 4)} · dia todo</td><td class="muted">—</td><td>${r.h.opt ? "Facultativo" : "Feriado"}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
+  }
   if (r.bd) {
     const ds = toWall(r.o.sMs, dtz());
     return `<tr class="cl" data-act="bdEdit" data-id="${r.b.id}"><td></td><td><span class="dot" style="--c:${tagC(r.e)}"></span> ${esc(r.e.title)}</td><td class="muted">próx. ${fmtDay(ymd(ds))}/${ymd(ds).slice(2, 4)} · dia todo</td><td><span class="pill">↻ todo ano</span></td><td>${esc(TAGS.lazer.n)}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
@@ -62,7 +71,7 @@ function clBar() {
 }
 function calList() {
   for (const id of [...ui.cl.sel]) if (!S.events.some((e) => e.id === id)) ui.cl.sel.delete(id);
-  const rows = clAllRows(), real = rows.filter((r) => !r.bd), all = real.length && real.every((r) => ui.cl.sel.has(r.e.id));
+  const rows = clAllRows(), real = rows.filter((r) => !r.bd && !r.hol), all = real.length && real.every((r) => ui.cl.sel.has(r.e.id));
   return `<div class="toolbar"><select style="width:180px" data-ch="clScope">${CL_SCOPES.map(([k, n]) => `<option value="${k}" ${ui.cl.scope === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <select style="width:160px" data-ch="clSort">${CL_SORTS.map(([k, n]) => `<option value="${k}" ${ui.cl.sort === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <span class="muted sm">${rows.length} compromisso${rows.length === 1 ? "" : "s"} · cada linha é um compromisso (as repetições contam como um só)</span></div>

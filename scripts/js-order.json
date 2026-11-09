@@ -17,6 +17,7 @@
   "js/modules/calendar/ics.js",
   "js/modules/calendar/shortcuts.js",
   "js/modules/calendar/birthdays.js",
+  "js/modules/calendar/holidays.js",
   "js/modules/finance/data.js",
   "js/modules/finance/index.js",
   "js/modules/finance/overview.js",
