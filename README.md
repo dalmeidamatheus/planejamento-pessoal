@@ -79,6 +79,10 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 |---|---|
 | <img src="docs/screenshots/lista-compromissos.jpg" alt="Lista de compromissos com seleção"> | <img src="docs/screenshots/viagens.jpg" alt="Caixinhas de viagem"> |
 
+| Tarefas com subtarefas e repetição | Página inicial |
+|---|---|
+| <img src="docs/screenshots/tarefas.jpg" alt="Quadro de tarefas com subtarefas"> | <img src="docs/screenshots/inicio.jpg" alt="Página inicial"> |
+
 ## Recursos
 
 ### Calendário e gestão de tempo
@@ -124,6 +128,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 ### Tarefas, hábitos e notas
 
 - **Kanban** (A fazer, Em andamento, Concluído) com arrastar e soltar, prioridades, categorias e prazos. Agende uma tarefa como **bloco no calendário**; concluir a tarefa marca o bloco como feito.
+- **Subtarefas:** cada tarefa pode ter uma lista de passos. Você marca direto no cartão do quadro, com barra de progresso (ex.: 2/4). Ao marcar o primeiro passo a tarefa vai para “Em andamento” e, quando o último é marcado, ela é concluída sozinha; desmarcar um passo reabre. Em tarefas que se repetem, a próxima ocorrência volta com os passos desmarcados.
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
 - **Notas em Markdown** com edição, leitura ou tela dividida, busca e **vínculo a um evento ou a uma transação**.
 - **Reuniões:** botão *Gravar reunião* com **transcrição ao vivo em português** (Web Speech API) escrita na nota com marcação de tempo. Ao parar, o sistema gera **resumo, decisões e ações** e oferece criar tarefas a partir das ações. Com a chave da Anthropic configurada, o resumo usa IA (`/api/summarize`); sem ela, usa um resumo local por palavras-chave.

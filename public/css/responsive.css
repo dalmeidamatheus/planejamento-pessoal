@@ -11,7 +11,7 @@
  .cal{overflow-x:auto}.mgrid{min-width:620px}.tg-head,.tg-ad,.tg-body{min-width:640px}
 }
 @media(max-width:560px){
- .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+ .grid2,.grid3,.grid3.wide1{grid-template-columns:minmax(0,1fr)}
  .modal{padding:18px;border-radius:14px}
  .ag-day{flex-direction:column;gap:8px}.ag-it{flex-wrap:wrap}.ag-it .tm{width:auto}
  .toolbar select,.toolbar input{max-width:100%}

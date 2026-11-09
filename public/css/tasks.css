@@ -7,3 +7,10 @@
 .kcard .m{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .kcard.done .tt{text-decoration:line-through;color:var(--ink3)}
 .kadd input{background:transparent;border-style:dashed}
+.kcard .tsub{display:flex;align-items:center;gap:8px;margin-top:8px}
+.kcard .tsub .bar-t{flex:1;height:6px}
+.kcard .tsr{display:flex;align-items:flex-start;gap:7px;padding:3px 4px;margin:0 -4px;font-size:12.5px;line-height:1.35;cursor:pointer;border-radius:6px}
+.kcard .tsr:hover{background:#f5f7fb}
+.kcard .tsr input{margin-top:2px;pointer-events:none;accent-color:var(--accent);flex:none}
+.kcard .tsr .x{text-decoration:line-through;color:var(--ink3)}
+.kcard .tsub-list{margin-top:4px}

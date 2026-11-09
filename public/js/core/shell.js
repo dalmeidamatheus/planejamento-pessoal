@@ -128,9 +128,9 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     go(NAV[+e.key - 1][0]);
   }
-  if (e.key === "Enter" && e.target.id === "subIn") {
+  if (e.key === "Enter" && (e.target.id === "subIn" || e.target.id === "tsubIn")) {
     e.preventDefault();
-    ACT.subAdd();
+    (e.target.id === "tsubIn" ? ACT.tsubAdd : ACT.subAdd)();
   }
 });
 function renderKeep(el) {

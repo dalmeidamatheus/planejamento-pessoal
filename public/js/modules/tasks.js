@@ -2,7 +2,7 @@
 ui.tasks = Object.assign({ prio: "", tag: "", q: "" }, ui.tasks);
 const taskMatch = (t) => {
   const f = ui.tasks, q = norm(f.q);
-  return (!f.prio || t.prio === f.prio) && (!f.tag || t.tag === f.tag) && (!q || norm(t.title + " " + (t.notes || "")).includes(q));
+  return (!f.prio || t.prio === f.prio) && (!f.tag || t.tag === f.tag) && (!q || norm(t.title + " " + (t.notes || "") + " " + (t.subs || []).map((x) => x.t).join(" ")).includes(q));
 };
 function taskFilters() {
   const f = ui.tasks;
@@ -34,7 +34,7 @@ function spawnNext(t) {
     t.rec = { freq: "none" };
     return;
   }
-  const n = { ...clone(t), id: uid(), col: "todo", due: nd };
+  const n = { ...clone(t), id: uid(), col: "todo", due: nd, subs: (t.subs || []).map((x) => ({ ...x, id: uid(), d: false })) };
   delete n.eventId;
   delete n.nextId;
   const e = t.eventId && S.events.find((x) => x.id === t.eventId);
@@ -62,7 +62,7 @@ function setTaskCol(id, col, prev) {
 }
 function taskCard(t) {
   const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done";
-  return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><div class="tt">${esc(t.title)}</div><div class="m">
+  return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
    ${t.prio ? `<span class="pill ${PRIO[t.prio].c}">${PRIO[t.prio].n}</span>` : ""}${t.tag ? `<span class="pill"><span class="dot" style="--c:${TAGS[t.tag].c}"></span>${TAGS[t.tag].n}</span>` : ""}
    ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}</div></div>`;
 }
@@ -126,33 +126,40 @@ ACT.openTask = (el) => openTask(el.dataset.id);
 function openTask(id) {
   const t = id ? S.tasks.find((x) => x.id === id) : { title: "", col: "todo", prio: "media", tag: "", due: "", notes: "" };
   dTask = id;
+  dTaskSubs = clone(t.subs || []);
   const ev = t.eventId && S.events.find((x) => x.id === t.eventId), sd = ev ? ev.start.slice(0, 10) : t.due || todayStr(), st = ev ? ev.start.slice(11, 16) : "09:00", dur = ev ? Math.round((wd(ev.end) - wd(ev.start)) / 6e4) : 60;
   modal(`<form data-form="task"><h2>${id ? "Editar tarefa" : "Nova tarefa"}</h2><label class="field"><span>Título</span><input type="text" name="title" value="${esc(t.title)}" required></label>
-  <div class="grid3"><label class="field"><span>Coluna</span><select name="col">${KCOLS.map(([k, n]) => `<option value="${k}" ${t.col === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+  <div class="grid3 wide1"><label class="field"><span>Coluna</span><select name="col">${KCOLS.map(([k, n]) => `<option value="${k}" ${t.col === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
    <label class="field"><span>Prioridade</span><select name="prio">${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${t.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label>
    <label class="field"><span>Categoria</span><select name="tag"><option value="">—</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${t.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label></div>
   <label class="field"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label>
+  <div class="field"><span>Subtarefas <b id="tprog" class="muted"></b></span><ul class="subs" id="tsubs"></ul><div class="row"><input type="text" id="tsubIn" placeholder="Adicionar subtarefa e Enter"><button type="button" class="btn" data-act="tsubAdd">${ic("plus")}</button></div></div>
   ${recFields(t.rec)}
   <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(t.notes || "")}</textarea></label>
   <div class="card flat" style="padding:12px"><div class="row" style="margin-bottom:8px"><b>${ic("calendar", 15)} Bloco no calendário</b>${ev ? '<span class="pill blue">agendado</span>' : ""}</div>
    <div class="grid3"><label class="field"><span>Data</span><input type="date" name="sd" value="${sd}"></label><label class="field"><span>Hora</span><input type="time" name="st" value="${st}"></label><label class="field"><span>Duração (min)</span><input type="number" name="sdur" min="15" step="15" value="${dur}"></label></div>
    <div class="row"><button type="button" class="btn" data-act="taskSchedule">${ev ? "Reagendar bloco" : "Agendar bloco"}</button>${ev ? `<button type="button" class="btn ghost danger" data-act="taskUnschedule">Remover bloco</button>` : ""}</div></div>
-  <div class="foot">${id ? `<button type="button" class="btn danger" data-act="taskDel">${ic("trash")}Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
+  <div class="foot">${id ? `<button type="button" class="btn danger" data-act="taskDel">${ic("trash")}Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`, { onMount: renderTSubs });
 }
 function taskFromForm(f) {
   const fd = new FormData(f);
-  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd) };
+  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd), subs: clone(dTaskSubs) };
 }
 SUBMIT.task = (f, fd) => {
   const o = taskFromForm(f);
   if (dTask) {
     const t = S.tasks.find((x) => x.id === dTask);
-    const was = t.col;
+    const was = t.col, subsBefore = JSON.stringify(t.subs || []);
     Object.assign(t, o);
     setTaskCol(t.id, o.col, was);
+    if (JSON.stringify(t.subs) !== subsBefore) subAuto(t);
     const e = t.eventId && S.events.find((x) => x.id === t.eventId);
     if (e) e.title = o.title;
-  } else S.tasks.push({ id: uid(), ...o });
+  } else {
+    const n = { id: uid(), ...o };
+    S.tasks.push(n);
+    subAuto(n);
+  }
   save();
   closeModal();
   render();
@@ -204,4 +211,52 @@ ACT.taskDel = () => {
   save();
   closeModal();
   render();
+};
+let dTaskSubs = [];
+const subCount = (t) => ({ n: (t.subs || []).length, d: (t.subs || []).filter((x) => x.d).length });
+function subsHtml(t) {
+  const { n, d } = subCount(t);
+  if (!n) return "";
+  return `<div class="tsub"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>
+   <div class="tsub-list">${t.subs.slice(0, 5).map((x) => `<div class="tsr" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`).join("")}${n > 5 ? `<div class="sm muted">+${n - 5} subtarefa${n - 5 > 1 ? "s" : ""}</div>` : ""}</div>`;
+}
+function subAuto(t) {
+  const { n, d } = subCount(t);
+  if (!n) return;
+  if (d === n && t.col !== "done") {
+    setTaskCol(t.id, "done");
+    toast("Todas as subtarefas feitas: tarefa concluída ✓");
+  } else if (d < n && t.col === "done") setTaskCol(t.id, "doing");
+  else if (d > 0 && d < n && t.col === "todo") setTaskCol(t.id, "doing");
+}
+ACT.subToggle = (el) => {
+  const t = S.tasks.find((x) => x.id === el.dataset.t), s = t && t.subs.find((x) => x.id === el.dataset.s);
+  if (!s) return;
+  s.d = !s.d;
+  subAuto(t);
+  save();
+  render();
+};
+function renderTSubs() {
+  const u = $("#tsubs");
+  if (!u) return;
+  u.innerHTML = dTaskSubs.map((s, i) => `<li><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><span class="grow ${s.d ? "muted" : ""}" style="${s.d ? "text-decoration:line-through" : ""}">${esc(s.t)}</span><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
+  const d = dTaskSubs.filter((s) => s.d).length;
+  $("#tprog").textContent = dTaskSubs.length ? `(${d}/${dTaskSubs.length})` : "";
+}
+ACT.tsubAdd = () => {
+  const i = $("#tsubIn");
+  if (!i || !i.value.trim()) return;
+  dTaskSubs.push({ id: uid(), t: i.value.trim(), d: false });
+  i.value = "";
+  renderTSubs();
+  i.focus();
+};
+ACT.tsubDel = (el) => {
+  dTaskSubs.splice(+el.dataset.i, 1);
+  renderTSubs();
+};
+INP.tsubChk = (el) => {
+  dTaskSubs[+el.dataset.i].d = el.checked;
+  renderTSubs();
 };
