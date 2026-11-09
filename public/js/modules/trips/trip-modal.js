@@ -67,8 +67,7 @@ ACT.tripDel = () => {
   closeModal();
   render();
 };
-ACT.tripCal = () => {
-  const t = S.trips.find((x) => x.id === dTrip);
+function tripToCal(t) {
   if (!t.start) return;
   const end = ymd(addDays(wd(t.end || t.start), 1)), o = { title: (t.emoji || "✈️") + " " + t.name, start: t.start + "T00:00", end: end + "T00:00", allDay: true, tz: dtz() };
   let e = t.eventId && S.events.find((x) => x.id === t.eventId);
@@ -78,6 +77,11 @@ ACT.tripCal = () => {
     S.events.push(e);
     t.eventId = e.id;
   }
+}
+ACT.tripCal = () => {
+  const t = S.trips.find((x) => x.id === dTrip);
+  if (!t.start) return;
+  tripToCal(t);
   save();
   openTrip(dTrip);
   toast("Viagem marcada no calendário");
@@ -103,9 +107,14 @@ SUBMIT.trip = (f, fd) => {
   if (dTrip) {
     t = S.trips.find((x) => x.id === dTrip);
     Object.assign(t, o);
+    if (t.eventId && S.events.some((e) => e.id === t.eventId)) tripToCal(t);
   } else {
     t = { id: uid(), items: [], deposits: [], ...o };
     S.trips.push(t);
+    if (t.start) {
+      tripToCal(t);
+      toast("Viagem marcada no calendário");
+    }
   }
   save();
   closeModal();

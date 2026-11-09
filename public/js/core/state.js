@@ -1,7 +1,7 @@
 "use strict";
 let S = null, user = null, sb = null, view = "home", saveT = null;
 const ui = { cal: { mode: "week", d: null }, fin: { tab: "geral", ym: null, f: { type: "", status: "", cat: "", q: "" } }, notes: { sel: null, mode: "both", q: "" }, tasks: { filter: "all" } };
-const emptyData = () => ({ v: 1, _ts: 0, settings: { tz: TZ0, clocks: ["America/New_York", "Europe/Lisbon"], opening: 0 }, events: [], tx: [], recur: [], cards: [], budgets: [], goals: [], assets: [], divs: [], tasks: [], habits: [], notes: [], notifs: [], fired: {}, birthdays: [], wishlist: [], trips: [] });
+const emptyData = () => ({ v: 1, _ts: 0, settings: { tz: TZ0, clocks: [], opening: 0 }, events: [], tx: [], recur: [], cards: [], budgets: [], goals: [], assets: [], divs: [], tasks: [], habits: [], notes: [], notifs: [], fired: {}, birthdays: [], wishlist: [], trips: [] });
 const ACT = {}, SUBMIT = {}, INP = {}, VIEWS = {}, AFTER = {}, TITLES = { home: "Início", calendar: "Calendário", tasks: "Tarefas", finance: "Finanças", habits: "Hábitos", notes: "Notas", wishlist: "Lista de desejos", trips: "Viagens" };
 const LS = (() => {
   try {
@@ -60,6 +60,7 @@ async function loadData() {
   const base = emptyData();
   S = Object.assign(base, d || {});
   S.settings = Object.assign(base.settings, S.settings || {});
+  S.settings.clocks = (S.settings.clocks || []).filter((z) => z !== "America/New_York" && z !== "Europe/Lisbon");
   normAssets();
   if (sb && d === local && local) pushCloud();
 }

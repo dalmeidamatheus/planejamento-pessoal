@@ -38,6 +38,7 @@ const I = {
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M8 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4-5a2.5 2.5 0 0 1 0 5"/>',
-  plane: '<path d="M10.5 13.5 3 11l1-2 8 .5L16 5l2 1-2 5 4 1-1 2-5-.5-2 6-2-.5z"/>'
+  plane: '<path d="M10.5 13.5 3 11l1-2 8 .5L16 5l2 1-2 5 4 1-1 2-5-.5-2 6-2-.5z"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/>'
 };
 const ic = (n, s = 16) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[n] || ""}</svg>`;

@@ -14,3 +14,8 @@
 .kcard .tsr input{margin-top:2px;pointer-events:none;accent-color:var(--accent);flex:none}
 .kcard .tsr .x{text-decoration:line-through;color:var(--ink3)}
 .kcard .tsub-list{margin-top:4px}
+.kcard{position:relative}
+.kcard .ced{position:absolute;top:6px;right:6px;opacity:0;transition:opacity .12s}
+.kcard:hover .ced,.kcard .ced:focus-visible{opacity:1}
+.kcard .tt{padding-right:22px}
+@media(hover:none){.kcard .ced{opacity:.6}}

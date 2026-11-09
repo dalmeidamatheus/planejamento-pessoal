@@ -92,10 +92,10 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Arrastar e soltar:** mova compromissos entre horários e dias (passos de 15 min) e **redimensione** o bloco pela borda inferior. `Esc` cancela o arrasto.
 - **Sobreposição permitida:** compromissos no mesmo horário são aceitos normalmente e aparecem lado a lado. O sistema só sinaliza, com um contorno âmbar e a indicação “ao mesmo tempo que…”, ao criar, mover ou agendar.
 - **Recorrências:** diária, semanal (inclusive “toda terça e quinta”), quinzenal (semanal a cada 2), mensal e anual, com intervalo e data final, além da opção **Personalizado** (a cada N dias, semanas, meses ou anos). O mesmo seletor vale para tarefas e para a repetição em massa na Lista. Ao arrastar uma ocorrência o sistema pergunta se vale só para ela (cria uma exceção) ou para a série toda.
-- **Fusos horários:** cada compromisso tem seu fuso; a exibição usa o seu fuso, e há relógios extras na barra lateral.
+- **Fusos horários:** cada compromisso tem seu fuso; a exibição usa o seu fuso, e você pode (opcionalmente) adicionar relógios extras de outros fusos em Ajustes.
 - **Lembretes:** de 0 min a 1 dia antes, com central de notificações no app e alertas do navegador.
 - **Detalhes do compromisso:** prioridade (alta, média, baixa), categorias coloridas (Trabalho, Saúde, Lazer, Estudos, Pessoal), subtarefas, links e anexos por URL, dia inteiro.
-- **Aniversários 🎂:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes.
+- **Aniversários 🎂:** cadastro no botão do calendário. Aparecem todo ano como evento de dia inteiro (com a idade, se informar o ano), notificam **no dia** e, se quiser, 1, 3 ou 7 dias antes. No calendário (inclusive na visão em lista) há um filtro para mostrar, ocultar ou ver só aniversários.
 - **Exportação `.ics`:** compromissos e aniversários, compatível com Google Agenda, Apple Calendar e Outlook.
 
 ### Finanças
@@ -128,7 +128,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 ### Tarefas, hábitos e notas
 
 - **Kanban** (A fazer, Em andamento, Concluído) com arrastar e soltar, prioridades, categorias e prazos. Agende uma tarefa como **bloco no calendário**; concluir a tarefa marca o bloco como feito.
-- **Subtarefas:** cada tarefa pode ter uma lista de passos. Você marca direto no cartão do quadro, com barra de progresso (ex.: 2/4). Ao marcar o primeiro passo a tarefa vai para “Em andamento” e, quando o último é marcado, ela é concluída sozinha; desmarcar um passo reabre. Em tarefas que se repetem, a próxima ocorrência volta com os passos desmarcados.
+- **Subtarefas:** cada tarefa pode ter uma lista de passos. Você edita o texto de cada passo dentro da tarefa (lápis no cartão) e marca direto no cartão do quadro, com barra de progresso (ex.: 2/4). Ao marcar o primeiro passo a tarefa vai para “Em andamento” e, quando o último é marcado, ela é concluída sozinha; desmarcar um passo reabre. Em tarefas que se repetem, a próxima ocorrência volta com os passos desmarcados.
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
 - **Notas em Markdown** com edição, leitura ou tela dividida, busca e **vínculo a um evento ou a uma transação**.
 - **Reuniões:** botão *Gravar reunião* com **transcrição ao vivo em português** (Web Speech API) escrita na nota com marcação de tempo. Ao parar, o sistema gera **resumo, decisões e ações** e oferece criar tarefas a partir das ações. Com a chave da Anthropic configurada, o resumo usa IA (`/api/summarize`); sem ela, usa um resumo local por palavras-chave.
@@ -147,6 +147,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 
 - **Caixinha por viagem** com orçamento por categoria (passagens, hospedagem, alimentação, transporte, passeios, compras, seguro, outros).
 - Cada custo pode ser **valor fixo, por pessoa, por dia ou por pessoa/dia**.
+- Ao criar uma viagem com data de ida, ela entra sozinha no calendário (viagens já existentes não são alteradas; use “Pôr no calendário” se quiser).
 - Calcula **quanto separar por mês e por semana** até a data de ida, quanto isso pesa no salário, o progresso da caixinha e a contagem regressiva.
 - Depósitos podem virar saída na categoria *Viagens*; um botão põe a viagem no calendário.
 

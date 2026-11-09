@@ -62,7 +62,7 @@ function setTaskCol(id, col, prev) {
 }
 function taskCard(t) {
   const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done";
-  return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
+  return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><button class="icon-btn ced" data-act="openTask" data-id="${t.id}" title="Editar tarefa">${ic("edit", 13)}</button><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
    ${t.prio ? `<span class="pill ${PRIO[t.prio].c}">${PRIO[t.prio].n}</span>` : ""}${t.tag ? `<span class="pill"><span class="dot" style="--c:${TAGS[t.tag].c}"></span>${TAGS[t.tag].n}</span>` : ""}
    ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}</div></div>`;
 }
@@ -143,7 +143,7 @@ function openTask(id) {
 }
 function taskFromForm(f) {
   const fd = new FormData(f);
-  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd), subs: clone(dTaskSubs) };
+  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd), subs: clone(dTaskSubs).filter((x) => x.t.trim()) };
 }
 SUBMIT.task = (f, fd) => {
   const o = taskFromForm(f);
@@ -240,7 +240,7 @@ ACT.subToggle = (el) => {
 function renderTSubs() {
   const u = $("#tsubs");
   if (!u) return;
-  u.innerHTML = dTaskSubs.map((s, i) => `<li><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><span class="grow ${s.d ? "muted" : ""}" style="${s.d ? "text-decoration:line-through" : ""}">${esc(s.t)}</span><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
+  u.innerHTML = dTaskSubs.map((s, i) => `<li><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow sub-edit ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tsubTxt" data-i="${i}" title="Editar subtarefa"><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
   const d = dTaskSubs.filter((s) => s.d).length;
   $("#tprog").textContent = dTaskSubs.length ? `(${d}/${dTaskSubs.length})` : "";
 }
@@ -255,6 +255,9 @@ ACT.tsubAdd = () => {
 ACT.tsubDel = (el) => {
   dTaskSubs.splice(+el.dataset.i, 1);
   renderTSubs();
+};
+INP.tsubTxt = (el) => {
+  dTaskSubs[+el.dataset.i].t = el.value;
 };
 INP.tsubChk = (el) => {
   dTaskSubs[+el.dataset.i].d = el.checked;

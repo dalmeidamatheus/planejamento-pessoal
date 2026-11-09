@@ -2,7 +2,7 @@
 ACT.settings = () => {
   const zs = Intl.supportedValuesOf ? Intl.supportedValuesOf("timeZone") : ["America/Sao_Paulo", "UTC"];
   modal(`<form data-form="settings"><h2>Ajustes</h2><label class="field"><span>Seu fuso horário (exibição do calendário)</span><input type="text" name="tz" list="tzl" value="${esc(S.settings.tz)}"></label><datalist id="tzl">${zs.map((z) => `<option>${z}</option>`).join("")}</datalist>
-  <label class="field"><span>Relógios extras (fusos separados por vírgula)</span><input type="text" name="clocks" value="${esc((S.settings.clocks || []).join(", "))}" placeholder="America/New_York, Europe/Lisbon"></label>
+  <label class="field"><span>Relógios extras (fusos separados por vírgula)</span><input type="text" name="clocks" value="${esc((S.settings.clocks || []).join(", "))}" placeholder="Ex.: Asia/Tokyo (opcional)"></label>
   <label class="field"><span>Dinheiro disponível hoje (R$) — quanto você realmente tem em conta agora</span><input type="number" step="0.01" name="cashNow" value="${R2(cashAvailable(todayStr()))}"></label><input type="hidden" name="cashOrig" value="${R2(cashAvailable(todayStr()))}">
   <label class="field"><span>Ajuste de saldo inicial (R$) — preenchido sozinho quando você corrige o valor acima</span><input type="number" step="0.01" name="opening" value="${S.settings.opening || 0}"></label>
   <label class="field"><span>Renda mensal líquida (R$) — usada em “% do salário” (vazio = estimada pelas entradas recorrentes)</span><input type="number" step="0.01" name="salary" value="${S.settings.salary || ""}"></label>

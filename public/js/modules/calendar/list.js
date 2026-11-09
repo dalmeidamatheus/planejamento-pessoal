@@ -10,17 +10,35 @@ function clNext(e) {
   const all = occurrences(e, now - 3650 * 864e5, now);
   return { o: all[all.length - 1] || null, past: true };
 }
-function clRows() {
+function clBdRows() {
   const f = ui.cal.f, q = norm(f.q), sc = ui.cl.scope;
+  if (S.settings.showBirthdays === false || f.bd === "hide" || f.prio || f.hideDone || sc === "past" || sc === "done" || f.tags.length && !f.tags.includes("lazer")) return [];
+  return (S.birthdays || []).map((b) => {
+    const n = bdNext(b), e = { id: "bd:" + b.id, title: bdTitle(b, n.year), tag: "lazer", prio: "baixa", allDay: true, rec: { freq: "yearly", interval: 1 }, birthday: true, remind: null };
+    return { e, b, bd: true, past: false, o: { sMs: fromWall(n.date, dtz()), eMs: fromWall(addDays(n.date, 1), dtz()) } };
+  }).filter((r) => !q || norm(r.e.title + " " + (r.b.notes || "")).includes(q));
+}
+function clBase() {
+  const f = ui.cal.f, q = norm(f.q), sc = ui.cl.scope;
+  if (f.bd === "only") return [];
   const rows = S.events.map((e) => ({ e, ...clNext(e) })).filter(({ e, past }) => {
     const rec = e.rec && e.rec.freq !== "none";
     return (!f.tags.length || f.tags.includes(e.tag)) && (!f.prio || e.prio === f.prio) && (!f.hideDone || !e.done) && (!q || norm(e.title + " " + (e.notes || "")).includes(q)) && (sc === "all" || sc === "next" && !past || sc === "past" && past || sc === "rec" && rec || sc === "done" && e.done);
   });
+  return rows;
+}
+function clSortRows(rows) {
   const po = { alta: 0, media: 1, baixa: 2 }, tags = Object.keys(TAGS);
   const by = { title: (a, b) => a.e.title.localeCompare(b.e.title, "pt-BR"), tag: (a, b) => tags.indexOf(a.e.tag) - tags.indexOf(b.e.tag) || a.e.title.localeCompare(b.e.title, "pt-BR"), prio: (a, b) => (po[a.e.prio] ?? 1) - (po[b.e.prio] ?? 1) };
   return rows.sort(by[ui.cl.sort] || ((a, b) => a.past - b.past || (!a.o) - (!b.o) || (a.o && b.o ? a.past ? b.o.sMs - a.o.sMs : a.o.sMs - b.o.sMs : 0)));
 }
+const clRows = () => clSortRows(clBase());
+const clAllRows = () => clSortRows([...clBase(), ...clBdRows()]);
 function clRow(r) {
+  if (r.bd) {
+    const ds = toWall(r.o.sMs, dtz());
+    return `<tr class="cl" data-act="bdEdit" data-id="${r.b.id}"><td></td><td><span class="dot" style="--c:${tagC(r.e)}"></span> ${esc(r.e.title)}</td><td class="muted">próx. ${fmtDay(ymd(ds))}/${ymd(ds).slice(2, 4)} · dia todo</td><td><span class="pill">↻ todo ano</span></td><td>${esc(TAGS.lazer.n)}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
+  }
   const e = r.e, o = r.o, rec = e.rec && e.rec.freq !== "none", on = ui.cl.sel.has(e.id);
   let when = "—";
   if (o) {
@@ -44,7 +62,7 @@ function clBar() {
 }
 function calList() {
   for (const id of [...ui.cl.sel]) if (!S.events.some((e) => e.id === id)) ui.cl.sel.delete(id);
-  const rows = clRows(), all = rows.length && rows.every((r) => ui.cl.sel.has(r.e.id));
+  const rows = clAllRows(), real = rows.filter((r) => !r.bd), all = real.length && real.every((r) => ui.cl.sel.has(r.e.id));
   return `<div class="toolbar"><select style="width:180px" data-ch="clScope">${CL_SCOPES.map(([k, n]) => `<option value="${k}" ${ui.cl.scope === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <select style="width:160px" data-ch="clSort">${CL_SORTS.map(([k, n]) => `<option value="${k}" ${ui.cl.sort === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <span class="muted sm">${rows.length} compromisso${rows.length === 1 ? "" : "s"} · cada linha é um compromisso (as repetições contam como um só)</span></div>

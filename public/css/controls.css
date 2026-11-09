@@ -42,3 +42,7 @@ kbd{font:500 10.5px Inter;border:1px solid var(--line);border-bottom-width:2px;b
 .subs{list-style:none;margin:0 0 6px;padding:0}.subs li{display:flex;align-items:center;gap:8px;padding:3px 0}
 .infobox{background:#fff7e6;color:#92400e;border:1px solid #fde1a8;border-radius:var(--r);padding:7px 10px;font-size:12.5px;margin-bottom:10px}
 .pill.info{background:#fff3d6;color:#92400e}
+.subs .sub-edit{border:1px solid transparent;background:transparent;padding:4px 6px;min-width:0}
+.subs .sub-edit:hover{border-color:var(--line)}
+.subs .sub-edit:focus{border-color:var(--accent);background:#fff}
+.subs .sub-edit.muted{text-decoration:line-through}

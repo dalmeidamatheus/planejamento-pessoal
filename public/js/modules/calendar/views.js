@@ -1,13 +1,14 @@
 "use strict";
-ui.cal.f = { tags: [], prio: "", q: "", hideDone: false };
+ui.cal.f = { tags: [], prio: "", q: "", hideDone: false, bd: "" };
 function occsF(a, b) {
   const f = ui.cal.f, q = norm(f.q);
-  return occs(a, b).filter((o) => (!f.tags.length || f.tags.includes(o.e.tag)) && (!f.prio || o.e.prio === f.prio) && (!f.hideDone || !o.e.done) && (!q || norm(o.e.title + " " + (o.e.notes || "")).includes(q)));
+  return occs(a, b).filter((o) => (f.bd === "hide" ? !o.e.birthday : f.bd === "only" ? o.e.birthday : true)).filter((o) => (!f.tags.length || f.tags.includes(o.e.tag)) && (!f.prio || o.e.prio === f.prio) && (!f.hideDone || !o.e.done) && (!q || norm(o.e.title + " " + (o.e.notes || "")).includes(q)));
 }
 function calFilters() {
-  const f = ui.cal.f, any = f.tags.length || f.prio || f.q || f.hideDone;
+  const f = ui.cal.f, any = f.tags.length || f.prio || f.q || f.hideDone || f.bd;
   return `<div class="toolbar" style="margin-top:-4px">${Object.entries(TAGS).map(([k, v]) => `<button class="fchip ${f.tags.includes(k) ? "on" : ""}" style="--c:${v.c}" data-act="calTag" data-t="${k}"><span class="dot" style="--c:${v.c}"></span>${v.n}</button>`).join("")}
    <select style="width:170px" data-ch="calPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select>
+   <select style="width:240px" data-ch="calBd">${[["", "🎂 Aniversários: mostrar"], ["only", "🎂 Só aniversários"], ["hide", "🎂 Ocultar aniversários"]].map(([k, n]) => `<option value="${k}" ${f.bd === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <input type="text" style="width:190px" placeholder="Buscar compromissos…" value="${esc(f.q)}" data-in="calQ">
    <label class="row sm"><input type="checkbox" data-ch="calDone" ${f.hideDone ? "checked" : ""}> Ocultar concluídos</label>${any ? `<button class="btn sm ghost" data-act="calClear">Limpar filtros</button>` : ""}</div>`;
 }
@@ -20,6 +21,10 @@ INP.calPrio = (el) => {
   ui.cal.f.prio = el.value;
   render();
 };
+INP.calBd = (el) => {
+  ui.cal.f.bd = el.value;
+  render();
+};
 INP.calDone = (el) => {
   ui.cal.f.hideDone = el.checked;
   render();
@@ -29,7 +34,7 @@ INP.calQ = (el) => {
   renderKeep(el);
 };
 ACT.calClear = () => {
-  ui.cal.f = { tags: [], prio: "", q: "", hideDone: false };
+  ui.cal.f = { tags: [], prio: "", q: "", hideDone: false, bd: "" };
   render();
 };
 ui.cal.d = null;

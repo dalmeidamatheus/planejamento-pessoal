@@ -39,14 +39,16 @@ async function doAuth(mode, email, pw) {
   startApp();
 }
 async function logout() {
-  if (sb) await sb.auth.signOut();
-  LS.removeItem("fox:session");
   if (saveT) {
     clearTimeout(saveT);
+    saveT = null;
     await pushCloud();
   }
+  if (sb) await sb.auth.signOut();
+  LS.removeItem("fox:session");
   user = null;
   S = null;
+  ui.cl.sel.clear();
   showLogin();
 }
 function showLogin(mode = "signin") {
