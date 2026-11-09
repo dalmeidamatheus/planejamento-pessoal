@@ -53,7 +53,7 @@ function calTitle() {
   const l = addDays(e, -1);
   return `${s.getUTCDate()} ${MES[s.getUTCMonth()].slice(0, 3)} – ${l.getUTCDate()} ${MES[l.getUTCMonth()].slice(0, 3)} ${l.getUTCFullYear()}`;
 }
-const chipH = (o) => `<div class="chip ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)}" data-tip="${esc(o.e.title)}${o.allDay ? "" : "<br>" + hm(o.ds) + "–" + hm(o.de)}${o.conflict ? "<br>⚠ Conflito: " + esc((o.with || []).join(", ")) : ""}">${o.allDay ? "" : hm(o.ds) + " "}${esc(o.e.title)}</div>`;
+const chipH = (o) => `<div class="chip ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)}" data-tip="${esc(o.e.title)}${o.allDay ? "" : "<br>" + hm(o.ds) + "–" + hm(o.de)}${o.conflict ? "<br>⇄ Ao mesmo tempo que: " + esc((o.with || []).join(", ")) : ""}">${o.allDay ? "" : hm(o.ds) + " "}${esc(o.e.title)}</div>`;
 VIEWS.calendar = () => {
   if (!ui.cal.d) ui.cal.d = dayStart(todayWall());
   const m = ui.cal.mode;
@@ -110,7 +110,7 @@ function timeGrid(days) {
     flush();
     h += `<div class="dcol" data-date="${ymd(d)}" data-act="newSlot">` + items.map(({ o, s, e, c, n: n2 }) => {
       const top = s * HH / 60, ht = Math.max(18, (e - s) * HH / 60 - 1);
-      return `<div class="ev ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)};top:${top}px;height:${ht}px;left:calc(${c / n2 * 100}% + 1px);width:calc(${100 / n2}% - 3px)" data-tip="${o.conflict ? "⚠ Conflito com: " + esc(o.with.join(", ")) : ""}"><div class="t">${o.e.rec && o.e.rec.freq !== "none" ? "↻ " : ""}${esc(o.e.title)}</div><div class="s">${hm(o.ds)}–${hm(o.de)}${o.conflict ? " ⚠" : ""}</div><div class="rz" data-rz></div></div>`;
+      return `<div class="ev ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)};top:${top}px;height:${ht}px;left:calc(${c / n2 * 100}% + 1px);width:calc(${100 / n2}% - 3px)" data-tip="${o.conflict ? "⇄ Ao mesmo tempo que: " + esc(o.with.join(", ")) : ""}"><div class="t">${o.e.rec && o.e.rec.freq !== "none" ? "↻ " : ""}${esc(o.e.title)}</div><div class="s">${hm(o.ds)}–${hm(o.de)}${o.conflict ? " ⇄" : ""}</div><div class="rz" data-rz></div></div>`;
     }).join("");
     if (ymd(d) === ts) h += `<div class="now" style="top:${(now.getUTCHours() * 60 + now.getUTCMinutes()) * HH / 60}px"></div>`;
     h += "</div>";
@@ -131,7 +131,7 @@ function agenda(rs) {
   });
   return `<div class="cal">` + Object.keys(by).sort().map((k) => {
     const d = wd(k);
-    return `<div class="ag-day"><div class="dl">${d.getUTCDate()} ${MES[d.getUTCMonth()].slice(0, 3)}<small>${DSEML[d.getUTCDay()]}</small></div><div class="grow">` + by[k].map((o) => `<div class="ag-it" data-act="openOcc" data-id="${o.e.id}" data-key="${o.key}"><span class="dot" style="--c:${tagC(o.e)}"></span><span class="tm">${o.allDay ? "Dia todo" : hm(o.ds) + " – " + hm(o.de)}</span><span class="${o.e.done ? "muted" : ""}" style="${o.e.done ? "text-decoration:line-through" : ""}">${esc(o.e.title)}</span>${o.e.rec && o.e.rec.freq !== "none" ? ic("repeat", 13) : ""}${o.e.prio === "alta" ? '<span class="pill bad">Alta</span>' : ""}${o.conflict ? '<span class="pill bad">⚠ conflito</span>' : ""}<span class="grow"></span><span class="muted sm">${TAGS[o.e.tag]?.n || ""}</span></div>`).join("") + "</div></div>";
+    return `<div class="ag-day"><div class="dl">${d.getUTCDate()} ${MES[d.getUTCMonth()].slice(0, 3)}<small>${DSEML[d.getUTCDay()]}</small></div><div class="grow">` + by[k].map((o) => `<div class="ag-it" data-act="openOcc" data-id="${o.e.id}" data-key="${o.key}"><span class="dot" style="--c:${tagC(o.e)}"></span><span class="tm">${o.allDay ? "Dia todo" : hm(o.ds) + " – " + hm(o.de)}</span><span class="${o.e.done ? "muted" : ""}" style="${o.e.done ? "text-decoration:line-through" : ""}">${esc(o.e.title)}</span>${o.e.rec && o.e.rec.freq !== "none" ? ic("repeat", 13) : ""}${o.e.prio === "alta" ? '<span class="pill bad">Alta</span>' : ""}${o.conflict ? '<span class="pill info">⇄ ao mesmo tempo</span>' : ""}<span class="grow"></span><span class="muted sm">${TAGS[o.e.tag]?.n || ""}</span></div>`).join("") + "</div></div>";
   }).join("") + "</div>";
 }
 AFTER.calendar = (sc) => {

@@ -104,6 +104,6 @@ function afterMove(e, ms) {
   const o = occurrences(e, ms - 1, ms + 1)[0];
   if (o && !e.allDay) {
     const c = findConflicts(o.sMs, o.eMs, e.id);
-    if (c.length) toast("⚠ Conflito de horário com: " + c.map((x) => x.e.title).join(", "), true);
+    if (c.length) toast("Acontece ao mesmo tempo que: " + c.map((x) => x.e.title).join(", "));
   }
 }

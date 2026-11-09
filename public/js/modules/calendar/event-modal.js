@@ -88,7 +88,7 @@ INP.evChk = () => {
       return;
     }
     const c = findConflicts(sMs, eMs, dEv.id);
-    box.innerHTML = c.length ? `<div class="warnbox">⚠ Sobrepõe: ${c.map((o) => `<b>${esc(o.e.title)}</b> (${hm(o.ds)}–${hm(o.de)})`).join(", ")}</div>` : "";
+    box.innerHTML = c.length ? `<div class="infobox">⇄ Acontece ao mesmo tempo que (pode salvar normalmente): ${c.map((o) => `<b>${esc(o.e.title)}</b> (${hm(o.ds)}–${hm(o.de)})`).join(", ")}</div>` : "";
   } catch {
     box.innerHTML = "";
   }
@@ -134,7 +134,7 @@ SUBMIT.event = (f, fd) => {
   const o = occurrences(e, fromWall(wd(s), tz) - 1, fromWall(wd(s), tz) + 864e5 * 370)[0];
   if (o && !ad) {
     const c = findConflicts(o.sMs, o.eMs, e.id);
-    if (c.length) toast("⚠ Sobrepõe: " + c.map((x) => x.e.title).join(", "), true);
+    if (c.length) toast((isNew ? "Compromisso criado" : "Compromisso salvo") + ". Acontece ao mesmo tempo que: " + c.map((x) => x.e.title).join(", "));
     else toast(isNew ? "Compromisso criado" : "Compromisso salvo");
   } else toast("Salvo");
 };

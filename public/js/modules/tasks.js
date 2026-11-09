@@ -185,7 +185,7 @@ ACT.taskSchedule = (el) => {
   closeModal();
   render();
   const c = findConflicts(fromWall(wd(s), dtz()), fromWall(wd(en), dtz()), e.id);
-  toast(c.length ? "⚠ Agendado, mas conflita com: " + c.map((x) => x.e.title).join(", ") : "Bloco agendado no calendário", !!c.length);
+  toast(c.length ? "Bloco agendado. Acontece ao mesmo tempo que: " + c.map((x) => x.e.title).join(", ") : "Bloco agendado no calendário");
 };
 ACT.taskUnschedule = () => {
   const t = S.tasks.find((x) => x.id === dTask);
