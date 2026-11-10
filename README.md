@@ -26,7 +26,6 @@
 - [Stack e decisões de projeto](#stack-e-decisões-de-projeto)
 - [Arquitetura](#arquitetura)
 - [Estrutura do repositório](#estrutura-do-repositório)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Rodar localmente](#rodar-localmente)
 - [Modelo de dados](#modelo-de-dados)
 - [Segurança e privacidade](#segurança-e-privacidade)
