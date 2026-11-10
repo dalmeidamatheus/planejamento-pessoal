@@ -1,6 +1,6 @@
 <div align="center">
 
-# Norte
+# Sistema de planejamento pessoal
 
 **Organização pessoal all-in-one: calendário, finanças, tarefas, hábitos, notas, lista de desejos, viagens e aniversários — num só lugar.**
 
@@ -9,8 +9,6 @@
 ![Supabase](https://img.shields.io/badge/auth%20%2B%20dados-Supabase-3ecf8e.svg)
 ![Vercel](https://img.shields.io/badge/deploy-Vercel-000000.svg)
 ![PWA](https://img.shields.io/badge/PWA-instal%C3%A1vel-2b5bd7.svg)
-
-[![Deploy com a Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdalmeidamatheus%2Fplanejamento-pessoal&env=SUPABASE_URL,SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,CRON_SECRET&envDescription=Chaves%20do%20Supabase%20e%20segredo%20do%20cron&project-name=norte)
 
 <img src="docs/screenshots/inicio.jpg" alt="Página inicial do Norte" width="880">
 
