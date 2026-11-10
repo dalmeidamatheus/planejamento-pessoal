@@ -26,7 +26,6 @@
 - [Stack e decisões de projeto](#stack-e-decisões-de-projeto)
 - [Arquitetura](#arquitetura)
 - [Estrutura do repositório](#estrutura-do-repositório)
-- [Publicar: GitHub, Supabase e Vercel](#publicar-github-supabase-e-vercel)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Rodar localmente](#rodar-localmente)
 - [Modelo de dados](#modelo-de-dados)
