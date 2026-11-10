@@ -272,49 +272,6 @@ norte/
 └── .env.example
 ```
 
-## Publicar: GitHub, Supabase e Vercel
-
-### 1. GitHub
-
-```bash
-cd planejamento-pessoal
-git init
-git add .
-git commit -m "Norte: primeira versão"
-git branch -M main
-git remote add origin https://github.com/dalmeidamatheus/planejamento-pessoal.git
-git push -u origin main
-```
-
-### 2. Supabase (gratuito)
-
-1. Crie um projeto em [supabase.com](https://supabase.com).
-2. Abra **SQL Editor → New query**, cole o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e execute. Isso cria `user_data` e `price_watch` com RLS.
-3. Em **Authentication → Providers**, mantenha **Email** habilitado. Se quiser entrar sem confirmar o e-mail, desative *Confirm email*.
-4. Em **Settings → API**, copie **Project URL**, a chave **anon public** e a chave **service_role** (esta é secreta).
-5. Depois do primeiro deploy, em **Authentication → URL Configuration**, coloque a URL do seu site em *Site URL*.
-
-### 3. Vercel
-
-1. **Add New → Project** e importe o repositório. Não altere nada: o [`vercel.json`](vercel.json) já define o comando de build, a pasta de saída e o cron.
-2. Em **Settings → Environment Variables**, crie as variáveis da tabela abaixo.
-3. Faça o **Deploy** (ou *Redeploy* após criar as variáveis).
-4. Abra o site, crie sua conta na tela de login e, se quiser, use *Ajustes → Carregar dados de exemplo*.
-
-## Variáveis de ambiente
-
-| Variável | Obrigatória | Para quê |
-|---|---|---|
-| `SUPABASE_URL` | Para login na nuvem | URL do projeto Supabase |
-| `SUPABASE_ANON_KEY` | Para login na nuvem | Chave pública (a segurança vem do RLS) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Para o monitor de preço | Usada **somente** pelo cron, no servidor. Nunca exponha |
-| `CRON_SECRET` | Para o monitor de preço | Texto aleatório longo (`openssl rand -hex 24`); a Vercel o envia ao cron |
-| `ANTHROPIC_API_KEY` | Opcional | Resumo de reuniões com IA |
-| `ANTHROPIC_MODEL` | Opcional | Modelo da IA (padrão `claude-haiku-5-5`) |
-| `ALLOW_ANON_PRICE_CHECK` | Opcional | `1` libera `/api/price` sem login em deploys sem Supabase (não recomendado) |
-
-Sem `SUPABASE_URL` e `SUPABASE_ANON_KEY` o app funciona em **modo local**. As variáveis são gravadas em `public/js/config.js` durante o build por [`scripts/build-config.js`](scripts/build-config.js).
-
 ## Rodar localmente
 
 Requer Node.js 18 ou superior.
