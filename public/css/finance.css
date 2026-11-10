@@ -1,5 +1,5 @@
 svg text{font-family:Inter,sans-serif}
-.chartbox{width:100%}.legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px;min-width:150px}.legend div{display:flex;align-items:center;gap:7px}.legend b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums}
+.chartbox{width:100%}.legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px;min-width:150px}.legend div{display:flex;align-items:center;gap:7px}.legend b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums}.legend .pc{min-width:42px;text-align:right;color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow:auto}
 .tabs button{border:0;background:transparent;padding:8px 12px;font-weight:500;color:var(--ink2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tabs button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}.tabs button:hover{color:var(--ink)}

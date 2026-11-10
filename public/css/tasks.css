@@ -25,3 +25,6 @@
 .kcard .tdone summary::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
 .kcard .tdone[open] summary::before{transform:rotate(45deg)}
 .kcard .tdone .tsr{margin:0;padding:3px 8px}
+.kcard .tsr[draggable=true]{cursor:grab}
+.sover{box-shadow:inset 0 2px 0 var(--accent)}
+.kcard .tsr.dg{opacity:.4}

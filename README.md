@@ -129,6 +129,7 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 ### Tarefas, hábitos e notas
 
 - **Kanban** (A fazer, Em andamento, Concluído) com arrastar e soltar, prioridades, categorias e prazos. Agende uma tarefa como **bloco no calendário**; concluir a tarefa marca o bloco como feito.
+- **Reordenar subtarefas:** arraste as subtarefas, no cartão ou dentro da tarefa, para mudar a ordem.
 - **Subtarefas:** cada tarefa pode ter uma lista de passos. Você edita o texto de cada passo dentro da tarefa (lápis no cartão) e marca direto no cartão do quadro, com barra de progresso (ex.: 2/4). Ao marcar o primeiro passo a tarefa vai para “Em andamento” e, quando o último é marcado, ela é concluída sozinha; desmarcar um passo reabre. Em tarefas que se repetem, a próxima ocorrência volta com os passos desmarcados.
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
 - **Notas em Markdown** com edição, leitura ou tela dividida, busca e **vínculo a um evento ou a uma transação**.

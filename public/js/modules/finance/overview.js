@@ -20,7 +20,7 @@ function finGeral() {
   return `${empty ? `<div class="card flat" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><div class="grow"><b>Comece lançando sua primeira transação</b><div class="muted sm">Ou carregue dados de exemplo para explorar o sistema.</div></div><button class="btn" data-act="seed">Carregar exemplo</button></div>` : ""}
   <div class="cols c4" style="margin-bottom:14px">
    <div class="card stat"><div class="l">Entradas</div><div class="v pos">${brl(T.in)}</div><div class="s">${brl(T.inP)} recebido</div></div>
-   <div class="card stat"><div class="l">Saídas</div><div class="v neg">${brl(T.out)}</div><div class="s">${brl(T.outP)} pago</div></div>
+   <div class="card stat"><div class="l">Saídas</div><div class="v neg">${brl(T.out)}</div><div class="s">${brl(T.outP)} pago${T.in ? " · " + fmtPct(T.out / T.in * 100) + " da renda" : ""}</div></div>
    <div class="card stat"><div class="l">Saldo do mês</div><div class="v ${T.in - T.out < 0 ? "neg" : ""}">${brl(T.in - T.out)}</div><div class="s">${T.in ? Math.round((T.in - T.out) / T.in * 100) + "% da renda poupada" : "—"}</div></div>
    ${statCash()}</div>
   <div class="cols c2" style="margin-bottom:14px">${statInv()}${statNet()}</div>
@@ -47,7 +47,7 @@ function statInv() {
 }
 function statNet() {
   const c = cashAvailable(todayStr()), i = invSummary().value;
-  return `<div class="card stat"><div class="l">Patrimônio líquido</div><div class="v">${brl(c + i)}</div><div class="s">dinheiro disponível ${brl(c)} + investimentos ${brl(i)}</div></div>`;
+  return `<div class="card stat"><div class="l">Patrimônio líquido</div><div class="v">${brl(c + i)}</div><div class="s">dinheiro disponível ${brl(c)}${c + i > 0 ? " (" + fmtPct(c / (c + i) * 100) + ")" : ""} + investimentos ${brl(i)}${c + i > 0 ? " (" + fmtPct(i / (c + i) * 100) + ")" : ""}</div></div>`;
 }
 function cashLine() {
   const b = cashBreakdown(todayStr()), invested = b.moved + Math.max(0, -b.opening), before = Math.max(0, b.opening);

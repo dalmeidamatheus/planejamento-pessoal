@@ -46,3 +46,5 @@ kbd{font:500 10.5px Inter;border:1px solid var(--line);border-bottom-width:2px;b
 .subs .sub-edit:hover{border-color:var(--line)}
 .subs .sub-edit:focus{border-color:var(--accent);background:#fff}
 .subs .sub-edit.muted{text-decoration:line-through}
+.subs .grip{cursor:grab;color:var(--ink3);font-size:13px;letter-spacing:-2px;padding:0 4px;user-select:none;flex:none}
+.subs li.sover{border-radius:6px}

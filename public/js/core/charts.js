@@ -34,11 +34,11 @@ function donut(items, { size = 170 } = {}) {
   let off = 0, seg = "";
   items.forEach((it) => {
     const f = it.v / tot, len = C * f;
-    seg += `<circle cx="85" cy="85" r="${r}" fill="none" stroke="${it.c}" stroke-width="22" stroke-dasharray="${Math.max(len - 1.5, 0)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)" data-tip="${esc(it.l)}: ${brl(it.v)} (${(f * 100).toFixed(0)}%)"/>`;
+    seg += `<circle cx="85" cy="85" r="${r}" fill="none" stroke="${it.c}" stroke-width="22" stroke-dasharray="${Math.max(len - 1.5, 0)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 85 85)" data-tip="${esc(it.l)}: ${brl(it.v)} (${fmtPct(f * 100)})"/>`;
     off += len;
   });
   return `<div class="row" style="gap:18px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 170 170" width="${size}" height="${size}">${seg}<text x="85" y="82" text-anchor="middle" font-size="10" fill="#75849a">Total</text><text x="85" y="98" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">${short(tot)}</text></svg>
-  <div class="legend">${items.map((it) => `<div><span class="dot" style="--c:${it.c}"></span>${esc(it.l)}<b>${brl(it.v)}</b></div>`).join("")}</div></div>`;
+  <div class="legend">${items.map((it) => `<div><span class="dot" style="--c:${it.c}"></span>${esc(it.l)}<b>${brl(it.v)}</b><span class="pc">${fmtPct(it.v / tot * 100)}</span></div>`).join("")}</div></div>`;
 }
 function lineChart(rows, { h = 200, c = "#2563eb", zero = true, step = false, fmt = short } = {}) {
   const W = 620, L = 56, B = 24, T = 10, ch = h - B - T, vals = rows.map((r) => r.v);

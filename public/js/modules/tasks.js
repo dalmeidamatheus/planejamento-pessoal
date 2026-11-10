@@ -89,7 +89,27 @@ SUBMIT.taskQuick = (f, fd) => {
   render();
   setTimeout(() => $(`form[data-col=${f.dataset.col}] input`)?.focus(), 0);
 };
+let dragSub = null, dragModal = null;
+const clearSubOver = () => $$(".sover").forEach((x) => x.classList.remove("sover"));
+function moveItem(arr, from, to) {
+  if (from < 0 || to < 0 || from === to) return;
+  arr.splice(to, 0, arr.splice(from, 1)[0]);
+}
 document.addEventListener("dragstart", (e) => {
+  const row = e.target.closest?.(".tsr"), grip = e.target.closest?.(".grip");
+  if (row || grip) {
+    e.stopPropagation();
+    e.dataTransfer.setData("text/plain", "sub");
+    e.dataTransfer.effectAllowed = "move";
+    if (row) {
+      dragSub = { t: row.dataset.t, s: row.dataset.s };
+      row.classList.add("dg");
+    } else {
+      dragModal = +grip.dataset.i;
+      e.dataTransfer.setDragImage(grip.closest("li"), 12, 12);
+    }
+    return;
+  }
   const c = e.target.closest?.(".kcard");
   if (c) {
     e.dataTransfer.setData("text/plain", c.dataset.id);
@@ -98,10 +118,22 @@ document.addEventListener("dragstart", (e) => {
   }
 });
 document.addEventListener("dragend", () => {
+  dragSub = null;
+  dragModal = null;
+  clearSubOver();
   $$(".dg").forEach((x) => x.classList.remove("dg"));
   $$(".kcol.drop").forEach((x) => x.classList.remove("drop"));
 });
 document.addEventListener("dragover", (e) => {
+  if (dragSub || dragModal != null) {
+    const r = dragSub ? e.target.closest?.(".tsr") : e.target.closest?.("#tsubs li");
+    clearSubOver();
+    if (r && (dragModal != null || r.dataset.t === dragSub.t)) {
+      e.preventDefault();
+      r.classList.add("sover");
+    }
+    return;
+  }
   const c = e.target.closest?.(".kcol");
   if (c) {
     e.preventDefault();
@@ -110,6 +142,27 @@ document.addEventListener("dragover", (e) => {
   }
 });
 document.addEventListener("drop", (e) => {
+  if (dragSub || dragModal != null) {
+    const r = dragSub ? e.target.closest?.(".tsr") : e.target.closest?.("#tsubs li");
+    if (r) {
+      e.preventDefault();
+      if (dragModal != null) {
+        moveItem(dTaskSubs, dragModal, +r.dataset.i);
+        renderTSubs();
+      } else if (r.dataset.t === dragSub.t) {
+        const t = S.tasks.find((x) => x.id === dragSub.t);
+        if (t) {
+          moveItem(t.subs, t.subs.findIndex((x) => x.id === dragSub.s), t.subs.findIndex((x) => x.id === r.dataset.s));
+          save();
+          render();
+        }
+      }
+    }
+    dragSub = null;
+    dragModal = null;
+    clearSubOver();
+    return;
+  }
   const c = e.target.closest?.(".kcol");
   if (!c) return;
   e.preventDefault();
@@ -217,7 +270,7 @@ const subCount = (t) => ({ n: (t.subs || []).length, d: (t.subs || []).filter((x
 function subsHtml(t) {
   const { n, d } = subCount(t);
   if (!n) return "";
-  const row = (x) => `<div class="tsr" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`;
+  const row = (x) => `<div class="tsr" draggable="true" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`;
   const open = t.subs.filter((x) => !x.d), done = t.subs.filter((x) => x.d);
   return `<div class="tsub"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>
    <div class="tsub-list">${open.slice(0, 5).map(row).join("")}${open.length > 5 ? `<div class="sm muted">+${open.length - 5} pendente${open.length - 5 > 1 ? "s" : ""}</div>` : ""}${done.length ? `<details class="tdone" data-act="nop" ${ui.tasks.openDone?.[t.id] ? "open" : ""} data-id="${t.id}"><summary>${done.length} concluída${done.length > 1 ? "s" : ""}</summary>${done.map(row).join("")}</details>` : ""}</div>`;
@@ -242,7 +295,7 @@ ACT.subToggle = (el) => {
 function renderTSubs() {
   const u = $("#tsubs");
   if (!u) return;
-  u.innerHTML = dTaskSubs.map((s, i) => `<li><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow sub-edit ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tsubTxt" data-i="${i}" title="Editar subtarefa"><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
+  u.innerHTML = dTaskSubs.map((s, i) => `<li data-i="${i}"><span class="grip" draggable="true" data-i="${i}" title="Arraste para reordenar">⋮⋮</span><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow sub-edit ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tsubTxt" data-i="${i}" title="Editar subtarefa"><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
   const d = dTaskSubs.filter((s) => s.d).length;
   $("#tprog").textContent = dTaskSubs.length ? `(${d}/${dTaskSubs.length})` : "";
 }
