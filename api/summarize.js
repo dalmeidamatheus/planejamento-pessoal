@@ -1,7 +1,7 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
 const MAX_CHARS = 6e4;
-/* Resumo de reunião com IA (Gemini gratuito ou Claude). Sem chave: responde 501 e o app usa o resumo local. */
+/* Resumo de reunião com IA (fila de provedores gratuitos). Sem chave: responde 501 e o app usa o resumo local. */
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido" });

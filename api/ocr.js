@@ -1,6 +1,6 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
-/* Foto → texto com IA de visão (Gemini gratuito ou Claude). Sem chave: 501 e o app usa o OCR do navegador. */
+/* Foto → texto com IA de visão (fila de provedores gratuitos). Sem chave: 501 e o app usa o OCR do navegador. */
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido" });

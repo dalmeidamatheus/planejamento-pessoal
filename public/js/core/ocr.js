@@ -1,6 +1,6 @@
 "use strict";
 /* Foto de um documento/anotação → texto.
-   1) /api/ocr (Claude com visão; melhor para manuscrito, tabelas e fotos tortas) quando ANTHROPIC_API_KEY está configurada;
+   1) /api/ocr (fila de provedores gratuitos com visão, do melhor ao pior) quando houver alguma chave configurada;
    2) caso contrário, Tesseract.js (roda no próprio navegador, sem chave; mais fraco para manuscrito). */
 const OCR = (() => {
   async function shrink(file, max = 1800) {

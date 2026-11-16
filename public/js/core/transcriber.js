@@ -1,7 +1,7 @@
 "use strict";
 /* Transcrição de voz em tempo real (independente de tela).
    Motor "browser": Web Speech API — instantâneo, mostra texto provisório enquanto você fala.
-   Motor "whisper": grava trechos de ~12 s e envia para /api/transcribe (mais preciso; requer OPENAI_API_KEY no servidor).
+   Motor "whisper": grava trechos de ~12 s e envia para /api/transcribe (mais preciso; fila de provedores gratuitos, depois Whisper local).
    No modo whisper o texto provisório do navegador continua aparecendo, e o texto final vem do Whisper. */
 /* Whisper rodando no próprio navegador (Transformers.js): grátis, sem chave, funciona offline depois do 1º download (~75 MB). */
 const LocalWhisper = (() => {

@@ -133,8 +133,8 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
 - **Notas com editor rico:** botão **Nova nota** na própria página; negrito, itálico, sublinhado, ~~riscado~~ (`Ctrl+Shift+S`), destaque, cores, títulos, listas, checklist, citação, código, blocos de destaque, tabelas e alinhamento. Aceita Markdown ao digitar (`# `, `- `, `[] `, `1. `, `> `). **Imagens, GIFs, vídeos, áudios, YouTube/Vimeo e arquivos** (colar, arrastar ou pelos botões), **ícone, capa e fonte** por nota, busca e **vínculo a um evento ou a uma transação**. Notas antigas em Markdown são convertidas na primeira abertura.
 - **Matemática nas notas:** fórmulas em LaTeX (KaTeX) com atalhos para ∫, d/dx, ∂, lim, Σ, √, matrizes… e **cálculo simbólico** (derivada, integral indefinida/definida, resolver equação, simplificar) via Nerdamer: digite `x^2*sin(x)` e o resultado entra na nota já formatado. `Ctrl+Shift+M` abre o painel; clique numa fórmula para editá-la.
-- **Reuniões:** *Gravar reunião* escreve **na própria nota, ao vivo**, enquanto você fala (o trecho provisório aparece em cinza) e você pode continuar digitando e corrigindo ao mesmo tempo. Frases viram parágrafos com marcação de tempo, com pontuação e maiúsculas automáticas e comandos de voz (“vírgula”, “ponto final”, “nova linha”). Dois motores: **navegador** (instantâneo, grátis) e **Whisper** (mais preciso; chave gratuita do Groq em `GROQ_API_KEY`, ou `OPENAI_API_KEY` pago). Ao parar, o sistema gera **resumo, decisões e ações** (com `GEMINI_API_KEY`, gratuita, ou `ANTHROPIC_API_KEY`, paga, usa IA; sem chave, resumo local) e oferece criar tarefas das ações.
-- **Foto → texto (OCR):** botão de câmera no editor: tire uma foto (ou escolha da galeria) de uma conta, documento ou anotação e o texto entra na nota. Com `GEMINI_API_KEY` (gratuita) ou `ANTHROPIC_API_KEY` (paga) usa IA de visão (`/api/ocr`, bem melhor para manuscrito); sem chave, usa Tesseract.js direto no navegador.
+- **Reuniões:** *Gravar reunião* escreve **na própria nota, ao vivo**, enquanto você fala (o trecho provisório aparece em cinza) e você pode continuar digitando e corrigindo ao mesmo tempo. Frases viram parágrafos com marcação de tempo, com pontuação e maiúsculas automáticas e comandos de voz (“vírgula”, “ponto final”, “nova linha”). Dois motores: **navegador** (instantâneo, grátis) e **Whisper** (mais preciso; chave gratuita do Groq em `GROQ_API_KEY`). Ao parar, o sistema gera **resumo, decisões e ações** (com `GEMINI_API_KEY`, gratuita, usa IA; sem chave, resumo local) e oferece criar tarefas das ações.
+- **Foto → texto (OCR):** botão de câmera no editor: tire uma foto (ou escolha da galeria) de uma conta, documento ou anotação e o texto entra na nota. Com `GEMINI_API_KEY` (gratuita) usa IA de visão (`/api/ocr`, bem melhor para manuscrito); sem chave, usa Tesseract.js direto no navegador.
 - **Comando por voz:** botão de microfone na busca (Ctrl+K) e na barra do app mobile: diga “nota comprar pão”, “tarefa enviar proposta”, “reunião amanhã 14h”, “gasto 45 mercado” e o item é criado na hora.
 - **Anexos em tarefas e notas:** envie arquivos (até 50 MB) em qualquer tarefa; ficam no IndexedDB do aparelho e, com Supabase, também no Storage privado (bucket `attachments`, rode o `supabase/schema.sql` atualizado).
 
@@ -216,7 +216,7 @@ Decisões importantes:
 ```
  Navegador (public/)                         Vercel (api/)                     Supabase
 ┌──────────────────────────────┐   POST    ┌──────────────────────┐
-│ index.html + css/ + js/      │──────────▶│ /api/summarize  (IA) │──▶ Anthropic API
+│ index.html + css/ + js/      │──────────▶│ /api/summarize  (IA) │──▶ provedores de IA gratuitos
 │  core/    estado, auth, shell│  (JWT)    │ /api/price (preço)   │──▶ página da loja
 │  modules/ calendário, finanças│          └──────────────────────┘
 │           desejos, viagens…  │                    ▲ cron diário
@@ -356,8 +356,8 @@ Nada exige pagamento nem chave. Cada recurso tem uma **fila de provedores do mel
 
 | Recurso | Ordem de uso (melhor → pior) |
 |---|---|
-| Foto → texto | Claude (pago) → Gemini → Mistral OCR → Groq Llama 4 Scout → OpenRouter → OCR.space → **Tesseract no navegador** |
-| Transcrição de voz | Groq Whisper → OpenAI Whisper (pago) → AssemblyAI → Mistral Voxtral → Cloudflare Whisper → **Whisper local no navegador** (~75 MB, uma vez) → **reconhecimento de voz do navegador** |
-| Resumo de reunião | Claude (pago) → Gemini → Groq Llama 3.3 → Mistral → OpenRouter → **resumo local** |
+| Foto → texto | Gemini → Mistral OCR → Groq Llama 4 Scout → OpenRouter → OCR.space → **Tesseract no navegador** |
+| Transcrição de voz | Groq Whisper → AssemblyAI → Mistral Voxtral → Cloudflare Whisper → **Whisper local no navegador** (~75 MB, uma vez) → **reconhecimento de voz do navegador** |
+| Resumo de reunião | Gemini → Groq Llama 3.3 → Mistral → OpenRouter → **resumo local** |
 
-Só Claude e OpenAI são pagos por uso (a assinatura do Claude.ai ou do ChatGPT não inclui a API). Os planos gratuitos têm limites que mudam com o tempo e, em alguns, o provedor pode usar o conteúdo enviado.
+Só são usados serviços com plano gratuito; nenhum recurso pago é utilizado. Os limites gratuitos mudam com o tempo e, em alguns, o provedor pode usar o conteúdo enviado.
