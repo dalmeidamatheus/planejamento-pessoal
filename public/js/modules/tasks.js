@@ -25,57 +25,30 @@ ACT.taskClear = () => {
   render();
 };
 const KCOLS = [["todo", "A fazer"], ["doing", "Em andamento"], ["done", "Concluído"]];
-function spawnNext(t) {
-  const r = t.rec;
-  if (!r || r.freq === "none") return;
-  let nd = nextDate(t.due || todayStr(), r), guard = 0;
-  while (nd <= todayStr() && guard++ < 400) nd = nextDate(nd, r);
-  if (r.until && nd > r.until) {
-    t.rec = { freq: "none" };
-    return;
-  }
-  const n = { ...clone(t), id: uid(), col: "todo", due: nd, subs: (t.subs || []).map((x) => ({ ...x, id: uid(), d: false })) };
-  delete n.eventId;
-  delete n.nextId;
-  const e = t.eventId && S.events.find((x) => x.id === t.eventId);
-  if (e) {
-    const start = nd + "T" + e.start.slice(11), dur = wd(e.end) - wd(e.start);
-    const ne = { ...clone(e), id: uid(), start, end: fmtDT(new Date(wd(start).getTime() + dur)), done: false, taskId: n.id };
-    S.events.push(ne);
-    n.eventId = ne.id;
-  }
-  S.tasks.push(n);
-  t.rec = { freq: "none" };
-  t.nextId = n.id;
-  toast("↻ Próxima repetição criada para " + fmtDay(nd) + "/" + nd.slice(2, 4));
-}
-function setTaskCol(id, col, prev) {
-  const t = S.tasks.find((x) => x.id === id);
-  if (!t) return;
-  prev = prev ?? t.col;
-  t.col = col;
-  if (col === "done" && prev !== "done") spawnNext(t);
-  if (t.eventId) {
-    const e = S.events.find((x) => x.id === t.eventId);
-    if (e) e.done = col === "done";
-  }
-}
+const spawnNext = TaskOps.spawnNext, setTaskCol = TaskOps.setCol, subAuto = TaskOps.subAuto, subCount = TaskOps.subCount;
+I.pin = '<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3zM12 14v7"/>';
+I.clip = '<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.2 17.2a1.7 1.7 0 0 1-2.4-2.4L14 7.6"/>';
+ui.tasks.sel = ui.tasks.sel || new Set();
+const selN = () => ui.tasks.sel.size;
 function taskCard(t) {
-  const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done";
-  return `<div class="kcard ${t.col === "done" ? "done" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><button class="icon-btn ced" data-act="openTask" data-id="${t.id}" title="Editar tarefa">${ic("edit", 13)}</button><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
+  const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done", sel = ui.tasks.sel.has(TaskOps.keyT(t.id)), nf = (t.files || []).length;
+  return `<div class="kcard ${t.col === "done" ? "done" : ""} ${t.pin ? "pinned" : ""} ${sel ? "sel" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><button class="ksel" data-act="taskSel" data-id="${t.id}" title="Selecionar" aria-pressed="${sel}">${sel ? "✓" : ""}</button><div class="kact"><button class="icon-btn pinb ${t.pin ? "on" : ""}" data-act="taskPin" data-id="${t.id}" title="${t.pin ? "Desafixar" : "Fixar no topo"}">${ic("pin", 13)}</button><button class="icon-btn ced" data-act="openTask" data-id="${t.id}" title="Editar tarefa">${ic("edit", 13)}</button></div><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
    ${t.prio ? `<span class="pill ${PRIO[t.prio].c}">${PRIO[t.prio].n}</span>` : ""}${t.tag ? `<span class="pill"><span class="dot" style="--c:${TAGS[t.tag].c}"></span>${TAGS[t.tag].n}</span>` : ""}
-   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}</div></div>`;
+   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}${nf ? `<span class="pill">${ic("clip", 11)} ${nf}</span>` : ""}</div></div>`;
 }
 VIEWS.tasks = () => {
   const f = ui.tasks.filter, ts = todayStr();
-  const L = S.tasks.filter((t) => f === "all" || f === "today" && t.col !== "done" && t.due && t.due <= ts || f === "late" && t.col !== "done" && t.due && t.due < ts).filter(taskMatch);
-  return `<div class="toolbar"><div class="seg">${[["all", "Todas"], ["today", "Hoje"], ["late", "Atrasadas"]].map(([k, n]) => `<button class="${f === k ? "on" : ""}" data-act="taskFilter" data-f="${k}">${n}</button>`).join("")}</div>${taskFilters()}<div class="grow"></div><button class="btn primary" data-act="newTask">${ic("plus")}Tarefa</button></div>
-  <div class="kanban">${KCOLS.map(([k, n]) => {
-    const C = L.filter((t) => t.col === k);
-    return `<div class="kcol" data-col="${k}"><div class="kh"><span>${n}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}
+  ui.tasks.sel = new Set(TaskOps.validKeys(ui.tasks.sel));
+  const pred = (t) => (f === "all" || f === "today" && t.col !== "done" && t.due && t.due <= ts || f === "late" && t.col !== "done" && t.due && t.due < ts) && taskMatch(t);
+  const n = selN();
+  return `<div class="toolbar"><div class="seg">${[["all", "Todas"], ["today", "Hoje"], ["late", "Atrasadas"]].map(([k, nm]) => `<button class="${f === k ? "on" : ""}" data-act="taskFilter" data-f="${k}">${nm}</button>`).join("")}</div>${taskFilters()}<div class="grow"></div><button class="btn primary" data-act="newTask">${ic("plus")}Tarefa</button></div>
+  <div class="kanban ${n ? "selecting" : ""}">${KCOLS.map(([k, nm]) => {
+    const C = TaskOps.colList(k, pred), allSel = C.length && C.every((t) => ui.tasks.sel.has(TaskOps.keyT(t.id)));
+    return `<div class="kcol" data-col="${k}"><div class="kh"><span class="khl"><button class="ksel kall ${allSel ? "on" : ""}" data-act="colSel" data-col="${k}" title="Selecionar toda a coluna">${allSel ? "✓" : ""}</button>${nm}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}
    <form data-form="taskQuick" data-col="${k}" class="kadd"><input type="text" name="t" placeholder="+ Adicionar tarefa" autocomplete="off"></form></div>`;
   }).join("")}</div>
-  <p class="muted sm" style="margin-top:12px">Arraste os cartões entre colunas. Abra uma tarefa para agendá-la como bloco de tempo no calendário — concluir a tarefa marca o bloco como feito.</p>`;
+  <p class="muted sm" style="margin-top:12px">Arraste os cartões para reordenar ou mudar de coluna · 📌 fixa no topo · marque a caixinha de cartões e subtarefas para concluir ou excluir vários de uma vez (Esc limpa a seleção).</p>
+  ${n ? `<div class="bulkbar"><b>${n} selecionada${n > 1 ? "s" : ""}</b><button class="btn primary" data-act="bulkDone">${ic("check")}Concluir (${n})</button><button class="btn danger" data-act="bulkDel">${ic("trash")}Excluir (${n})</button><button class="btn ghost" data-act="selClear">Cancelar</button></div>` : ""}`;
 };
 ACT.taskFilter = (el) => {
   ui.tasks.filter = el.dataset.f;
@@ -84,12 +57,52 @@ ACT.taskFilter = (el) => {
 SUBMIT.taskQuick = (f, fd) => {
   const t = (fd.get("t") || "").trim();
   if (!t) return;
-  S.tasks.push({ id: uid(), title: t, col: f.dataset.col, prio: "media", tag: "", due: "", notes: "" });
+  TaskOps.insert({ id: uid(), title: t, col: f.dataset.col, prio: "media", tag: "", due: "", notes: "" });
   save();
   render();
   setTimeout(() => $(`form[data-col=${f.dataset.col}] input`)?.focus(), 0);
 };
-let dragSub = null, dragModal = null;
+/* ---- fixar, selecionar, ações em massa ---- */
+ACT.taskPin = (el, e) => {
+  e.stopPropagation();
+  const on = TaskOps.togglePin(el.dataset.id);
+  save();
+  render();
+  toast(on ? "📌 Tarefa fixada no topo" : "Tarefa desafixada");
+};
+const toggleSel = (k) => (ui.tasks.sel.has(k) ? ui.tasks.sel.delete(k) : ui.tasks.sel.add(k));
+ACT.taskSel = (el, e) => { e.stopPropagation(); toggleSel(TaskOps.keyT(el.dataset.id)); render(); };
+ACT.subSel = (el, e) => { e.stopPropagation(); toggleSel(TaskOps.keyS(el.dataset.t, el.dataset.s)); render(); };
+ACT.colSel = (el, e) => {
+  e.stopPropagation();
+  const ids = $$(`.kcol[data-col=${el.dataset.col}] .kcard`).map((c) => c.dataset.id), keys = ids.map((id) => TaskOps.keyT(id));
+  const all = keys.length && keys.every((k) => ui.tasks.sel.has(k));
+  keys.forEach((k) => (all ? ui.tasks.sel.delete(k) : ui.tasks.sel.add(k)));
+  render();
+};
+ACT.selClear = () => { ui.tasks.sel.clear(); render(); };
+ACT.bulkDone = () => {
+  const n = TaskOps.bulkDone([...ui.tasks.sel]);
+  ui.tasks.sel.clear();
+  save();
+  render();
+  toast(n + " item(ns) concluído(s) ✓");
+};
+ACT.bulkDel = () => {
+  const keys = [...ui.tasks.sel], nt = keys.filter((k) => k[0] === "t").length, ns = keys.length - nt;
+  const parts = [nt && nt + " tarefa" + (nt > 1 ? "s" : ""), ns && ns + " subtarefa" + (ns > 1 ? "s" : "")].filter(Boolean).join(" e ");
+  confirmAsk(`Excluir ${parts}? Esta ação não pode ser desfeita.`, () => {
+    TaskOps.bulkDelete(keys);
+    ui.tasks.sel.clear();
+    save();
+    render();
+    toast("Itens excluídos");
+  }, { yes: "Excluir (" + keys.length + ")" });
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && view === "tasks" && selN() && !$("#overlay .scrim") && !$("#dlg .dlg")) { ui.tasks.sel.clear(); render(); }
+});
+let dragSub = null, dragModal = null, dragTask = null;
 const clearSubOver = () => $$(".sover").forEach((x) => x.classList.remove("sover"));
 function moveItem(arr, from, to) {
   if (from < 0 || to < 0 || from === to) return;
@@ -112,14 +125,26 @@ document.addEventListener("dragstart", (e) => {
   }
   const c = e.target.closest?.(".kcard");
   if (c) {
+    dragTask = c.dataset.id;
     e.dataTransfer.setData("text/plain", c.dataset.id);
     e.dataTransfer.effectAllowed = "move";
     c.classList.add("dg");
   }
 });
+/* Para onde o cartão cai: dentro da coluna, antes do primeiro cartão cujo meio está abaixo do cursor. */
+function dropSpot(e) {
+  const col = e.target.closest?.(".kcol");
+  if (!col) return null;
+  const cards = $$(".kcard", col).filter((c) => c.dataset.id !== dragTask);
+  const before = cards.find((c) => { const r = c.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; });
+  return { col, before: before || null };
+}
+const clearIns = () => $$(".ins-b,.ins-end").forEach((x) => x.classList.remove("ins-b", "ins-end"));
 document.addEventListener("dragend", () => {
   dragSub = null;
   dragModal = null;
+  dragTask = null;
+  clearIns();
   clearSubOver();
   $$(".dg").forEach((x) => x.classList.remove("dg"));
   $$(".kcol.drop").forEach((x) => x.classList.remove("drop"));
@@ -134,11 +159,13 @@ document.addEventListener("dragover", (e) => {
     }
     return;
   }
-  const c = e.target.closest?.(".kcol");
-  if (c) {
+  const sp = dragTask && dropSpot(e);
+  if (sp) {
     e.preventDefault();
-    $$(".kcol.drop").forEach((x) => x !== c && x.classList.remove("drop"));
-    c.classList.add("drop");
+    clearIns();
+    $$(".kcol.drop").forEach((x) => x !== sp.col && x.classList.remove("drop"));
+    sp.col.classList.add("drop");
+    (sp.before ? sp.before : sp.col.querySelector(".kadd")).classList.add(sp.before ? "ins-b" : "ins-end");
   }
 });
 document.addEventListener("drop", (e) => {
@@ -163,40 +190,46 @@ document.addEventListener("drop", (e) => {
     clearSubOver();
     return;
   }
-  const c = e.target.closest?.(".kcol");
-  if (!c) return;
+  const sp = dragTask && dropSpot(e);
+  if (!sp) return;
   e.preventDefault();
-  const id = e.dataTransfer.getData("text/plain");
-  if (id) {
-    setTaskCol(id, c.dataset.col);
-    save();
-    render();
-  }
+  const id = dragTask;
+  dragTask = null;
+  clearIns();
+  TaskOps.move(id, sp.before ? sp.before.dataset.id : "", false, sp.col.dataset.col);
+  save();
+  render();
 });
 let dTask = null;
 ACT.newTask = () => openTask(null);
-ACT.openTask = (el) => openTask(el.dataset.id);
+ACT.openTask = (el, e) => {
+  if (selN() || e.ctrlKey || e.metaKey || e.shiftKey) return ACT.taskSel(el, e);
+  openTask(el.dataset.id);
+};
 function openTask(id) {
   const t = id ? S.tasks.find((x) => x.id === id) : { title: "", col: "todo", prio: "media", tag: "", due: "", notes: "" };
   dTask = id;
   dTaskSubs = clone(t.subs || []);
+  dTaskFiles = clone(t.files || []);
+  dTaskFilesOrig = clone(t.files || []);
   const ev = t.eventId && S.events.find((x) => x.id === t.eventId), sd = ev ? ev.start.slice(0, 10) : t.due || todayStr(), st = ev ? ev.start.slice(11, 16) : "09:00", dur = ev ? Math.round((wd(ev.end) - wd(ev.start)) / 6e4) : 60;
   modal(`<form data-form="task"><h2>${id ? "Editar tarefa" : "Nova tarefa"}</h2><label class="field"><span>Título</span><input type="text" name="title" value="${esc(t.title)}" required></label>
   <div class="grid3 wide1"><label class="field"><span>Coluna</span><select name="col">${KCOLS.map(([k, n]) => `<option value="${k}" ${t.col === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
    <label class="field"><span>Prioridade</span><select name="prio">${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${t.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label>
    <label class="field"><span>Categoria</span><select name="tag"><option value="">—</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${t.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label></div>
-  <label class="field"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label>
+  <div class="row" style="gap:16px;align-items:flex-end;flex-wrap:wrap"><label class="field grow"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label><label class="row" style="margin-bottom:12px;gap:6px"><input type="checkbox" name="pin" ${t.pin ? "checked" : ""}> ${ic("pin", 14)} Fixar no topo da coluna</label></div>
   <div class="field"><span>Subtarefas <b id="tprog" class="muted"></b></span><ul class="subs" id="tsubs"></ul><div class="row"><input type="text" id="tsubIn" placeholder="Adicionar subtarefa e Enter"><button type="button" class="btn" data-act="tsubAdd">${ic("plus")}</button></div></div>
   ${recFields(t.rec)}
   <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(t.notes || "")}</textarea></label>
+  <div class="field"><span>Anexos <small class="muted">(imagens, PDFs, qualquer arquivo até 50 MB)</small></span><div id="tfiles" data-track></div><label class="btn sm fpick">${ic("clip", 14)} Anexar arquivos<input type="file" multiple hidden data-ch="tfileAdd"></label></div>
   <div class="card flat" style="padding:12px"><div class="row" style="margin-bottom:8px"><b>${ic("calendar", 15)} Bloco no calendário</b>${ev ? '<span class="pill blue">agendado</span>' : ""}</div>
    <div class="grid3"><label class="field"><span>Data</span><input type="date" name="sd" value="${sd}"></label><label class="field"><span>Hora</span><input type="time" name="st" value="${st}"></label><label class="field"><span>Duração (min)</span><input type="number" name="sdur" min="15" step="15" value="${dur}"></label></div>
    <div class="row"><button type="button" class="btn" data-act="taskSchedule">${ev ? "Reagendar bloco" : "Agendar bloco"}</button>${ev ? `<button type="button" class="btn ghost danger" data-act="taskUnschedule">Remover bloco</button>` : ""}</div></div>
-  <div class="foot">${id ? `<button type="button" class="btn danger" data-act="taskDel">${ic("trash")}Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`, { onMount: renderTSubs });
+  <div class="foot">${id ? `<button type="button" class="btn danger" data-act="taskDel">${ic("trash")}Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`, { onMount: () => { renderTSubs(); renderTFiles(); } });
 }
 function taskFromForm(f) {
   const fd = new FormData(f);
-  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd), subs: clone(dTaskSubs).filter((x) => x.t.trim()) };
+  return { title: fd.get("title").trim(), col: fd.get("col"), prio: fd.get("prio"), tag: fd.get("tag"), due: fd.get("due"), notes: fd.get("notes"), rec: recFromForm(fd), subs: clone(dTaskSubs).filter((x) => x.t.trim()), pin: fd.get("pin") === "on", files: clone(dTaskFiles) };
 }
 SUBMIT.task = (f, fd) => {
   const o = taskFromForm(f);
@@ -210,9 +243,10 @@ SUBMIT.task = (f, fd) => {
     if (e) e.title = o.title;
   } else {
     const n = { id: uid(), ...o };
-    S.tasks.push(n);
+    TaskOps.insert(n);
     subAuto(n);
   }
+  dTaskFilesOrig.filter((f) => !dTaskFiles.some((x) => x.id === f.id)).forEach((f) => Files.remove(f.id));
   save();
   closeModal();
   render();
@@ -227,7 +261,7 @@ ACT.taskSchedule = (el) => {
   const o = taskFromForm(f);
   if (!t) {
     t = { id: uid(), ...o };
-    S.tasks.push(t);
+    TaskOps.insert(t);
     dTask = t.id;
   } else Object.assign(t, o);
   const s = fd.get("sd") + "T" + fd.get("st"), en = fmtDT(new Date(wd(s).getTime() + (+fd.get("sdur") || 60) * 6e4));
@@ -258,33 +292,25 @@ ACT.taskUnschedule = () => {
   render();
 };
 ACT.taskDel = () => {
-  const t = S.tasks.find((x) => x.id === dTask);
-  if (t?.eventId) S.events = S.events.filter((x) => x.id !== t.eventId);
-  S.tasks = S.tasks.filter((x) => x.id !== dTask);
-  save();
-  closeModal();
-  render();
+  const id = dTask;
+  confirmAsk("Excluir esta tarefa (e o bloco do calendário, se houver)?", () => {
+    TaskOps.removeTask(id);
+    save();
+    closeModal();
+    render();
+  }, { yes: "Excluir" });
 };
-let dTaskSubs = [];
-const subCount = (t) => ({ n: (t.subs || []).length, d: (t.subs || []).filter((x) => x.d).length });
+let dTaskSubs = [], dTaskFiles = [], dTaskFilesOrig = [];
 function subsHtml(t) {
   const { n, d } = subCount(t);
   if (!n) return "";
-  const row = (x) => `<div class="tsr" draggable="true" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span></div>`;
+  const row = (x) => { const on = ui.tasks.sel.has(TaskOps.keyS(t.id, x.id)); return `<div class="tsr ${on ? "son" : ""}" draggable="true" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span><button class="ksel ssel" data-act="subSel" data-t="${t.id}" data-s="${x.id}" title="Selecionar subtarefa">${on ? "✓" : ""}</button></div>`; };
   const open = t.subs.filter((x) => !x.d), done = t.subs.filter((x) => x.d);
   return `<div class="tsub"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>
    <div class="tsub-list">${open.slice(0, 5).map(row).join("")}${open.length > 5 ? `<div class="sm muted">+${open.length - 5} pendente${open.length - 5 > 1 ? "s" : ""}</div>` : ""}${done.length ? `<details class="tdone" data-act="nop" ${ui.tasks.openDone?.[t.id] ? "open" : ""} data-id="${t.id}"><summary>${done.length} concluída${done.length > 1 ? "s" : ""}</summary>${done.map(row).join("")}</details>` : ""}</div>`;
 }
-function subAuto(t) {
-  const { n, d } = subCount(t);
-  if (!n) return;
-  if (d === n && t.col !== "done") {
-    setTaskCol(t.id, "done");
-    toast("Todas as subtarefas feitas: tarefa concluída ✓");
-  } else if (d < n && t.col === "done") setTaskCol(t.id, "doing");
-  else if (d > 0 && d < n && t.col === "todo") setTaskCol(t.id, "doing");
-}
-ACT.subToggle = (el) => {
+ACT.subToggle = (el, e) => {
+  if (selN() || e.ctrlKey || e.metaKey || e.shiftKey) return ACT.subSel(el, e);
   const t = S.tasks.find((x) => x.id === el.dataset.t), s = t && t.subs.find((x) => x.id === el.dataset.s);
   if (!s) return;
   s.d = !s.d;
@@ -323,3 +349,20 @@ document.addEventListener("toggle", (e) => {
   if (d.classList?.contains("tdone")) (ui.tasks.openDone || (ui.tasks.openDone = {}))[d.dataset.id] = d.open;
 }, true);
 ACT.nop = () => {};
+
+function renderTFiles() {
+  const b = $("#tfiles");
+  if (!b) return;
+  b.innerHTML = dTaskFiles.map((f, i) => `<div class="frow">${f.type.startsWith("image/") ? `<img class="fthumb" data-fid="${f.id}" alt="">` : `<span class="ficon">${Files.icon(f.type)}</span>`}<a href="#" class="grow" data-act="fileOpen" data-fid="${f.id}" data-name="${esc(f.name)}">${esc(f.name)} <small class="muted">${Files.size(f.size)}</small></a><button type="button" class="icon-btn" data-act="tfileDel" data-i="${i}" title="Remover anexo">${ic("x", 13)}</button></div>`).join("");
+  Files.resolve(b);
+}
+ACT.fileOpen = (el, e) => { e.preventDefault(); e.stopPropagation(); Files.open(el.dataset.fid, el.dataset.name); };
+ACT.tfileDel = (el) => { dTaskFiles.splice(+el.dataset.i, 1); renderTFiles(); };
+INP.tfileAdd = async (el) => {
+  const L = [...el.files];
+  el.value = "";
+  for (const f of L) {
+    try { const m = await Files.put(f); dTaskFiles.push(m); renderTFiles(); }
+    catch (x) { toast(x.message || "Não foi possível anexar", true); }
+  }
+};

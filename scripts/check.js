@@ -15,8 +15,11 @@ for (const f of [...walk(pub), ...walk(path.join(root, "api")), ...walk(path.joi
     console.error("✗ sintaxe:", path.relative(root, f), "\n", String(e.stderr).split("\n").slice(0, 4).join("\n"));
   }
 }
-const html = fs.readFileSync(path.join(pub, "index.html"), "utf8");
-const refs = [...html.matchAll(/(?:src|href)="\/([^"#?]+)"/g)].map((m) => m[1]);
+const refs = [];
+for (const page of ["index.html", "m/index.html"]) {
+  const html = fs.readFileSync(path.join(pub, page), "utf8");
+  refs.push(...[...html.matchAll(/(?:src|href)="\/([^"#?]+)"/g)].map((m) => m[1]));
+}
 for (const r of refs) if (!fs.existsSync(path.join(pub, r))) {
   bad++;
   console.error("✗ arquivo referenciado não existe:", r);

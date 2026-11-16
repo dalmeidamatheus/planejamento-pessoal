@@ -1,0 +1,13 @@
+{
+  "name": "Norte — versão celular",
+  "short_name": "Norte",
+  "description": "Calendário, tarefas, notas, finanças e hábitos — feito para o celular.",
+  "start_url": "/m/",
+  "scope": "/m/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7fb",
+  "theme_color": "#f5f7fb",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

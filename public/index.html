@@ -6,6 +6,16 @@
 <title>Norte — organização pessoal</title>
 <meta name="description" content="Calendário, finanças, tarefas, hábitos e notas em um só lugar.">
 <meta name="theme-color" content="#f5f7fb">
+<script>
+/* Celular? Abre o app mobile (/m/). Para ficar na versão desktop: ?desktop=1 */
+(function(){try{
+  var q=location.search.indexOf("desktop=1")>-1;
+  if(q) localStorage.setItem("norte:desktop","1");
+  if(location.search.indexOf("mobile=1")>-1) localStorage.removeItem("norte:desktop");
+  var phone=/Android.+Mobile|iPhone|iPod|Windows Phone/i.test(navigator.userAgent)||(matchMedia("(pointer:coarse)").matches&&Math.min(screen.width,screen.height)<600);
+  if(phone&&!localStorage.getItem("norte:desktop")) location.replace("/m/"+location.hash);
+}catch(e){}})();
+</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icon.svg">
@@ -19,6 +29,7 @@
 <link rel="stylesheet" href="/css/calendar.css">
 <link rel="stylesheet" href="/css/tasks.css">
 <link rel="stylesheet" href="/css/habits.css">
+<link rel="stylesheet" href="/css/richtext.css">
 <link rel="stylesheet" href="/css/notes.css">
 <link rel="stylesheet" href="/css/palette.css">
 <link rel="stylesheet" href="/css/finance.css">
@@ -38,6 +49,12 @@
 <script src="/js/core/charts.js"></script>
 <script src="/js/core/markdown.js"></script>
 <script src="/js/core/recurrence.js"></script>
+<script src="/js/core/files.js"></script>
+<script src="/js/core/richtext.js"></script>
+<script src="/js/core/notedoc.js"></script>
+<script src="/js/core/taskops.js"></script>
+<script src="/js/core/transcriber.js"></script>
+<script src="/js/core/summarizer.js"></script>
 <script src="/js/modules/calendar/occurrences.js"></script>
 <script src="/js/modules/calendar/views.js"></script>
 <script src="/js/modules/calendar/list.js"></script>

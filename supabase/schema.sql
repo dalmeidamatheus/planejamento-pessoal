@@ -32,3 +32,15 @@ drop policy if exists "own select" on public.price_watch;
 drop policy if exists "own delete" on public.price_watch;
 create policy "own select" on public.price_watch for select using (auth.uid() = user_id);
 create policy "own delete" on public.price_watch for delete using (auth.uid() = user_id);
+
+-- Anexos de notas e tarefas (imagens, vídeos, PDFs…): bucket privado, cada usuário só acessa a própria pasta <user_id>/
+insert into storage.buckets (id, name, public) values ('attachments', 'attachments', false) on conflict (id) do nothing;
+
+drop policy if exists "attachments select" on storage.objects;
+drop policy if exists "attachments insert" on storage.objects;
+drop policy if exists "attachments update" on storage.objects;
+drop policy if exists "attachments delete" on storage.objects;
+create policy "attachments select" on storage.objects for select using (bucket_id = 'attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "attachments insert" on storage.objects for insert with check (bucket_id = 'attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "attachments update" on storage.objects for update using (bucket_id = 'attachments' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "attachments delete" on storage.objects for delete using (bucket_id = 'attachments' and (storage.foldername(name))[1] = auth.uid()::text);

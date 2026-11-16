@@ -5,7 +5,7 @@ const root = path.join(__dirname, "..", "public");
 const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json", ".json": "application/json" };
 http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split("?")[0]);
-  if (p === "/") p = "/index.html";
+  if (p.endsWith("/")) p += "index.html";
   const f = path.normalize(path.join(root, p));
   if (!f.startsWith(root) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) {
     res.writeHead(404);

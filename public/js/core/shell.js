@@ -20,6 +20,7 @@ function render() {
   const v = VIEWS[view] ? view : "home";
   $("#title").textContent = TITLES[v];
   $$(".nav a").forEach((a) => a.classList.toggle("on", a.dataset.v === v));
+  if (typeof NED !== "undefined" && NED) NED.flush();
   const sc = $(".tg-scroll")?.scrollTop, ms = $("#main").scrollTop;
   $("#main").innerHTML = VIEWS[v]();
   AFTER[v]?.(sc);
@@ -72,8 +73,36 @@ function modalState() {
 }
 const modalDirty = () => !!$("#overlay .modal form") && modalState() !== modalSnap;
 function tryClose() {
-  if (modalDirty() && !window.confirm("Descartar as alterações que você ainda não salvou?")) return;
-  closeModal();
+  if ($("#dlg .dlg")) return;
+  if (!modalDirty()) return closeModal();
+  dlg({
+    title: "Alterações não salvas",
+    msg: "Você alterou este item e ainda não salvou. O que deseja fazer?",
+    buttons: [
+      { label: "Continuar editando", cls: "ghost" },
+      { label: "Descartar", cls: "danger", run: () => closeModal() },
+      { label: "Salvar", cls: "primary", run: () => { const f = $("#overlay .modal form"); f && (f.requestSubmit ? f.requestSubmit() : f.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }))); } }
+    ]
+  });
+}
+/* Janela de decisão interna do sistema (substitui confirm()). */
+function dlg({ title, msg, buttons }) {
+  let d = $("#dlg");
+  if (!d) { d = document.createElement("div"); d.id = "dlg"; document.body.appendChild(d); }
+  d.innerHTML = `<div class="dlg-scrim"><div class="dlg" role="alertdialog" aria-modal="true"><h3>${esc(title || "")}</h3><p>${esc(msg || "")}</p><div class="foot">${buttons.map((b, i) => `<button type="button" class="btn ${b.cls || ""}" data-i="${i}">${esc(b.label)}</button>`).join("")}</div></div></div>`;
+  const close = () => { d.innerHTML = ""; };
+  d.querySelector(".dlg-scrim").addEventListener("click", (e) => {
+    if (e.target.classList.contains("dlg-scrim")) return close();
+    const b = e.target.closest("button[data-i]");
+    if (!b) return;
+    close();
+    const f = buttons[+b.dataset.i].run;
+    f && f();
+  });
+  (d.querySelector(".btn.primary,.btn.danger") || d.querySelector(".btn")).focus();
+}
+function confirmAsk(msg, onYes, { yes = "Confirmar", danger = true, title = "Tem certeza?" } = {}) {
+  dlg({ title, msg, buttons: [{ label: "Cancelar", cls: "ghost" }, { label: yes, cls: danger ? "danger" : "primary", run: onYes }] });
 }
 const closeModal = () => {
   $("#overlay").innerHTML = "";
@@ -81,9 +110,17 @@ const closeModal = () => {
 ACT.scrim = (el, e) => {
   if (e.target === el && !$("#overlay .pal")) tryClose();
 };
-ACT.close = () => closeModal();
+ACT.close = () => tryClose();
+/* confirmDlg(msg): mantém a forma `if (!confirmDlg(..)) return;` dos chamadores. Mostra a janela interna e,
+   ao confirmar, executa a mesma ação de novo já autorizada. */
+let curAct = null, confirmedOnce = false;
 function confirmDlg(msg) {
-  return window.confirm(msg);
+  if (confirmedOnce) { confirmedOnce = false; return true; }
+  const a = curAct;
+  if (!a) return window.confirm(msg);
+  const label = /^Excluir|^Encerrar/.test(msg) ? "Excluir" : "Confirmar";
+  confirmAsk(msg, () => { confirmedOnce = true; try { ACT[a.name](a.el, a.e); } finally { confirmedOnce = false; } }, { yes: /^Encerrar/.test(msg) ? "Encerrar" : label, danger: label === "Excluir" });
+  return false;
 }
 document.addEventListener("mouseover", (e) => {
   const t = e.target.closest("[data-tip]"), tip = $("#tip");
@@ -105,7 +142,9 @@ document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-act]");
   if (el) {
     const a = el.dataset.act;
+    curAct = { name: a, el, e };
     if (ACT[a]) ACT[a](el, e);
+    curAct = null;
     return;
   }
   if (!e.target.closest("#notifPop")) $("#notifPop")?.remove();
@@ -131,6 +170,7 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key === "Escape") {
+    if ($("#dlg .dlg")) { $("#dlg").innerHTML = ""; return; }
     if ($("#overlay .scrim")) {
       if ($("#overlay .pal")) closeModal();
       else tryClose();

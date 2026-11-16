@@ -181,7 +181,7 @@ function parseNL(q) {
   if (m = n.match(/^(tarefa|todo|fazer)[:\s]+(.+)$/)) {
     const t = raw.slice(m[1].length).replace(/^[:\s]+/, "").trim();
     return { g: "Criar", label: `Nova tarefa: ${t}`, sub: "A fazer", run() {
-      S.tasks.push({ id: uid(), title: t, col: "todo", prio: "media", tag: "", due: "", notes: "" });
+      TaskOps.insert({ id: uid(), title: t, col: "todo", prio: "media", tag: "", due: "", notes: "" });
       save();
       toast("Tarefa criada");
       go("tasks");

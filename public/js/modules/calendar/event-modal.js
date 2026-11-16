@@ -97,6 +97,7 @@ INP.evChk = () => {
     box.innerHTML = "";
   }
 };
+let evScope = null;
 SUBMIT.event = (f, fd) => {
   const { s, en, tz, ad } = evTimes(f);
   if (fromWall(wd(en), tz) <= fromWall(wd(s), tz)) {
@@ -104,6 +105,22 @@ SUBMIT.event = (f, fd) => {
     return;
   }
   const e = dEv;
+  const orig = !e._new && S.events.find((x) => x.id === e.id);
+  const recurring = orig && orig.rec && orig.rec.freq && orig.rec.freq !== "none";
+  if (recurring && e._key && !evScope) {
+    dlg({
+      title: "Evento recorrente",
+      msg: "Aplicar as alterações a qual(is) evento(s)?",
+      buttons: [
+        { label: "Cancelar", cls: "ghost" },
+        { label: "Só este evento", run: () => { evScope = "one"; SUBMIT.event(f, fd); } },
+        { label: "Todos os eventos", cls: "primary", run: () => { evScope = "all"; SUBMIT.event(f, fd); } }
+      ]
+    });
+    return;
+  }
+  const scope = evScope;
+  evScope = null;
   Object.assign(e, {
     title: fd.get("title").trim(),
     tag: fd.get("tag"),
@@ -121,11 +138,22 @@ SUBMIT.event = (f, fd) => {
     rec: recFromForm(fd)
   });
   const isNew = e._new;
+  const key = e._key;
   delete e._key;
   delete e._new;
-  const i = S.events.findIndex((x) => x.id === e.id);
-  if (i < 0) S.events.push(e);
-  else S.events[i] = e;
+  if (scope === "one" && orig) {
+    // só esta ocorrência: a série original continua, com esta data em "exceções", e vira um evento avulso
+    orig.ex = [...(orig.ex || []), key];
+    e.id = uid();
+    e.rec = { freq: "none" };
+    e.ex = [];
+    delete e.taskId;
+    S.events.push(e);
+  } else {
+    const i = S.events.findIndex((x) => x.id === e.id);
+    if (i < 0) S.events.push(e);
+    else S.events[i] = e;
+  }
   if (e.taskId) {
     const t = S.tasks.find((x) => x.id === e.taskId);
     if (t) {

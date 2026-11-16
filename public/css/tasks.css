@@ -15,10 +15,14 @@
 .kcard .tsr .x{text-decoration:line-through;color:var(--ink3)}
 .kcard .tsub-list{margin-top:4px}
 .kcard{position:relative}
-.kcard .ced{position:absolute;top:6px;right:6px;opacity:0;transition:opacity .12s}
-.kcard:hover .ced,.kcard .ced:focus-visible{opacity:1}
-.kcard .tt{padding-right:22px}
-@media(hover:none){.kcard .ced{opacity:.6}}
+.kcard .kact{position:absolute;top:6px;right:6px;display:flex;gap:1px}
+.kcard .kact .icon-btn{opacity:0;transition:opacity .12s}
+.kcard:hover .kact .icon-btn,.kcard .kact .icon-btn:focus-visible,.kcard .kact .pinb.on{opacity:1}
+.kcard .pinb.on{color:var(--accent,#2b5bd7)}
+.kcard.pinned{border-color:#c9d6f5;background:linear-gradient(#fff,#fbfcff)}
+.kcard .tt{padding-right:52px;padding-left:0;transition:padding .12s}
+.kanban.selecting .kcard .tt,.kcard:hover .tt{padding-left:24px}
+@media(hover:none){.kcard .kact .icon-btn{opacity:.6}}
 .kcard .tdone{margin-top:4px;border-radius:8px;background:#f5f7fb}
 .kcard .tdone summary{cursor:pointer;list-style:none;font-size:11.5px;color:var(--ink3);padding:4px 8px;display:flex;align-items:center;gap:6px;user-select:none}
 .kcard .tdone summary::-webkit-details-marker{display:none}
@@ -28,3 +32,24 @@
 .kcard .tsr[draggable=true]{cursor:grab}
 .sover{box-shadow:inset 0 2px 0 var(--accent)}
 .kcard .tsr.dg{opacity:.4}
+
+.ksel{width:18px;height:18px;border:1.8px solid var(--ink3);border-radius:5px;background:#fff;color:#fff;font-size:12px;line-height:14px;text-align:center;padding:0;cursor:pointer;flex:none}
+.ksel:hover{border-color:var(--accent,#2b5bd7)}
+.kcard>.ksel{position:absolute;top:12px;left:10px;opacity:0;transition:opacity .12s}
+.kcard:hover>.ksel,.kanban.selecting .kcard>.ksel,.kcard.sel>.ksel{opacity:1}
+.kcard.sel>.ksel,.ksel.on{background:var(--accent,#2b5bd7);border-color:var(--accent,#2b5bd7)}
+.kcard.sel{outline:2px solid var(--accent,#2b5bd7);outline-offset:-1px}
+.kh .khl{display:flex;align-items:center;gap:8px}
+.kh .kall{opacity:0;transition:opacity .12s}.kcol:hover .kall,.kanban.selecting .kall{opacity:1}
+.kcard .tsr .ssel{margin-left:auto;width:15px;height:15px;font-size:10px;line-height:11px;opacity:0;pointer-events:auto}
+.kcard .tsr:hover .ssel,.kanban.selecting .tsr .ssel,.tsr.son .ssel{opacity:1}
+.kcard .tsr.son{background:#e5ebfa}.kcard .tsr.son .ssel{background:var(--accent,#2b5bd7);border-color:var(--accent,#2b5bd7)}
+.kcard .tsr input{pointer-events:none}
+.bulkbar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:10px;background:#1d1c1a;color:#fff;border-radius:14px;padding:10px 12px 10px 18px;box-shadow:0 14px 40px rgba(0,0,0,.35);animation:pop .16s ease}
+.bulkbar .btn.ghost{color:#fff}
+.kcard.ins-b{box-shadow:0 -3px 0 0 var(--accent,#2b5bd7)}
+.kadd.ins-end{box-shadow:0 -3px 0 0 var(--accent,#2b5bd7);border-radius:4px}
+.frow{display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:13px}
+.fthumb{width:34px;height:34px;object-fit:cover;border-radius:6px;background:#eef2f7}.ficon{font-size:20px;width:34px;text-align:center}
+.fpick{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+@media(max-width:560px){.bulkbar{width:calc(100% - 24px);flex-wrap:wrap;justify-content:center}}

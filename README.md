@@ -125,11 +125,16 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 ### Tarefas, hábitos e notas
 
 - **Kanban** (A fazer, Em andamento, Concluído) com arrastar e soltar, prioridades, categorias e prazos. Agende uma tarefa como **bloco no calendário**; concluir a tarefa marca o bloco como feito.
+- **Ordem e fixação:** a tarefa nova já entra na posição da sua **prioridade** (alta primeiro); depois a ordem é sua — **arraste os cartões** para cima/baixo ou para outra coluna (uma linha azul mostra onde vai cair). O 📌 **fixa a tarefa no topo** da coluna; arrastar para a faixa das fixadas fixa, para fora desafixa.
+- **Seleção múltipla:** marque a caixinha de cartões **e de subtarefas** (ou `Ctrl/Shift + clique`; há também “selecionar coluna”). Só então aparece a barra inferior com **Concluir (n)** e **Excluir (n)**; `Esc` cancela.
+- **Alterações não salvas:** clicar fora de uma janela com edições abre um aviso do próprio sistema com **Salvar · Descartar · Continuar editando**. As confirmações de exclusão também usam janelas internas.
 - **Reordenar subtarefas:** arraste as subtarefas, no cartão ou dentro da tarefa, para mudar a ordem.
 - **Subtarefas:** cada tarefa pode ter uma lista de passos. Você edita o texto de cada passo dentro da tarefa (lápis no cartão) e marca direto no cartão do quadro, com barra de progresso (ex.: 2/4). Ao marcar o primeiro passo a tarefa vai para “Em andamento” e, quando o último é marcado, ela é concluída sozinha; desmarcar um passo reabre. Em tarefas que se repetem, a próxima ocorrência volta com os passos desmarcados.
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
-- **Notas em Markdown** com edição, leitura ou tela dividida, busca e **vínculo a um evento ou a uma transação**.
-- **Reuniões:** botão *Gravar reunião* com **transcrição ao vivo em português** (Web Speech API) escrita na nota com marcação de tempo. Ao parar, o sistema gera **resumo, decisões e ações** e oferece criar tarefas a partir das ações. Com a chave da Anthropic configurada, o resumo usa IA (`/api/summarize`); sem ela, usa um resumo local por palavras-chave.
+- **Notas com editor rico:** botão **Nova nota** na própria página; negrito, itálico, sublinhado, ~~riscado~~ (`Ctrl+Shift+S`), destaque, cores, títulos, listas, checklist, citação, código, blocos de destaque, tabelas e alinhamento. Aceita Markdown ao digitar (`# `, `- `, `[] `, `1. `, `> `). **Imagens, GIFs, vídeos, áudios, YouTube/Vimeo e arquivos** (colar, arrastar ou pelos botões), **ícone, capa e fonte** por nota, busca e **vínculo a um evento ou a uma transação**. Notas antigas em Markdown são convertidas na primeira abertura.
+- **Matemática nas notas:** fórmulas em LaTeX (KaTeX) com atalhos para ∫, d/dx, ∂, lim, Σ, √, matrizes… e **cálculo simbólico** (derivada, integral indefinida/definida, resolver equação, simplificar) via Nerdamer: digite `x^2*sin(x)` e o resultado entra na nota já formatado. `Ctrl+Shift+M` abre o painel; clique numa fórmula para editá-la.
+- **Reuniões:** *Gravar reunião* escreve **na própria nota, ao vivo**, enquanto você fala (o trecho provisório aparece em cinza) e você pode continuar digitando e corrigindo ao mesmo tempo. Frases viram parágrafos com marcação de tempo, com pontuação e maiúsculas automáticas e comandos de voz (“vírgula”, “ponto final”, “nova linha”). Dois motores: **navegador** (instantâneo, grátis) e **Whisper** (mais preciso, exige `OPENAI_API_KEY`). Ao parar, o sistema gera **resumo, decisões e ações** (com `ANTHROPIC_API_KEY` usa IA; sem ela, resumo local) e oferece criar tarefas das ações.
+- **Anexos em tarefas e notas:** envie arquivos (até 50 MB) em qualquer tarefa; ficam no IndexedDB do aparelho e, com Supabase, também no Storage privado (bucket `attachments`, rode o `supabase/schema.sql` atualizado).
 
 ### Lista de desejos
 
@@ -185,6 +190,9 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 | `M` `S` `D` `A` `L` | Calendário: mês, semana, dia, agenda, lista |
 | `?` | Lista de atalhos |
 | `Esc` | Fecha janelas e cancela o arrasto |
+| `Ctrl+Shift+S` · `H` · `M` · `L` | Editor de notas: riscar · destacar · fórmula · link |
+| `Ctrl+Shift+1/2/3` · `7` `8` `9` | Editor de notas: títulos · lista numerada, com marcadores, checklist |
+| `Ctrl/Cmd + S` | Editor de notas: salvar agora (também salva sozinho) |
 
 ## Stack e decisões de projeto
 
@@ -312,12 +320,16 @@ A tabela `price_watch` (`user_id`, `item_id`, `url`, `last_price`, `last_checked
 - **Modo local:** as senhas ficam com hash SHA-256 e sal no navegador. Serve para demonstração, **não** como segurança real.
 - **Transcrição de voz:** o Web Speech API envia o áudio ao provedor do navegador (Google, no Chrome).
 
+## App para celular
+
+No celular o Norte abre automaticamente o **app mobile** em `/m/`, um aplicativo separado (não é só o layout reduzido) com navegação por abas inferiores, folhas deslizantes, arrastar com o dedo, seleção múltipla e editor rico em tela cheia. Usa os **mesmos dados** da versão desktop. Para ficar na versão desktop abra `/?desktop=1`; para voltar ao mobile `/?mobile=1`. Instale pelo navegador (*Adicionar à tela inicial*).
+
 ## Limitações conhecidas
 
 - **Monitor de preço:** lojas que bloqueiam acesso automatizado (as grandes costumam bloquear) ou que carregam o preço só por JavaScript não funcionam; nesses casos o item mostra o erro e você atualiza o preço manualmente. O cron do plano gratuito da Vercel roda **1 vez por dia**, e os avisos aparecem **com o app aberto** (não há push com o app fechado).
 - **Sincronização:** como cada usuário é um único documento, usar dois aparelhos ao mesmo tempo resulta em “vale a última gravação”.
-- **Transcrição de reunião:** não identifica quem está falando e depende do navegador (Chrome, Edge ou Safari). Para algo mais robusto, troque `notes/recorder.js` por um serviço de streaming (Deepgram, AssemblyAI).
-- **Anexos:** são links; arquivos exigiriam Supabase Storage.
+- **Transcrição de reunião:** não identifica quem está falando. O motor do navegador (Chrome, Edge ou Safari) depende do serviço de voz do navegador e erra com ruído/sotaque; para melhor precisão use o motor Whisper (`/api/transcribe`). Ele grava trechos de ~12 s e o texto entra com pequeno atraso.
+- **Anexos de arquivo:** ficam no navegador (IndexedDB) e, com Supabase, no bucket privado `attachments`; sem Supabase não sincronizam entre aparelhos. Fotos/vídeos grandes pesam: o limite é 50 MB por arquivo. Excluir uma nota não apaga as imagens que ela continha.
 - **Moeda:** tudo em reais (BRL).
 
 ## Roadmap
