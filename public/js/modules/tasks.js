@@ -47,7 +47,6 @@ VIEWS.tasks = () => {
     return `<div class="kcol" data-col="${k}"><div class="kh"><span class="khl"><button class="ksel kall ${allSel ? "on" : ""}" data-act="colSel" data-col="${k}" title="Selecionar toda a coluna">${allSel ? "✓" : ""}</button>${nm}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}
    <form data-form="taskQuick" data-col="${k}" class="kadd"><input type="text" name="t" placeholder="+ Adicionar tarefa" autocomplete="off"></form></div>`;
   }).join("")}</div>
-  <p class="muted sm" style="margin-top:12px">Arraste os cartões para reordenar ou mudar de coluna · 📌 fixa no topo · marque a caixinha de cartões e subtarefas para concluir ou excluir vários de uma vez (Esc limpa a seleção).</p>
   ${n ? `<div class="bulkbar"><b>${n} selecionada${n > 1 ? "s" : ""}</b><button class="btn primary" data-act="bulkDone">${ic("check")}Concluir (${n})</button><button class="btn danger" data-act="bulkDel">${ic("trash")}Excluir (${n})</button><button class="btn ghost" data-act="selClear">Cancelar</button></div>` : ""}`;
 };
 ACT.taskFilter = (el) => {
