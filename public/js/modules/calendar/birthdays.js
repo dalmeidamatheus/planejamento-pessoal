@@ -2,7 +2,7 @@
 const BD_BEFORE = [[0, "Só no dia"], [1, "No dia e 1 dia antes"], [3, "No dia e 3 dias antes"], [7, "No dia e 1 semana antes"]];
 const isLeap = (y) => y % 4 === 0 && y % 100 !== 0 || y % 400 === 0;
 const bdDate = (b, y) => new Date(Date.UTC(y, b.month - 1, b.month === 2 && b.day === 29 && !isLeap(y) ? 28 : b.day));
-const bdTitle = (b, y) => "🎂 " + b.name + (b.year ? ` (${y - b.year})` : "");
+const bdTitle = (b, y) => "" + b.name + (b.year ? ` (${y - b.year})` : "");
 function bdNext(b) {
   const t = wd(todayStr());
   let y = t.getUTCFullYear(), d = bdDate(b, y);
@@ -27,26 +27,26 @@ function birthdayOccs(fromW, toW) {
 function birthdayTick() {
   (S.birthdays || []).forEach((b) => {
     const n = bdNext(b), who = b.name + (n.age ? ` (${n.age} anos)` : "");
-    if (n.days === 0) pushNotif(`🎂 Hoje é aniversário de ${who}! 🎉 Mande os parabéns.`, "bd0:" + b.id + ":" + n.year);
-    else if (b.before > 0 && n.days === b.before) pushNotif(`🎁 Aniversário de ${who} em ${n.days === 1 ? "1 dia (amanhã)" : n.days + " dias"} — hora de pensar no presente.`, "bdp:" + b.id + ":" + n.year);
+    if (n.days === 0) pushNotif(`Hoje é aniversário de ${who}! Mande os parabéns.`, "bd0:" + b.id + ":" + n.year);
+    else if (b.before > 0 && n.days === b.before) pushNotif(`Aniversário de ${who} em ${n.days === 1 ? "1 dia (amanhã)" : n.days + " dias"} — hora de pensar no presente.`, "bdp:" + b.id + ":" + n.year);
   });
 }
 function birthdayIcsEvents() {
   const y = wd(todayStr()).getUTCFullYear();
   return (S.birthdays || []).map((b) => {
     const d = bdDate(b, y);
-    return { id: "bd" + b.id, title: "🎂 " + b.name, allDay: true, start: ymd(d) + "T00:00", end: ymd(addDays(d, 1)) + "T00:00", rec: { freq: "yearly", interval: 1 }, ex: [], tag: "lazer", prio: "baixa", remind: null, notes: b.notes || "" };
+    return { id: "bd" + b.id, title: "" + b.name, allDay: true, start: ymd(d) + "T00:00", end: ymd(addDays(d, 1)) + "T00:00", rec: { freq: "yearly", interval: 1 }, ex: [], tag: "lazer", prio: "baixa", remind: null, notes: b.notes || "" };
   });
 }
 function bdCard() {
   const L = (S.birthdays || []).map((b) => ({ b, n: bdNext(b) })).filter((x) => x.n.days <= 30).sort((a, b) => a.n.days - b.n.days).slice(0, 4);
-  return `<div class="card"><div class="hd"><h2>🎂 Aniversários</h2><button class="btn sm ghost" data-act="birthdays">Gerenciar</button></div>${L.length ? `<div class="list">${L.map(({ b, n }) => `<div class="it" data-act="bdEdit" data-id="${b.id}"><span class="grow">${esc(b.name)}${n.age ? ` <span class="muted sm">${n.age} anos</span>` : ""}</span><span class="pill ${n.days === 0 ? "ok" : ""}">${n.days === 0 ? "hoje 🎉" : n.days === 1 ? "amanhã" : "em " + n.days + " dias"}</span></div>`).join("")}</div>` : '<div class="empty">Nenhum nos próximos 30 dias.</div>'}</div>`;
+  return `<div class="card"><div class="hd"><h2>Aniversários</h2><button class="btn sm ghost" data-act="birthdays">Gerenciar</button></div>${L.length ? `<div class="list">${L.map(({ b, n }) => `<div class="it" data-act="bdEdit" data-id="${b.id}"><span class="grow">${esc(b.name)}${n.age ? ` <span class="muted sm">${n.age} anos</span>` : ""}</span><span class="pill ${n.days === 0 ? "ok" : ""}">${n.days === 0 ? "hoje" : n.days === 1 ? "amanhã" : "em " + n.days + " dias"}</span></div>`).join("")}</div>` : '<div class="empty">Nenhum nos próximos 30 dias.</div>'}</div>`;
 }
 ACT.birthdays = () => {
   const L = (S.birthdays || []).map((b) => ({ b, n: bdNext(b) })).sort((a, b) => a.n.days - b.n.days);
-  modal(`<div class="row" style="margin-bottom:10px"><h2 class="grow" style="margin:0">🎂 Aniversários</h2><button class="btn primary" data-act="bdNew">${ic("plus")}Adicionar</button></div>
+  modal(`<div class="row" style="margin-bottom:10px"><h2 class="grow" style="margin:0">Aniversários</h2><button class="btn primary" data-act="bdNew">${ic("plus")}Adicionar</button></div>
    <label class="row sm" style="margin-bottom:8px"><input type="checkbox" data-ch="bdShow" ${S.settings.showBirthdays !== false ? "checked" : ""}> Mostrar aniversários no calendário</label>
-   ${L.length ? `<div class="list" style="max-height:50vh;overflow:auto">${L.map(({ b, n }) => `<div class="it" data-act="bdEdit" data-id="${b.id}"><span style="font-size:18px">🎂</span><div class="grow">${esc(b.name)}<div class="muted sm">${pad(b.day)}/${pad(b.month)}${b.year ? "/" + b.year : ""}${b.before ? ` · avisa ${b.before === 7 ? "1 semana" : b.before + " dia(s)"} antes` : ""}${b.notes ? " · " + esc(b.notes.slice(0, 40)) : ""}</div></div><span class="pill ${n.days === 0 ? "ok" : n.days <= 7 ? "blue" : ""}">${n.days === 0 ? "hoje 🎉" : n.days === 1 ? "amanhã" : "em " + n.days + " dias"}</span></div>`).join("")}</div>` : '<div class="empty">Nenhum aniversário cadastrado.</div>'}
+   ${L.length ? `<div class="list" style="max-height:50vh;overflow:auto">${L.map(({ b, n }) => `<div class="it" data-act="bdEdit" data-id="${b.id}"><span>${ic("cake", 18)}</span><div class="grow">${esc(b.name)}<div class="muted sm">${pad(b.day)}/${pad(b.month)}${b.year ? "/" + b.year : ""}${b.before ? ` · avisa ${b.before === 7 ? "1 semana" : b.before + " dia(s)"} antes` : ""}${b.notes ? " · " + esc(b.notes.slice(0, 40)) : ""}</div></div><span class="pill ${n.days === 0 ? "ok" : n.days <= 7 ? "blue" : ""}">${n.days === 0 ? "hoje" : n.days === 1 ? "amanhã" : "em " + n.days + " dias"}</span></div>`).join("")}</div>` : '<div class="empty">Nenhum aniversário cadastrado.</div>'}
    <div class="foot"><button class="btn" data-act="close">Fechar</button></div>`);
 };
 INP.bdShow = (el) => {
@@ -82,7 +82,7 @@ SUBMIT.birthday = (f, fd) => {
   birthdayTick();
   closeModal();
   render();
-  toast("Aniversário salvo 🎂");
+  toast("Aniversário salvo");
 };
 ACT.bdDel = () => {
   if (!confirmDlg("Excluir este aniversário?")) return;

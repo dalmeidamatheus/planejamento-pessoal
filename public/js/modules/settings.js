@@ -7,8 +7,9 @@ ACT.settings = () => {
   <label class="field"><span>Ajuste de saldo inicial (R$) — preenchido sozinho quando você corrige o valor acima</span><input type="number" step="0.01" name="opening" value="${S.settings.opening || 0}"></label>
   <label class="field"><span>Renda mensal líquida (R$) — usada em “% do salário” (vazio = estimada pelas entradas recorrentes)</span><input type="number" step="0.01" name="salary" value="${S.settings.salary || ""}"></label>
   <div class="row wrap" style="margin-bottom:10px"><button type="button" class="btn" data-act="exportData">Exportar backup (.json)</button><button type="button" class="btn" data-act="exportIcs">Exportar agenda (.ics)</button><label class="btn">Importar backup<input type="file" accept=".json" data-ch="importFile" hidden></label></div>
+  ${AiStatus.html()}
   <div class="muted sm">Conta: ${esc(user.email)} · ${sb ? "dados na nuvem (Supabase, isolados por usuário)" : "modo local (somente neste navegador)"}</div>
-  <div class="foot"><button type="button" class="btn danger" data-act="wipe">Apagar todos os meus dados</button><span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
+  <div class="foot"><button type="button" class="btn danger" data-act="wipe">Apagar todos os meus dados</button><span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`, { onMount: () => AiStatus.load() });
 };
 SUBMIT.settings = (f, fd) => {
   const tz = fd.get("tz").trim();

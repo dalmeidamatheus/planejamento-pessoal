@@ -12,7 +12,7 @@ function recLabel(r) {
 const REC_UNIT_TEXT = { daily: "dia(s)", weekly: "semana(s)", monthly: "mês(es)", yearly: "ano(s)" };
 function recSummary(r, until) {
   if (!r || r.freq === "none") return "Não repete";
-  return "↻ " + recLabel(r) + (until ? " · até " + fmtDay(until) + "/" + until.slice(0, 4) : "");
+  return "" + recLabel(r) + (until ? " · até " + fmtDay(until) + "/" + until.slice(0, 4) : "");
 }
 function recFields(r) {
   r = r || { freq: "none" };

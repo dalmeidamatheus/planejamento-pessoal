@@ -17,10 +17,10 @@ function linkLabel(l) {
   if (!l) return "";
   if (l.type === "event") {
     const e = S.events.find((x) => x.id === l.id);
-    return e ? "📅 " + e.title : "";
+    return e ? "" + e.title : "";
   }
   const t = S.tx.find((x) => x.id === l.id);
-  return t ? "💰 " + t.desc + " (" + brl(t.amount) + ")" : "";
+  return t ? "" + t.desc + " (" + brl(t.amount) + ")" : "";
 }
 VIEWS.notes = () => {
   const L = noteQuery();
@@ -33,12 +33,12 @@ VIEWS.notes = () => {
    <div class="ebar"><div class="seg">${[["edit", "Editar"], ["view", "Ler"]].map(([k, t]) => `<button class="${mode === k ? "on" : ""}" data-act="noteMode" data-m="${k}">${t}</button>`).join("")}</div>
     ${recHere ? `<button class="btn danger" data-act="recStop">${ic("stop")}Parar gravação</button>` : `<button class="btn" data-act="recStart">${ic("mic")}Gravar reunião</button>`}
     <select style="width:170px" data-ch="noteEngine" title="Motor de transcrição" ${REC.on ? "disabled" : ""}><option value="browser" ${ui.notes.engine !== "whisper" ? "selected" : ""}>Voz: ao vivo (navegador)</option><option value="whisper" ${ui.notes.engine === "whisper" ? "selected" : ""}>Voz: IA precisa (Whisper)</option></select>
-    <select style="width:170px" data-ch="noteLink" title="Vincular"><option value="">🔗 Vincular a…</option><optgroup label="Eventos">${evs.map((e) => `<option value="event:${e.id}" ${n.link?.id === e.id ? "selected" : ""}>${esc(e.title)} · ${fmtDay(e.start.slice(0, 10))}</option>`).join("")}</optgroup><optgroup label="Transações">${txs.map((t) => `<option value="tx:${t.id}" ${n.link?.id === t.id ? "selected" : ""}>${esc(t.desc)} · ${brl(t.amount)}</option>`).join("")}</optgroup></select>
+    <select style="width:170px" data-ch="noteLink" title="Vincular"><option value="">Vincular a…</option><optgroup label="Eventos">${evs.map((e) => `<option value="event:${e.id}" ${n.link?.id === e.id ? "selected" : ""}>${esc(e.title)} · ${fmtDay(e.start.slice(0, 10))}</option>`).join("")}</optgroup><optgroup label="Transações">${txs.map((t) => `<option value="tx:${t.id}" ${n.link?.id === t.id ? "selected" : ""}>${esc(t.desc)} · ${brl(t.amount)}</option>`).join("")}</optgroup></select>
     ${n.link && linkLabel(n.link) ? `<a href="#" class="sm" data-act="noteGoLink">${esc(linkLabel(n.link))}</a>` : ""}<span class="grow"></span>
-    <button class="btn sm" data-act="noteStyle" title="Ícone, capa e fonte">🎨 Estilo</button><button class="btn sm" data-act="noteSummary" title="Resumir a transcrição (ou a nota inteira)">✨ Resumir</button><button class="btn sm ghost danger" data-act="noteDel">${ic("trash", 14)}</button></div>
+    <button class="btn sm" data-act="noteStyle" title="Ícone, capa e fonte">Estilo</button><button class="btn sm" data-act="noteSummary" title="Resumir a transcrição (ou a nota inteira)">Resumir</button><button class="btn sm ghost danger" data-act="noteDel">${ic("trash", 14)}</button></div>
    ${recHere ? `<div class="recbox"><span class="pulse"></span><b id="recT">${NoteDoc.mmss(Date.now() - REC.start)}</b><span class="live" id="recLive">Ouvindo… pode continuar digitando</span></div>` : ""}
    ${n.cover && COVERS[n.cover] ? `<div class="ncover" style="background:${COVERS[n.cover]}"></div>` : ""}
-   <div class="thead"><button class="nicon" data-act="noteStyle" title="Trocar ícone">${esc(n.icon || "📝")}</button><input class="tt" type="text" value="${esc(n.title)}" placeholder="Sem título" data-in="noteTitle"></div>
+   <div class="thead"><input class="tt" type="text" value="${esc(n.title)}" placeholder="Sem título" data-in="noteTitle"></div>
    <div id="rt-host" class="rt-wrap"></div>` : `<div class="empty" style="margin:auto">Selecione ou crie uma nota.<br><br><button class="btn primary" data-act="newNote">${ic("plus")}Nova nota</button> <button class="btn" data-act="newMeeting">${ic("mic")}Nova reunião</button></div>`}</div></div>`;
 };
 AFTER.notes = () => {
@@ -62,7 +62,7 @@ AFTER.notes = () => {
   NED = ed;
 };
 function noteList(L) {
-  return L.map((n) => `<div class="nitem ${n.id === ui.notes.sel ? "on" : ""}" data-act="noteSel" data-id="${n.id}"><b>${esc((n.icon ? n.icon + " " : "") + (n.title || "Sem título"))}</b><small>${fmtTs(n.updated)} · ${esc((n.body || "").replace(/\s+/g, " ").slice(0, 50))}</small></div>`).join("") || '<div class="empty">Sem notas</div>';
+  return L.map((n) => `<div class="nitem ${n.id === ui.notes.sel ? "on" : ""}" data-act="noteSel" data-id="${n.id}"><b>${esc((n.title || "Sem título"))}</b><small>${fmtTs(n.updated)} · ${esc((n.body || "").replace(/\s+/g, " ").slice(0, 50))}</small></div>`).join("") || '<div class="empty">Sem notas</div>';
 }
 ACT.noteSel = (el) => { ui.notes.sel = el.dataset.id; render(); };
 ACT.noteMode = (el) => { ui.notes.mode = el.dataset.m; render(); };
@@ -140,20 +140,16 @@ ACT.noteGoLink = (el, e) => {
   }
 };
 /* ---- estilo da nota: ícone, capa e fonte ---- */
-const EMOJIS = "📝 📓 📌 💡 🎯 📅 💼 🧠 📚 ✅ 🛒 ✈️ 🏠 💰 🎓 🧪 📐 🔬 🎨 🎵 ❤️ ⭐ 🔥 🚀".split(" ");
 ACT.noteStyle = () => {
   const n = curNote();
   if (!n) return;
   modal(`<form data-form="noteStyle"><h2>Estilo da nota</h2>
-   <div class="field"><span>Ícone</span><div class="emo">${EMOJIS.map((e) => `<button type="button" class="${(n.icon || "📝") === e ? "on" : ""}" data-act="emoPick" data-e="${e}">${e}</button>`).join("")}</div><input type="text" name="icon" value="${esc(n.icon || "")}" maxlength="4" placeholder="ou digite um emoji" style="width:150px;margin-top:6px"></div>
    <div class="field"><span>Capa</span><div class="covers">${Object.entries(COVERS).map(([k, v]) => `<label class="cv" style="background:${v || "#fff"}" title="${k}"><input type="radio" name="cover" value="${k}" ${(n.cover || "none") === k ? "checked" : ""}>${k === "none" ? "—" : ""}</label>`).join("")}</div></div>
    <label class="field"><span>Fonte do texto</span><select name="font">${Object.entries(FONTS).map(([k, v]) => `<option value="${k}" ${(n.font || "sans") === k ? "selected" : ""}>${v}</option>`).join("")}</select></label>
    <div class="foot"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Aplicar</button></div></form>`);
 };
-ACT.emoPick = (el) => { $("#overlay [name=icon]").value = el.dataset.e; $$("#overlay .emo button").forEach((b) => b.classList.toggle("on", b === el)); };
 SUBMIT.noteStyle = (f, fd) => {
   const n = curNote();
-  n.icon = (fd.get("icon") || "").trim();
   n.cover = fd.get("cover") === "none" ? "" : fd.get("cover");
   n.font = fd.get("font") === "sans" ? "" : fd.get("font");
   n.updated = Date.now();

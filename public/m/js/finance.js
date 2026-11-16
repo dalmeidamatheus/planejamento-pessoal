@@ -5,7 +5,7 @@ const fym = () => ui.m.ym || (ui.m.ym = curYm());
 const money = (v, t) => (t === "in" ? "+ " : "− ") + brl(v);
 function txRow(t) {
   const st = stat(t), [sl, sc] = STAT[st];
-  return `<div class="row-it tx ${t.status === "paid" ? "paid" : ""}" data-act="txOpen" data-id="${t.id}"><button class="tk-chk ${t.status === "paid" ? "on" : ""}" data-act="txPay" data-id="${t.id}" aria-label="${t.type === "in" ? "Marcar recebido" : "Marcar pago"}">${t.status === "paid" ? "✓" : ""}</button>
+  return `<div class="row-it tx ${t.status === "paid" ? "paid" : ""}" data-act="txOpen" data-id="${t.id}"><button class="tk-chk ${t.status === "paid" ? "on" : ""}" data-act="txPay" data-id="${t.id}" aria-label="${t.type === "in" ? "Marcar recebido" : "Marcar pago"}">${t.status === "paid" ? ic("check", 14) : ""}</button>
    <div class="grow"><b class="ell">${esc(t.desc)}</b><div class="sm muted ell">${esc(t.cat || "")}${t.of ? ` · ${t.no}/${t.of}` : ""} · ${METHODS[t.method] || ""}${t.virtual ? " · recorrente" : ""}</div></div>
    <div class="right"><b class="${t.type === "in" ? "pos" : "neg"}">${money(t.amount, t.type)}</b><div><span class="pill ${sc}">${t.type === "in" && st === "paid" ? "Recebido" : sl}</span></div></div></div>`;
 }
@@ -18,7 +18,7 @@ MV.finance = () => {
   }
   if (tab === "inv") {
     const s = invSummary();
-    return seg + `<div class="stats"><div><span>Investido</span><b>${brl(s.cost)}</b></div><div><span>Valor atual</span><b>${brl(s.value)}</b></div><div><span>Rendimento</span><b class="${s.yld >= 0 ? "pos" : "neg"}">${brl(s.yld)}</b></div></div><div class="stats one"><div><span>Patrimônio (caixa + investimentos)</span><b>${brl(netWorth(todayStr()))}</b></div></div>` + (S.assets.length ? S.assets.map((a) => `<div class="row-it"><span class="emo">📈</span><div class="grow"><b>${esc(a.name)}</b><div class="sm muted">${esc(ATYPES[a.type] || "")}</div></div><b>${brl(assetVal(a))}</b></div>`).join("") : '<div class="empty">Sem investimentos cadastrados.</div>') + '<p class="sm muted hint">Para registrar aportes e conferências use a versão desktop.</p>';
+    return seg + `<div class="stats"><div><span>Investido</span><b>${brl(s.cost)}</b></div><div><span>Valor atual</span><b>${brl(s.value)}</b></div><div><span>Rendimento</span><b class="${s.yld >= 0 ? "pos" : "neg"}">${brl(s.yld)}</b></div></div><div class="stats one"><div><span>Patrimônio (caixa + investimentos)</span><b>${brl(netWorth(todayStr()))}</b></div></div>` + (S.assets.length ? S.assets.map((a) => `<div class="row-it"><span class="emo">${mIc("trend", 22)}</span><div class="grow"><b>${esc(a.name)}</b><div class="sm muted">${esc(ATYPES[a.type] || "")}</div></div><b>${brl(assetVal(a))}</b></div>`).join("") : '<div class="empty">Sem investimentos cadastrados.</div>') + '<p class="sm muted hint">Para registrar aportes e conferências use a versão desktop.</p>';
   }
   const t = totals(ym), f = ui.m.ftype;
   const L = t.L.filter((x) => f === "all" || x.type === f).sort((a, b) => b.date.localeCompare(a.date));

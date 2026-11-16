@@ -19,7 +19,7 @@ const LS = (() => {
 })();
 function setSync(s) {
   const el = $("#sync");
-  if (el) el.textContent = { local: "Salvo neste navegador", saving: "Salvando…", saved: "Sincronizado ✓", error: "Erro ao sincronizar" }[s] || "";
+  if (el) el.textContent = { local: "Salvo neste navegador", saving: "Salvando…", saved: "Sincronizado", error: "Erro ao sincronizar" }[s] || "";
 }
 function save() {
   S._ts = Date.now();

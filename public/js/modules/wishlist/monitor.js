@@ -41,13 +41,13 @@ function wishTick() {
     }
     if (p !== it.seenPrice) {
       const pc = (p - it.seenPrice) / it.seenPrice * 100;
-      pushNotif(`${p < it.seenPrice ? "🏷️ Preço caiu" : "📈 Preço subiu"}: ${it.name} — ${brl(it.seenPrice)} → ${brl(p)} (${signedPct(pc)})`, "w:" + it.id + ":" + p);
+      pushNotif(`${p < it.seenPrice ? "Preço caiu" : "Preço subiu"}: ${it.name} — ${brl(it.seenPrice)} → ${brl(p)} (${signedPct(pc)})`, "w:" + it.id + ":" + p);
       it.seenPrice = p;
       changed = true;
     }
     if (it.target > 0) {
       if (p <= it.target && !it.tHit) {
-        pushNotif(`🎯 ${it.name} chegou ao preço-alvo: ${brl(p)} (alvo ${brl(it.target)})`, "wt:" + it.id + ":" + p);
+        pushNotif(`${it.name} chegou ao preço-alvo: ${brl(p)} (alvo ${brl(it.target)})`, "wt:" + it.id + ":" + p);
         it.tHit = true;
         changed = true;
       } else if (p > it.target && it.tHit) {

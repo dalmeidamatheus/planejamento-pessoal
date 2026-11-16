@@ -8,7 +8,7 @@ function calFilters() {
   const f = ui.cal.f, any = f.tags.length || f.prio || f.q || f.hideDone || f.bd;
   return `<div class="toolbar" style="margin-top:-4px">${Object.entries(TAGS).map(([k, v]) => `<button class="fchip ${f.tags.includes(k) ? "on" : ""}" style="--c:${v.c}" data-act="calTag" data-t="${k}"><span class="dot" style="--c:${v.c}"></span>${v.n}</button>`).join("")}
    <select style="width:170px" data-ch="calPrio"><option value="">Toda prioridade</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${f.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select>
-   <select style="width:240px" data-ch="calBd">${[["", "🎂 Aniversários: mostrar"], ["only", "🎂 Só aniversários"], ["hide", "🎂 Ocultar aniversários"]].map(([k, n]) => `<option value="${k}" ${f.bd === k ? "selected" : ""}>${n}</option>`).join("")}</select>
+   <select style="width:240px" data-ch="calBd">${[["", "Aniversários: mostrar"], ["only", "Só aniversários"], ["hide", "Ocultar aniversários"]].map(([k, n]) => `<option value="${k}" ${f.bd === k ? "selected" : ""}>${n}</option>`).join("")}</select>
    <input type="text" style="width:190px" placeholder="Buscar compromissos…" value="${esc(f.q)}" data-in="calQ">
    <label class="row sm"><input type="checkbox" data-ch="calHol" ${S.settings.showHolidays !== false ? "checked" : ""}> Feriados</label>
    <label class="row sm"><input type="checkbox" data-ch="calDone" ${f.hideDone ? "checked" : ""}> Ocultar concluídos</label>${any ? `<button class="btn sm ghost" data-act="calClear">Limpar filtros</button>` : ""}</div>`;
@@ -59,13 +59,13 @@ function calTitle() {
   const l = addDays(e, -1);
   return `${s.getUTCDate()} ${MES[s.getUTCMonth()].slice(0, 3)} – ${l.getUTCDate()} ${MES[l.getUTCMonth()].slice(0, 3)} ${l.getUTCFullYear()}`;
 }
-const chipH = (o) => `<div class="chip ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)}" data-tip="${esc(o.e.title)}${o.allDay ? "" : "<br>" + hm(o.ds) + "–" + hm(o.de)}${o.conflict ? "<br>⇄ Ao mesmo tempo que: " + esc((o.with || []).join(", ")) : ""}">${o.allDay ? "" : hm(o.ds) + " "}${esc(o.e.title)}</div>`;
+const chipH = (o) => `<div class="chip ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)}" data-tip="${esc(o.e.title)}${o.allDay ? "" : "<br>" + hm(o.ds) + "–" + hm(o.de)}${o.conflict ? "<br>Ao mesmo tempo que: " + esc((o.with || []).join(", ")) : ""}">${o.allDay ? "" : hm(o.ds) + " "}${esc(o.e.title)}</div>`;
 VIEWS.calendar = () => {
   if (!ui.cal.d) ui.cal.d = dayStart(todayWall());
   const m = ui.cal.mode;
   const tb = `<div class="toolbar">${m === "list" ? `<div class="cal-title" style="text-transform:none">Todos os compromissos</div>` : `<button class="btn" data-act="calToday">Hoje</button><button class="icon-btn" data-act="calPrev">${ic("left")}</button><button class="icon-btn" data-act="calNext">${ic("right")}</button><div class="cal-title">${calTitle()}</div>`}<div class="grow"></div>
    <div class="seg">${[["month", "Mês"], ["week", "Semana"], ["day", "Dia"], ["agenda", "Agenda"], ["list", "Lista"]].map(([k, n]) => `<button class="${m === k ? "on" : ""}" data-act="calMode" data-m="${k}">${n}</button>`).join("")}</div>
-   <button class="btn" data-act="birthdays">🎂 Aniversários</button><button class="btn primary" data-act="newEvent">${ic("plus")}Evento</button></div>`;
+   <button class="btn" data-act="birthdays">Aniversários</button><button class="btn primary" data-act="newEvent">${ic("plus")}Evento</button></div>`;
   const [rs, re] = calRange();
   let body = "";
   if (m === "month") {
@@ -116,7 +116,7 @@ function timeGrid(days) {
     flush();
     h += `<div class="dcol" data-date="${ymd(d)}" data-act="newSlot">` + items.map(({ o, s, e, c, n: n2 }) => {
       const top = s * HH / 60, ht = Math.max(18, (e - s) * HH / 60 - 1);
-      return `<div class="ev ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)};top:${top}px;height:${ht}px;left:calc(${c / n2 * 100}% + 1px);width:calc(${100 / n2}% - 3px)" data-tip="${o.conflict ? "⇄ Ao mesmo tempo que: " + esc(o.with.join(", ")) : ""}"><div class="t">${o.e.rec && o.e.rec.freq !== "none" ? "↻ " : ""}${esc(o.e.title)}</div><div class="s">${hm(o.ds)}–${hm(o.de)}${o.conflict ? " ⇄" : ""}</div><div class="rz" data-rz></div></div>`;
+      return `<div class="ev ${o.conflict ? "conf" : ""} ${o.e.done ? "done" : ""}" data-occ="${o.e.id}|${o.key}" data-sms="${o.sMs}" style="--c:${tagC(o.e)};top:${top}px;height:${ht}px;left:calc(${c / n2 * 100}% + 1px);width:calc(${100 / n2}% - 3px)" data-tip="${o.conflict ? "Ao mesmo tempo que: " + esc(o.with.join(", ")) : ""}"><div class="t">${o.e.rec && o.e.rec.freq !== "none" ? "" : ""}${esc(o.e.title)}</div><div class="s">${hm(o.ds)}–${hm(o.de)}${o.conflict ? "" : ""}</div><div class="rz" data-rz></div></div>`;
     }).join("");
     if (ymd(d) === ts) h += `<div class="now" style="top:${(now.getUTCHours() * 60 + now.getUTCMinutes()) * HH / 60}px"></div>`;
     h += "</div>";
@@ -137,7 +137,7 @@ function agenda(rs) {
   });
   return `<div class="cal">` + Object.keys(by).sort().map((k) => {
     const d = wd(k);
-    return `<div class="ag-day"><div class="dl">${d.getUTCDate()} ${MES[d.getUTCMonth()].slice(0, 3)}<small>${DSEML[d.getUTCDay()]}</small></div><div class="grow">` + by[k].map((o) => `<div class="ag-it" data-act="openOcc" data-id="${o.e.id}" data-key="${o.key}"><span class="dot" style="--c:${tagC(o.e)}"></span><span class="tm">${o.allDay ? "Dia todo" : hm(o.ds) + " – " + hm(o.de)}</span><span class="${o.e.done ? "muted" : ""}" style="${o.e.done ? "text-decoration:line-through" : ""}">${esc(o.e.title)}</span>${o.e.rec && o.e.rec.freq !== "none" ? ic("repeat", 13) : ""}${o.e.prio === "alta" ? '<span class="pill bad">Alta</span>' : ""}${o.conflict ? '<span class="pill info">⇄ ao mesmo tempo</span>' : ""}<span class="grow"></span><span class="muted sm">${TAGS[o.e.tag]?.n || ""}</span></div>`).join("") + "</div></div>";
+    return `<div class="ag-day"><div class="dl">${d.getUTCDate()} ${MES[d.getUTCMonth()].slice(0, 3)}<small>${DSEML[d.getUTCDay()]}</small></div><div class="grow">` + by[k].map((o) => `<div class="ag-it" data-act="openOcc" data-id="${o.e.id}" data-key="${o.key}"><span class="dot" style="--c:${tagC(o.e)}"></span><span class="tm">${o.allDay ? "Dia todo" : hm(o.ds) + " – " + hm(o.de)}</span><span class="${o.e.done ? "muted" : ""}" style="${o.e.done ? "text-decoration:line-through" : ""}">${esc(o.e.title)}</span>${o.e.rec && o.e.rec.freq !== "none" ? ic("repeat", 13) : ""}${o.e.prio === "alta" ? '<span class="pill bad">Alta</span>' : ""}${o.conflict ? '<span class="pill info">ao mesmo tempo</span>' : ""}<span class="grow"></span><span class="muted sm">${TAGS[o.e.tag]?.n || ""}</span></div>`).join("") + "</div></div>";
   }).join("") + "</div>";
 }
 AFTER.calendar = (sc) => {

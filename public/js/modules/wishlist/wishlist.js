@@ -33,11 +33,11 @@ function wishCard(it) {
   const p = curPrice(it), ch = priceChange(it), fin = financing(it, p), pct = pctOf(p);
   const recent = ch && (wd(todayStr()) - wd(ch.d)) / 864e5 <= 14;
   return `<div class="wcard ${it.bought ? "bought" : ""}" data-act="openWish" data-id="${it.id}">
-   <div class="wimg">🎁${it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</div>
+   <div class="wimg">${ic("gift", 28)}${it.img ? `<img src="${esc(it.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</div>
    <div class="wbody"><div class="row"><span class="wt grow">${esc(it.name)}</span>${it.prio ? `<span class="pill ${PRIO[it.prio].c}">${PRIO[it.prio].n}</span>` : ""}</div>
     <div class="wp">${brl(p)}${ch ? `<span class="pill ${ch.pct < 0 ? "ok" : "bad"}">${ch.pct < 0 ? "▼" : "▲"} ${Math.abs(ch.pct).toFixed(1).replace(".", ",")}%</span>` : ""}</div>
     <div class="muted sm">${pct != null ? `${fmtPct(pct)} do salário` : "Defina sua renda em Ajustes"}${fin.n > 1 ? ` · ${fin.n}× ${brl(fin.parcela)}${fin.taxa ? ` (juros ${String(fin.taxa).replace(".", ",")}% a.m.)` : " sem juros"}` : ""}</div>
-    <div class="row wrap" style="gap:4px">${it.monitor ? '<span class="pill blue">👁 monitorando</span>' : ""}${it.target > 0 ? `<span class="pill ${p <= it.target ? "ok" : ""}">🎯 ${brl(it.target)}</span>` : ""}${recent && ch.pct < 0 ? '<span class="pill ok">🏷️ em queda</span>' : ""}${it.bought ? '<span class="pill">comprado</span>' : ""}${hostOf(it.url) ? `<span class="pill">${ic("link", 11)} ${esc(hostOf(it.url))}</span>` : ""}</div></div></div>`;
+    <div class="row wrap" style="gap:4px">${it.monitor ? '<span class="pill blue">monitorando</span>' : ""}${it.target > 0 ? `<span class="pill ${p <= it.target ? "ok" : ""}">${ic("target", 11)} ${brl(it.target)}</span>` : ""}${recent && ch.pct < 0 ? '<span class="pill ok">em queda</span>' : ""}${it.bought ? '<span class="pill">comprado</span>' : ""}${hostOf(it.url) ? `<span class="pill">${ic("link", 11)} ${esc(hostOf(it.url))}</span>` : ""}</div></div></div>`;
 }
 VIEWS.wishlist = () => {
   const f = ui.wish, sal = salaryRef();

@@ -16,7 +16,7 @@ INP.tripQ = (el) => {
   ui.trip.q = el.value;
   renderKeep(el);
 };
-const TRIP_CATS = [["passagem", "Passagens", "✈️", "#2563eb"], ["hospedagem", "Hospedagem", "🏨", "#8b5cf6"], ["alimentacao", "Alimentação", "🍽️", "#f59e0b"], ["transporte", "Transporte local", "🚕", "#06b6d4"], ["passeios", "Passeios e ingressos", "🎟️", "#16a34a"], ["compras", "Compras", "🛍️", "#ec4899"], ["seguro", "Seguro e documentos", "🛂", "#d97706"], ["outros", "Outros", "📦", "#64748b"]];
+const TRIP_CATS = [["passagem", "Passagens", "", "#2563eb"], ["hospedagem", "Hospedagem", "", "#8b5cf6"], ["alimentacao", "Alimentação", "", "#f59e0b"], ["transporte", "Transporte local", "", "#06b6d4"], ["passeios", "Passeios e ingressos", "", "#16a34a"], ["compras", "Compras", "", "#ec4899"], ["seguro", "Seguro e documentos", "", "#d97706"], ["outros", "Outros", "", "#64748b"]];
 const TRIP_MULT = { fixo: "valor fixo", pessoa: "por pessoa", dia: "por dia", pessoa_dia: "por pessoa/dia" };
 const tripCat = (k) => TRIP_CATS.find((c) => c[0] === k) || TRIP_CATS[7];
 function tripCalc(t) {
@@ -28,14 +28,14 @@ function tripCalc(t) {
   const months = left == null ? 1 : Math.max(1, Math.ceil(left / 30.44));
   return { days, people, items, total, saved, remaining, left, months, perMonth: left != null && left < 0 ? 0 : remaining / months, pct: total ? Math.min(100, saved / total * 100) : 0 };
 }
-const leftLabel = (c) => c.left == null ? "" : c.left > 1 ? `faltam ${c.left} dias` : c.left === 1 ? "é amanhã!" : c.left === 0 ? "é hoje! ✈️" : "já passou";
+const leftLabel = (c) => c.left == null ? "" : c.left > 1 ? `faltam ${c.left} dias` : c.left === 1 ? "é amanhã!" : c.left === 0 ? "é hoje!" : "já passou";
 function tripCard(t) {
   const c = tripCalc(t), sal = salaryRef();
   return `<div class="tbox" data-act="openTrip" data-id="${t.id}">
-   <div class="row"><span class="temoji">${esc(t.emoji || "✈️")}</span><div class="grow"><div class="wt">${esc(t.name)}</div><div class="muted sm">${esc(t.dest || "")}${t.start ? ` · ${fmtDay(t.start)}${t.end ? "–" + fmtDay(t.end) : ""}/${t.start.slice(2, 4)}` : ""}</div></div>${c.left != null ? `<span class="pill ${c.left < 0 ? "" : "blue"}">${leftLabel(c)}</span>` : ""}</div>
+   <div class="row"><span class="temoji">${ic("plane", 22)}</span><div class="grow"><div class="wt">${esc(t.name)}</div><div class="muted sm">${esc(t.dest || "")}${t.start ? ` · ${fmtDay(t.start)}${t.end ? "–" + fmtDay(t.end) : ""}/${t.start.slice(2, 4)}` : ""}</div></div>${c.left != null ? `<span class="pill ${c.left < 0 ? "" : "blue"}">${leftLabel(c)}</span>` : ""}</div>
    <div class="row" style="margin-top:12px;justify-content:space-between"><span><b style="font-size:18px">${brl(c.saved)}</b> <span class="muted sm">de ${brl(c.total)}</span></span><b>${c.pct.toFixed(0)}%</b></div>
    <div class="bar-t" style="margin:6px 0 10px"><i style="width:${c.pct}%"></i></div>
-   ${c.remaining > 5e-3 ? c.left != null && c.left < 0 ? `<div class="sm muted">Faltou ${brl(c.remaining)}</div>` : `<div class="sm">Separe <b>${brl(c.perMonth)}/mês</b> por ${c.months} ${c.months > 1 ? "meses" : "mês"}${sal ? ` · ${fmtPct(pctOf(c.perMonth))} do salário` : ""}</div>` : '<div class="sm pos"><b>✓ Caixinha completa!</b></div>'}</div>`;
+   ${c.remaining > 5e-3 ? c.left != null && c.left < 0 ? `<div class="sm muted">Faltou ${brl(c.remaining)}</div>` : `<div class="sm">Separe <b>${brl(c.perMonth)}/mês</b> por ${c.months} ${c.months > 1 ? "meses" : "mês"}${sal ? ` · ${fmtPct(pctOf(c.perMonth))} do salário` : ""}</div>` : '<div class="sm pos"><b>Caixinha completa!</b></div>'}</div>`;
 }
 VIEWS.trips = () => {
   const T = S.trips, calc = T.map(tripCalc), active = calc.filter((c) => c.left == null || c.left >= 0);

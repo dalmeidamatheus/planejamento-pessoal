@@ -9,16 +9,16 @@ function tkMatch(t) {
 const selMode = () => ui.m.tselMode || ui.m.tsel.size > 0;
 function tkSubRow(t, s) {
   const k = TaskOps.keyS(t.id, s.id), on = ui.m.tsel.has(k);
-  return `<div class="sub ${s.d ? "done" : ""} ${on ? "sel" : ""}"><button class="${selMode() ? "selbox sm " + (on ? "on" : "") : "chk-sm " + (s.d ? "on" : "")}" data-act="${selMode() ? "subSel" : "subTap"}" data-t="${t.id}" data-s="${s.id}" aria-label="${selMode() ? "Selecionar" : "Marcar"}">${selMode() || s.d ? "✓" : ""}</button><span class="stx" data-act="${selMode() ? "subSel" : "subTap"}" data-t="${t.id}" data-s="${s.id}">${esc(s.t)}</span></div>`;
+  return `<div class="sub ${s.d ? "done" : ""} ${on ? "sel" : ""}"><button class="${selMode() ? "selbox sm " + (on ? "on" : "") : "chk-sm " + (s.d ? "on" : "")}" data-act="${selMode() ? "subSel" : "subTap"}" data-t="${t.id}" data-s="${s.id}" aria-label="${selMode() ? "Selecionar" : "Marcar"}">${selMode() || s.d ? ic("check", 12) : ""}</button><span class="stx" data-act="${selMode() ? "subSel" : "subTap"}" data-t="${t.id}" data-s="${s.id}">${esc(s.t)}</span></div>`;
 }
 function tkCard(t) {
   const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done", sm = selMode(), k = TaskOps.keyT(t.id), on = ui.m.tsel.has(k);
   const { n, d } = TaskOps.subCount(t), subs = t.subs || [], open = subs.filter((x) => !x.d), done = subs.filter((x) => x.d);
   const shown = ui.m.tsubs && ui.m.tsubs[t.id] ? subs : open.slice(0, 4);
   return `<div class="tk ${t.col === "done" ? "done" : ""} ${t.pin ? "pinned" : ""} ${on ? "sel" : ""}" data-id="${t.id}">
-   <div class="tk-top">${sm ? `<button class="selbox ${on ? "on" : ""}" data-act="tkSel" data-id="${t.id}" aria-label="Selecionar">✓</button>` : `<button class="tk-chk ${t.col === "done" ? "on" : ""}" data-act="tkToggle" data-id="${t.id}" aria-label="${t.col === "done" ? "Reabrir" : "Concluir"}">${t.col === "done" ? "✓" : ""}</button>`}
-    <div class="tk-main" data-lp="${t.id}" data-act="tkTap" data-id="${t.id}"><div class="tk-t">${t.pin ? '<span class="pinic">📌</span> ' : ""}${esc(t.title)}</div>
-     <div class="m">${prioPill(t.prio)}${t.tag && TAGS[t.tag] ? `<span class="pill">${tagDot(t.tag)} ${TAGS[t.tag].n}</span>` : ""}${t.due ? `<span class="pill ${late ? "bad" : ""}">${mIc("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻</span>` : ""}${(t.files || []).length ? `<span class="pill">📎 ${t.files.length}</span>` : ""}${t.eventId ? `<span class="pill blue">no calendário</span>` : ""}</div></div>
+   <div class="tk-top">${sm ? `<button class="selbox ${on ? "on" : ""}" data-act="tkSel" data-id="${t.id}" aria-label="Selecionar">${ic("check", 14)}</button>` : `<button class="tk-chk ${t.col === "done" ? "on" : ""}" data-act="tkToggle" data-id="${t.id}" aria-label="${t.col === "done" ? "Reabrir" : "Concluir"}">${t.col === "done" ? ic("check", 14) : ""}</button>`}
+    <div class="tk-main" data-lp="${t.id}" data-act="tkTap" data-id="${t.id}"><div class="tk-t">${t.pin ? '<span class="pinic">${ic("pin", 12)}</span> ' : ""}${esc(t.title)}</div>
+     <div class="m">${prioPill(t.prio)}${t.tag && TAGS[t.tag] ? `<span class="pill">${tagDot(t.tag)} ${TAGS[t.tag].n}</span>` : ""}${t.due ? `<span class="pill ${late ? "bad" : ""}">${mIc("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill"></span>` : ""}${(t.files || []).length ? `<span class="pill">${ic("clip", 12)} ${t.files.length}</span>` : ""}${t.eventId ? `<span class="pill blue">no calendário</span>` : ""}</div></div>
     <button class="icon-btn" data-act="tkMenu" data-id="${t.id}" aria-label="Mais ações">${mIc("more")}</button>${sm ? "" : `<span class="grip" data-grip="${t.id}" aria-label="Arraste para reordenar">⠿</span>`}</div>
    ${n ? `<div class="tk-subs"><div class="subprog"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>${shown.map((s) => tkSubRow(t, s)).join("")}${open.length > 4 && !(ui.m.tsubs && ui.m.tsubs[t.id]) ? `<button class="linkbtn" data-act="tkSubsAll" data-id="${t.id}">+${open.length - 4} pendentes · ver todas</button>` : ""}${ui.m.tsubs && ui.m.tsubs[t.id] ? `<button class="linkbtn" data-act="tkSubsAll" data-id="${t.id}">recolher</button>` : done.length && !(ui.m.tsubs && ui.m.tsubs[t.id]) ? `<button class="linkbtn" data-act="tkSubsAll" data-id="${t.id}">${done.length} concluída${done.length > 1 ? "s" : ""} · mostrar</button>` : ""}</div>` : ""}</div>`;
 }
@@ -69,7 +69,7 @@ ACT.bulkDone = () => {
   const n = TaskOps.bulkDone(TaskOps.validKeys(ui.m.tsel));
   ui.m.tsel.clear(); ui.m.tselMode = false;
   save(); render();
-  toast(n + " item(ns) concluído(s) ✓");
+  toast(n + " item(ns) concluído(s)");
 };
 ACT.bulkDel = () => {
   const keys = TaskOps.validKeys(ui.m.tsel), nt = keys.filter((k) => k[0] === "t").length, ns = keys.length - nt;
@@ -97,7 +97,7 @@ ACT.tkMenu = (el) => {
   const t = tkFind(el.dataset.id);
   if (!t) return;
   const b = (d, ic2, txt, cls = "") => `<button class="listbtn ${cls}" data-act="tkDo" data-do="${d}" data-id="${t.id}"><span>${ic2}</span>${txt}</button>`;
-  openLayer(`<h2 class="ell">${esc(t.title)}</h2><div class="stack tight">${b("edit", "✏️", "Editar")}${b("pin", "📌", t.pin ? "Desafixar do topo" : "Fixar no topo")}${b("up", "⬆️", "Subir uma posição")}${b("down", "⬇️", "Descer uma posição")}${MCOLS.filter((c) => c[0] !== t.col).map((c) => b("col:" + c[0], "➡️", "Mover para “" + c[1] + "”")).join("")}${b("sel", "☑️", "Selecionar")}${b("del", "🗑️", "Excluir", "neg")}</div>`, { cls: "menu" });
+  openLayer(`<h2 class="ell">${esc(t.title)}</h2><div class="stack tight">${b("edit", ic("edit", 18), "Editar")}${b("pin", ic("pin", 18), t.pin ? "Desafixar do topo" : "Fixar no topo")}${b("up", ic("up", 18), "Subir uma posição")}${b("down", ic("down", 18), "Descer uma posição")}${MCOLS.filter((c) => c[0] !== t.col).map((c) => b("col:" + c[0], ic("right", 18), "Mover para “" + c[1] + "”")).join("")}${b("sel", ic("check", 18), "Selecionar")}${b("del", ic("trash", 18), "Excluir", "neg")}</div>`, { cls: "menu" });
 };
 ACT.tkDo = (el) => {
   const id = el.dataset.id, a = el.dataset.do, t = tkFind(id);
@@ -105,7 +105,7 @@ ACT.tkDo = (el) => {
   if (!t) return;
   if (a === "edit") { setTimeout(() => openTask(id), 0); return; }
   if (a === "del") { setTimeout(() => mConfirm("Excluir a tarefa “" + t.title + "”?", "Excluir", () => { TaskOps.removeTask(id); save(); render(); toast("Tarefa excluída"); }), 0); return; }
-  if (a === "pin") { toast(TaskOps.togglePin(id) ? "Fixada no topo 📌" : "Desafixada"); }
+  if (a === "pin") { toast(TaskOps.togglePin(id) ? "Fixada no topo" : "Desafixada"); }
   else if (a === "up") TaskOps.nudge(id, -1);
   else if (a === "down") TaskOps.nudge(id, 1);
   else if (a === "sel") { ui.m.tselMode = true; ui.m.tsel.add(TaskOps.keyT(id)); }
@@ -178,7 +178,7 @@ function openTask(id) {
    <label class="field"><span>Título</span><input type="text" name="title" value="${esc(t.title)}" required placeholder="O que precisa ser feito?"></label>
    <div class="grid2"><label class="field"><span>Coluna</span><select name="col">${opts(MCOLS, t.col)}</select></label><label class="field"><span>Prioridade</span><select name="prio">${opts(Object.entries(PRIO).map(([k, v]) => [k, v.n]), t.prio)}</select></label></div>
    <div class="grid2"><label class="field"><span>Categoria</span><select name="tag"><option value="">—</option>${opts(Object.entries(TAGS).map(([k, v]) => [k, v.n]), t.tag)}</select></label><label class="field"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label></div>
-   <label class="swrow"><span>📌 Fixar no topo da coluna</span><input type="checkbox" name="pin" ${t.pin ? "checked" : ""}></label>
+   <label class="swrow"><span>Fixar no topo da coluna</span><input type="checkbox" name="pin" ${t.pin ? "checked" : ""}></label>
    <div class="field"><span>Subtarefas <b id="tkprog" class="muted"></b></span><ul class="subsm" id="tk-subs" data-track="1">${tkSubsHtml()}</ul><div class="row"><input type="text" id="tkSubIn" placeholder="Adicionar subtarefa" enterkeyhint="done" data-notrack="1"><button type="button" class="btn" data-act="tkSubAdd">${mIc("plus", 16)}</button></div></div>
    <label class="field"><span>Repetir</span><select name="rep">${rv === "keep" ? `<option value="keep" selected>${esc(recLabel(t.rec))} (atual)</option>` : ""}${opts(REPS, rv)}</select></label>
    <label class="field"><span>Notas</span><textarea name="notes" rows="3">${esc(t.notes || "")}</textarea></label>

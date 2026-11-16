@@ -37,7 +37,7 @@ const TaskOps = (() => {
     S.tasks.push(n);
     t.rec = { freq: "none" };
     t.nextId = n.id;
-    toast("↻ Próxima repetição criada para " + fmtDay(nd) + "/" + nd.slice(2, 4));
+    toast("Próxima repetição criada para " + fmtDay(nd) + "/" + nd.slice(2, 4));
   }
   function setCol(id, col, prev) {
     const t = find(id);
@@ -51,7 +51,7 @@ const TaskOps = (() => {
   function subAuto(t) {
     const { n, d } = subCount(t);
     if (!n) return;
-    if (d === n && t.col !== "done") { setCol(t.id, "done"); toast("Todas as subtarefas feitas: tarefa concluída ✓"); }
+    if (d === n && t.col !== "done") { setCol(t.id, "done"); toast("Todas as subtarefas feitas: tarefa concluída"); }
     else if (d < n && t.col === "done") setCol(t.id, "doing");
     else if (d > 0 && d < n && t.col === "todo") setCol(t.id, "doing");
   }

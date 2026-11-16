@@ -46,7 +46,7 @@ function clRow(r) {
   }
   if (r.bd) {
     const ds = toWall(r.o.sMs, dtz());
-    return `<tr class="cl" data-act="bdEdit" data-id="${r.b.id}"><td></td><td><span class="dot" style="--c:${tagC(r.e)}"></span> ${esc(r.e.title)}</td><td class="muted">próx. ${fmtDay(ymd(ds))}/${ymd(ds).slice(2, 4)} · dia todo</td><td><span class="pill">↻ todo ano</span></td><td>${esc(TAGS.lazer.n)}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
+    return `<tr class="cl" data-act="bdEdit" data-id="${r.b.id}"><td></td><td><span class="dot" style="--c:${tagC(r.e)}"></span> ${esc(r.e.title)}</td><td class="muted">próx. ${fmtDay(ymd(ds))}/${ymd(ds).slice(2, 4)} · dia todo</td><td><span class="pill">todo ano</span></td><td>${esc(TAGS.lazer.n)}</td><td class="muted">—</td><td class="muted">—</td></tr>`;
   }
   const e = r.e, o = r.o, rec = e.rec && e.rec.freq !== "none", on = ui.cl.sel.has(e.id);
   let when = "—";
@@ -56,7 +56,7 @@ function clRow(r) {
   }
   return `<tr class="cl ${on ? "sel" : ""}" data-act="clOpen" data-id="${e.id}"><td><input type="checkbox" data-act="clSel" data-id="${e.id}" ${on ? "checked" : ""}></td>
    <td><span class="dot" style="--c:${tagC(e)}"></span> <span style="${e.done ? "text-decoration:line-through;color:var(--ink3)" : ""}">${esc(e.title)}</span></td><td class="muted">${when}</td>
-   <td>${rec ? `<span class="pill">↻ ${recLabel(e.rec)}</span>` : '<span class="muted">—</span>'}</td><td>${esc((TAGS[e.tag] || TAGS.pessoal).n)}</td>
+   <td>${rec ? `<span class="pill">${recLabel(e.rec)}</span>` : '<span class="muted">—</span>'}</td><td>${esc((TAGS[e.tag] || TAGS.pessoal).n)}</td>
    <td><span class="pill ${PRIO[e.prio]?.c || ""}">${PRIO[e.prio]?.n || "—"}</span></td><td class="muted">${remindLabel(e.remind)}</td></tr>`;
 }
 function clBar() {

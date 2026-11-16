@@ -1,12 +1,11 @@
 "use strict";
 /* Notas: lista, editor rico em tela cheia, gravação/transcrição de reunião e resumo */
 const nById = (id) => S.notes.find((x) => x.id === id);
-const nIcon = (n) => n.icon || (NoteDoc.isMeeting(n) ? "🎙️" : "📝");
-const EMOJIS = ["📝", "📌", "💡", "🎯", "📚", "🧮", "🎙️", "📅", "💼", "🏠", "💰", "✈️", "❤️", "🔥", "⭐", "✅", "🧠", "🎨", "🛒", "🏋️", "🍽️", "🎬", "🎵", "🔧"];
+const nIcon = (n) => ic(NoteDoc.isMeeting(n) ? "mic" : "notes", 20);
 function noteItems(q) {
   q = norm(q);
   const L = [...S.notes].filter((n) => !q || norm(n.title + " " + n.body).includes(q)).sort((a, b) => b.updated - a.updated);
-  return L.length ? L.map((n) => `<div class="row-it big" data-act="noteOpen" data-id="${n.id}"><span class="emo">${esc(nIcon(n))}</span><div class="grow"><b class="ell">${esc(n.title || "Sem título")}</b><div class="sm muted ell">${new Date(n.updated).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} · ${prevText(n.body) || "vazia"}</div></div></div>`).join("") : '<div class="empty">Nenhuma nota. Toque em “Nova nota”.</div>';
+  return L.length ? L.map((n) => `<div class="row-it big" data-act="noteOpen" data-id="${n.id}"><span class="emo">${nIcon(n)}</span><div class="grow"><b class="ell">${esc(n.title || "Sem título")}</b><div class="sm muted ell">${new Date(n.updated).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} · ${prevText(n.body) || "vazia"}</div></div></div>`).join("") : '<div class="empty">Nenhuma nota. Toque em “Nova nota”.</div>';
 }
 MV.notes = () => `<div class="tkhead"><input type="search" class="sbox" placeholder="Buscar notas…" value="${esc(ui.m.nq)}" data-in="nQ"></div>
   <div class="nactions"><button class="btn primary grow" data-act="noteNew">${mIc("plus", 16)} Nova nota</button><button class="btn grow" data-act="meetNew">${mIc("mic", 16)} Nova reunião</button></div>
@@ -15,7 +14,7 @@ INP.nQ = (el) => { ui.m.nq = el.value; $("#nlist").innerHTML = noteItems(el.valu
 ACT.noteNew = () => { const n = NoteDoc.create({ html: "<p><br></p>" }); save(); openNote(n.id, true); };
 function newMeetingNote() {
   const d = new Date(), html = NoteDoc.meetingHtml();
-  const n = NoteDoc.create({ title: "Reunião — " + d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), html, body: RT.text(html), icon: "🎙️" });
+  const n = NoteDoc.create({ title: "Reunião — " + d.toLocaleDateString("pt-BR") + " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), html, body: RT.text(html) });
   const t = todayWall(), now = Date.now();
   const o = occs(addDays(dayStart(t), -1), addDays(dayStart(t), 2)).find((x) => !x.allDay && !x.e.birthday && x.sMs - 15 * 6e4 <= now && x.eMs > now);
   if (o) { n.link = { type: "event", id: o.e.id }; n.title = "Reunião — " + o.e.title; }
@@ -26,7 +25,7 @@ ACT.meetNew = () => { const n = newMeetingNote(); openNote(n.id); setTimeout(() 
 ACT.noteOpen = (el) => openNote(el.dataset.id);
 function linkLabel(l) {
   const e = l && l.type === "event" && S.events.find((x) => x.id === l.id);
-  return e ? "📅 " + e.title : "";
+  return e ? "" + e.title : "";
 }
 function openNote(id, focus) {
   const n = nById(id);
@@ -34,7 +33,7 @@ function openNote(id, focus) {
   NoteDoc.ensure(n);
   M.cur = n;
   const recHere = M.rec && M.rec.noteId === id;
-  openLayer(`<div class="ned"><div class="nhead"><button class="icon-btn" data-act="layerClose" aria-label="Voltar">${mIc("left")}</button><button class="emo-btn" data-act="noteIcon" aria-label="Ícone">${esc(nIcon(n))}</button><input class="ntitle" type="text" value="${esc(n.title)}" placeholder="Sem título" data-in="nTitle" enterkeyhint="done"><button class="icon-btn ${recHere ? "recon" : ""}" id="recbtn" data-act="recToggle" aria-label="Gravar reunião">${mIc(recHere ? "stop" : "mic")}</button><button class="icon-btn" data-act="noteMenu" aria-label="Mais">${mIc("more")}</button></div>
+  openLayer(`<div class="ned"><div class="nhead"><button class="icon-btn" data-act="layerClose" aria-label="Voltar">${mIc("left")}</button><input class="ntitle" type="text" value="${esc(n.title)}" placeholder="Sem título" data-in="nTitle" enterkeyhint="done"><button class="icon-btn ${recHere ? "recon" : ""}" id="recbtn" data-act="recToggle" aria-label="Gravar reunião">${mIc(recHere ? "stop" : "mic")}</button><button class="icon-btn" data-act="noteMenu" aria-label="Mais">${mIc("more")}</button></div>
    <div class="recbar ${recHere ? "" : "hidden"}" id="recbar"><span class="pulse"></span><b id="recT">${recHere ? NoteDoc.mmss(Date.now() - M.rec.t0) : "00:00"}</b><span class="live ell" id="recLive">Ouvindo…</span></div>
    <div class="nlink ${n.link && linkLabel(n.link) ? "" : "hidden"}" id="nlink" data-act="noteLinkMenu">${esc(linkLabel(n.link))}</div>
    <div id="nedHost" class="m-edhost"></div></div>`, {
@@ -50,16 +49,14 @@ function openNote(id, focus) {
   });
 }
 INP.nTitle = (el) => { const n = M.cur; if (!n) return; n.title = el.value; n.updated = Date.now(); save(); };
-ACT.noteIcon = () => openLayer(`<h2>Ícone da nota</h2><div class="emogrid">${EMOJIS.map((e) => `<button data-act="nIconSet" data-e="${e}">${e}</button>`).join("")}</div>`, { cls: "menu" });
-ACT.nIconSet = (el) => { const n = M.cur; n.icon = el.dataset.e; save(); closeModal(); const b = $(".emo-btn"); if (b) b.textContent = n.icon; };
 ACT.noteMenu = () => {
   const n = M.cur, eng = ui.m.engine;
   openLayer(`<h2>Nota</h2><div class="stack tight">
-   <button class="listbtn" data-act="nSummary"><span>✨</span>Resumir reunião / nota</button>
-   <button class="listbtn" data-act="noteLinkMenu"><span>🔗</span>${n.link && linkLabel(n.link) ? "Vínculo: " + esc(linkLabel(n.link)) : "Vincular a um compromisso"}</button>
-   <button class="listbtn" data-act="nEngine"><span>🎙️</span>Transcrição: ${eng === "whisper" ? "IA precisa (Whisper)" : "Navegador (ao vivo)"} — trocar</button>
+   <button class="listbtn" data-act="nSummary"><span>${mIc("sparkle", 18)}</span>Resumir reunião / nota</button>
+   <button class="listbtn" data-act="noteLinkMenu"><span>${mIc("link", 18)}</span>${n.link && linkLabel(n.link) ? "Vínculo: " + esc(linkLabel(n.link)) : "Vincular a um compromisso"}</button>
+   <button class="listbtn" data-act="nEngine"><span>${mIc("mic", 18)}</span>Transcrição: ${eng === "whisper" ? "IA precisa (Whisper)" : "Navegador (ao vivo)"} — trocar</button>
    <button class="listbtn" data-act="nMath"><span>∑</span>Inserir fórmula / calcular</button>
-   <button class="listbtn neg" data-act="nDel"><span>🗑️</span>Excluir nota</button></div>`, { cls: "menu" });
+   <button class="listbtn neg" data-act="nDel"><span>${mIc("trash", 18)}</span>Excluir nota</button></div>`, { cls: "menu" });
 };
 ACT.nMath = () => { closeModal(); M.ed && M.ed.cmd("math"); };
 ACT.nEngine = () => {
@@ -72,7 +69,7 @@ ACT.nDel = () => { const n = M.cur; closeModal(); setTimeout(() => mConfirm("Exc
 ACT.noteLinkMenu = () => {
   if (topLayer() && topLayer().o.cls === "menu") closeModal();
   const n = M.cur, evs = [...S.events].sort((a, b) => b.start.localeCompare(a.start)).slice(0, 40);
-  setTimeout(() => openLayer(`<h2>Vincular a compromisso</h2><div class="stack tight scroll">${n.link ? '<button class="listbtn neg" data-act="nLink" data-id=""><span>✕</span>Remover vínculo</button>' : ""}${evs.map((e) => `<button class="listbtn" data-act="nLink" data-id="${e.id}"><span>📅</span><span class="ell">${esc(e.title)} · ${fmtDay(e.start.slice(0, 10))}</span></button>`).join("") || '<div class="empty">Sem compromissos.</div>'}</div>`, { cls: "menu" }), 0);
+  setTimeout(() => openLayer(`<h2>Vincular a compromisso</h2><div class="stack tight scroll">${n.link ? '<button class="listbtn neg" data-act="nLink" data-id=""><span>${mIc("x", 18)}</span>Remover vínculo</button>' : ""}${evs.map((e) => `<button class="listbtn" data-act="nLink" data-id="${e.id}"><span>${mIc("calendar", 18)}</span><span class="ell">${esc(e.title)} · ${fmtDay(e.start.slice(0, 10))}</span></button>`).join("") || '<div class="empty">Sem compromissos.</div>'}</div>`, { cls: "menu" }), 0);
 };
 ACT.nLink = (el) => {
   const n = M.cur;
@@ -149,7 +146,7 @@ async function summarize(n) {
   toast("Gerando resumo…");
   const r = await Summarizer.run(text);
   NoteDoc.mutate(n, (root) => NoteDoc.setSummary(root, r), M.ed);
-  toast(r.source === "ai" ? "Resumo gerado com IA ✓" : "Resumo gerado ✓");
+  toast(r.source === "ai" ? "Resumo gerado com IA" : "Resumo gerado");
   if (r.actions.length) {
     window._acts = r.actions;
     openLayer(`<h2>Criar tarefas das ações?</h2><form data-form="mActions"><div class="stack tight">${r.actions.map((a, k) => `<label class="swrow"><span>${esc(a)}</span><input type="checkbox" name="a" value="${k}" checked></label>`).join("")}</div><div class="stack"><button class="btn primary big">Criar tarefas</button><button type="button" class="btn big" data-act="layerClose">Agora não</button></div></form>`, { cls: "ask" });

@@ -152,10 +152,10 @@ function parseNL(q) {
     const name = m[1].trim(), day = +m[2], month = +m[3];
     let year = m[4] ? +m[4] : null;
     if (year && year < 100) year += year > 30 ? 1900 : 2e3;
-    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return { g: "Criar", label: `Aniversário: ${name} — ${pad(day)}/${pad(month)}${year ? "/" + year : ""}`, sub: "🎂 avisa no dia", run() {
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return { g: "Criar", label: `Aniversário: ${name} — ${pad(day)}/${pad(month)}${year ? "/" + year : ""}`, sub: "avisa no dia", run() {
       S.birthdays.push({ id: uid(), name, day, month, year, before: 0, notes: "" });
       save();
-      toast("Aniversário salvo 🎂");
+      toast("Aniversário salvo");
       ui.cal.mode = "month";
       go("calendar");
     } };

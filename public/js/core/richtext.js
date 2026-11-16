@@ -122,9 +122,9 @@ const RT = (() => {
     ["bold", "B", "Negrito (Ctrl+B)", "font-weight:700"], ["italic", "I", "Itálico (Ctrl+I)", "font-style:italic"], ["underline", "U", "Sublinhado (Ctrl+U)", "text-decoration:underline"], ["strike", "S", "Riscado (Ctrl+Shift+S)", "text-decoration:line-through"],
     ["hilite", "▮", "Destacar (Ctrl+Shift+H)", "background:#fff3a3;border-radius:3px"], ["color", "A", "Cor do texto", "color:#2563eb;font-weight:700"], "|",
     ["h1", "H1", "Título 1 (Ctrl+Shift+1)"], ["h2", "H2", "Título 2 (Ctrl+Shift+2)"], ["h3", "H3", "Título 3 (Ctrl+Shift+3)"], "|",
-    ["ul", "•", "Lista (Ctrl+Shift+8)"], ["ol", "1.", "Lista numerada (Ctrl+Shift+7)"], ["todo", "☑", "Checklist (Ctrl+Shift+9)"], ["quote", "❝", "Citação"], ["code", "</>", "Bloco de código"], ["callout", "💡", "Bloco de destaque"], "|",
-    ["left", "⇤", "Alinhar à esquerda"], ["center", "↔", "Centralizar"], ["right", "⇥", "Alinhar à direita"], "|",
-    ["link", "🔗", "Link (Ctrl+Shift+L)"], ["media", "🖼️", "Imagem, GIF ou vídeo"], ["file", "📎", "Anexar arquivo"], ["url", "🌐", "Mídia por link (YouTube, GIF…)"], ["ocr", "📷", "Foto → texto (tirar foto de uma conta, documento ou anotação)"], ["table", "▦", "Tabela"], ["hr", "―", "Divisor"], ["math", "∑", "Fórmula / cálculo (Ctrl+Shift+M)"], ["clear", "⌫", "Limpar formatação"]
+    ["ul", "•", "Lista (Ctrl+Shift+8)"], ["ol", "1.", "Lista numerada (Ctrl+Shift+7)"], ["todo", ic("checksq", 16), "Checklist (Ctrl+Shift+9)"], ["quote", ic("quote", 16), "Citação"], ["code", "</>", "Bloco de código"], ["callout", ic("bulb", 16), "Bloco de destaque"], "|",
+    ["left", ic("aleft", 16), "Alinhar à esquerda"], ["center", ic("acenter", 16), "Centralizar"], ["right", ic("aright", 16), "Alinhar à direita"], "|",
+    ["link", ic("link", 16), "Link (Ctrl+Shift+L)"], ["media", ic("image", 16), "Imagem, GIF ou vídeo"], ["file", ic("clip", 16), "Anexar arquivo"], ["url", ic("globe", 16), "Mídia por link (YouTube, GIF…)"], ["ocr", ic("camera", 16), "Foto → texto (tirar foto de uma conta, documento ou anotação)"], ["table", ic("table", 16), "Tabela"], ["hr", "―", "Divisor"], ["math", "∑", "Fórmula / cálculo (Ctrl+Shift+M)"], ["clear", ic("eraser", 16), "Limpar formatação"]
   ];
 
   function mount(host, opt = {}) {
@@ -197,7 +197,7 @@ const RT = (() => {
           if (t.startsWith("image/")) h = `<p><img ${a} alt="${esc(m.name)}"></p>`;
           else if (t.startsWith("video/")) h = `<p><video ${a} controls playsinline></video></p>`;
           else if (t.startsWith("audio/")) h = `<p><audio ${a} controls></audio></p>`;
-          else h = `<a class="fchip" ${a} data-name="${esc(m.name)}" data-size="${m.size}" data-kind="file" contenteditable="false">${Files.icon(t)} ${esc(m.name)} <small>${Files.size(m.size)}</small></a>&nbsp;`;
+          else h = `<a class="fchip" ${a} data-name="${esc(m.name)}" data-size="${m.size}" data-kind="file" contenteditable="false">${esc(m.name)} <small>${Files.size(m.size)}</small></a>&nbsp;`;
           html(h);
         } catch (e) { notify(e.message || "Não foi possível anexar", true); }
       }
@@ -300,7 +300,7 @@ const RT = (() => {
       },
       quote: () => block("blockquote"),
       code: () => { restore(); const t = selText(); html(`<pre><code>${t ? esc(t) : "<br>"}</code></pre><p><br></p>`); },
-      callout: () => { restore(); const t = selText(); html(`<div class="callout" data-ico="💡"><p>${t ? esc(t) : "<br>"}</p></div><p><br></p>`); },
+      callout: () => { restore(); const t = selText(); html(`<div class="callout"><p>${t ? esc(t) : "<br>"}</p></div><p><br></p>`); },
       left: () => exec("justifyLeft"), center: () => exec("justifyCenter"), right: () => exec("justifyRight"),
       link: () => {
         restore();
@@ -352,7 +352,7 @@ const RT = (() => {
         const t = await OCR.run(f);
         if (!t) { notify("Não encontrei texto nessa imagem", true); return; }
         html(OCR.toHtml(t) + "<p><br></p>");
-        notify("Texto transcrito para a nota ✓");
+        notify("Texto transcrito para a nota");
       } catch (e) { notify("Não consegui ler a imagem (verifique a internet)", true); }
     });
 
@@ -361,7 +361,7 @@ const RT = (() => {
     el.addEventListener("keydown", (e) => {
       if (readonly) return;
       const mod = e.ctrlKey || e.metaKey;
-      if (mod && e.code === "KeyS" && !e.shiftKey) { e.preventDefault(); flush(); notify("Nota salva ✓"); return; }
+      if (mod && e.code === "KeyS" && !e.shiftKey) { e.preventDefault(); flush(); notify("Nota salva"); return; }
       if (mod && e.shiftKey && KEYS[e.code]) {
         e.preventDefault();
         const k = KEYS[e.code];
@@ -431,7 +431,7 @@ const RT = (() => {
       m.classList.add("sel");
       const b = document.createElement("div");
       b.className = "rt-imgbar"; b.dataset.ui = "1";
-      b.innerHTML = [25, 50, 75, 100].map((p) => `<button type="button" data-w="${p}">${p}%</button>`).join("") + '<button type="button" data-w="del" title="Remover">🗑</button>';
+      b.innerHTML = [25, 50, 75, 100].map((p) => `<button type="button" data-w="${p}">${p}%</button>`).join("") + '<button type="button" data-w="del" title="Remover"></button>';
       const r = m.getBoundingClientRect(), h = host.getBoundingClientRect();
       b.style.top = Math.max(4, r.top - h.top + 6) + "px"; b.style.left = Math.max(4, r.left - h.left + 6) + "px";
       b.addEventListener("mousedown", (e) => e.preventDefault());

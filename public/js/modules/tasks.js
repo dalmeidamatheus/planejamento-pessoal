@@ -32,9 +32,9 @@ ui.tasks.sel = ui.tasks.sel || new Set();
 const selN = () => ui.tasks.sel.size;
 function taskCard(t) {
   const ts = todayStr(), late = t.due && t.due < ts && t.col !== "done", sel = ui.tasks.sel.has(TaskOps.keyT(t.id)), nf = (t.files || []).length;
-  return `<div class="kcard ${t.col === "done" ? "done" : ""} ${t.pin ? "pinned" : ""} ${sel ? "sel" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><button class="ksel" data-act="taskSel" data-id="${t.id}" title="Selecionar" aria-pressed="${sel}">${sel ? "✓" : ""}</button><div class="kact"><button class="icon-btn pinb ${t.pin ? "on" : ""}" data-act="taskPin" data-id="${t.id}" title="${t.pin ? "Desafixar" : "Fixar no topo"}">${ic("pin", 13)}</button><button class="icon-btn ced" data-act="openTask" data-id="${t.id}" title="Editar tarefa">${ic("edit", 13)}</button></div><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
+  return `<div class="kcard ${t.col === "done" ? "done" : ""} ${t.pin ? "pinned" : ""} ${sel ? "sel" : ""}" draggable="true" data-id="${t.id}" data-act="openTask"><button class="ksel" data-act="taskSel" data-id="${t.id}" title="Selecionar" aria-pressed="${sel}">${sel ? ic("check", 12) : ""}</button><div class="kact"><button class="icon-btn pinb ${t.pin ? "on" : ""}" data-act="taskPin" data-id="${t.id}" title="${t.pin ? "Desafixar" : "Fixar no topo"}">${ic("pin", 13)}</button><button class="icon-btn ced" data-act="openTask" data-id="${t.id}" title="Editar tarefa">${ic("edit", 13)}</button></div><div class="tt">${esc(t.title)}</div>${subsHtml(t)}<div class="m">
    ${t.prio ? `<span class="pill ${PRIO[t.prio].c}">${PRIO[t.prio].n}</span>` : ""}${t.tag ? `<span class="pill"><span class="dot" style="--c:${TAGS[t.tag].c}"></span>${TAGS[t.tag].n}</span>` : ""}
-   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">↻ ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}${nf ? `<span class="pill">${ic("clip", 11)} ${nf}</span>` : ""}</div></div>`;
+   ${t.due ? `<span class="pill ${late ? "bad" : ""}">${ic("calendar", 11)} ${t.due === ts ? "hoje" : fmtDay(t.due)}</span>` : ""}${t.rec && t.rec.freq !== "none" ? `<span class="pill">${ic("repeat", 11)} ${recLabel(t.rec)}</span>` : ""}${t.eventId ? `<span class="pill blue">${ic("clock", 11)} no calendário</span>` : ""}${nf ? `<span class="pill">${ic("clip", 11)} ${nf}</span>` : ""}</div></div>`;
 }
 VIEWS.tasks = () => {
   const f = ui.tasks.filter, ts = todayStr();
@@ -44,7 +44,7 @@ VIEWS.tasks = () => {
   return `<div class="toolbar"><div class="seg">${[["all", "Todas"], ["today", "Hoje"], ["late", "Atrasadas"]].map(([k, nm]) => `<button class="${f === k ? "on" : ""}" data-act="taskFilter" data-f="${k}">${nm}</button>`).join("")}</div>${taskFilters()}<div class="grow"></div><button class="btn primary" data-act="newTask">${ic("plus")}Tarefa</button></div>
   <div class="kanban ${n ? "selecting" : ""}">${KCOLS.map(([k, nm]) => {
     const C = TaskOps.colList(k, pred), allSel = C.length && C.every((t) => ui.tasks.sel.has(TaskOps.keyT(t.id)));
-    return `<div class="kcol" data-col="${k}"><div class="kh"><span class="khl"><button class="ksel kall ${allSel ? "on" : ""}" data-act="colSel" data-col="${k}" title="Selecionar toda a coluna">${allSel ? "✓" : ""}</button>${nm}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}
+    return `<div class="kcol" data-col="${k}"><div class="kh"><span class="khl"><button class="ksel kall ${allSel ? "on" : ""}" data-act="colSel" data-col="${k}" title="Selecionar toda a coluna">${allSel ? ic("check", 12) : ""}</button>${nm}</span><span class="muted">${C.length}</span></div>${C.map(taskCard).join("")}
    <form data-form="taskQuick" data-col="${k}" class="kadd"><input type="text" name="t" placeholder="+ Adicionar tarefa" autocomplete="off"></form></div>`;
   }).join("")}</div>
   ${n ? `<div class="bulkbar"><b>${n} selecionada${n > 1 ? "s" : ""}</b><button class="btn primary" data-act="bulkDone">${ic("check")}Concluir (${n})</button><button class="btn danger" data-act="bulkDel">${ic("trash")}Excluir (${n})</button><button class="btn ghost" data-act="selClear">Cancelar</button></div>` : ""}`;
@@ -67,7 +67,7 @@ ACT.taskPin = (el, e) => {
   const on = TaskOps.togglePin(el.dataset.id);
   save();
   render();
-  toast(on ? "📌 Tarefa fixada no topo" : "Tarefa desafixada");
+  toast(on ? "Tarefa fixada no topo" : "Tarefa desafixada");
 };
 const toggleSel = (k) => (ui.tasks.sel.has(k) ? ui.tasks.sel.delete(k) : ui.tasks.sel.add(k));
 ACT.taskSel = (el, e) => { e.stopPropagation(); toggleSel(TaskOps.keyT(el.dataset.id)); render(); };
@@ -85,7 +85,7 @@ ACT.bulkDone = () => {
   ui.tasks.sel.clear();
   save();
   render();
-  toast(n + " item(ns) concluído(s) ✓");
+  toast(n + " item(ns) concluído(s)");
 };
 ACT.bulkDel = () => {
   const keys = [...ui.tasks.sel], nt = keys.filter((k) => k[0] === "t").length, ns = keys.length - nt;
@@ -303,7 +303,7 @@ let dTaskSubs = [], dTaskFiles = [], dTaskFilesOrig = [];
 function subsHtml(t) {
   const { n, d } = subCount(t);
   if (!n) return "";
-  const row = (x) => { const on = ui.tasks.sel.has(TaskOps.keyS(t.id, x.id)); return `<div class="tsr ${on ? "son" : ""}" draggable="true" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span><button class="ksel ssel" data-act="subSel" data-t="${t.id}" data-s="${x.id}" title="Selecionar subtarefa">${on ? "✓" : ""}</button></div>`; };
+  const row = (x) => { const on = ui.tasks.sel.has(TaskOps.keyS(t.id, x.id)); return `<div class="tsr ${on ? "son" : ""}" draggable="true" data-act="subToggle" data-t="${t.id}" data-s="${x.id}"><input type="checkbox" tabindex="-1" ${x.d ? "checked" : ""}><span class="${x.d ? "x" : ""}">${esc(x.t)}</span><button class="ksel ssel" data-act="subSel" data-t="${t.id}" data-s="${x.id}" title="Selecionar subtarefa">${on ? ic("check", 11) : ""}</button></div>`; };
   const open = t.subs.filter((x) => !x.d), done = t.subs.filter((x) => x.d);
   return `<div class="tsub"><div class="bar-t ${d === n ? "" : "w"}"><i style="width:${d / n * 100}%"></i></div><span class="sm muted">${d}/${n}</span></div>
    <div class="tsub-list">${open.slice(0, 5).map(row).join("")}${open.length > 5 ? `<div class="sm muted">+${open.length - 5} pendente${open.length - 5 > 1 ? "s" : ""}</div>` : ""}${done.length ? `<details class="tdone" data-act="nop" ${ui.tasks.openDone?.[t.id] ? "open" : ""} data-id="${t.id}"><summary>${done.length} concluída${done.length > 1 ? "s" : ""}</summary>${done.map(row).join("")}</details>` : ""}</div>`;

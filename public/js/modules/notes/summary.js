@@ -12,7 +12,7 @@ ACT.noteSummary = async () => {
   const r = await Summarizer.run(text);
   NoteDoc.mutate(n, (root) => NoteDoc.setSummary(root, r), live ? NED : null);
   if (!live) render();
-  toast(r.source === "ai" ? "Resumo gerado com IA ✓" : "Resumo gerado (modo local — configure ANTHROPIC_API_KEY para usar IA)");
+  toast(r.source === "ai" ? "Resumo gerado com IA" : "Resumo gerado (modo local gratuito). Para IA: Ajustes → Recursos de IA");
   if (r.actions.length) modal(`<h2>Criar tarefas das ações?</h2><form data-form="actions">${r.actions.map((a, k) => `<label class="row" style="align-items:flex-start;margin-bottom:8px"><input type="checkbox" name="a" value="${k}" checked style="margin-top:3px"><span>${esc(a)}</span></label>`).join("")}<div class="foot"><button type="button" class="btn" data-act="close">Agora não</button><button class="btn primary">Criar tarefas</button></div></form>`, { onMount: () => { window._acts = r.actions; } });
 };
 SUBMIT.actions = (f, fd) => {

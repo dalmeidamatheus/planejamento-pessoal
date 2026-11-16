@@ -83,6 +83,6 @@ const Files = (() => {
     document.body.appendChild(a); a.click(); a.remove();
   }
   const size = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
-  const icon = (t = "") => t.startsWith("image/") ? "🖼️" : t.startsWith("video/") ? "🎞️" : t.startsWith("audio/") ? "🎵" : t === "application/pdf" ? "📕" : "📎";
+  const icon = (t = "") => ic(t.startsWith("image/") ? "image" : t.startsWith("video/") ? "video" : t.startsWith("audio/") ? "music" : "file", 18);
   return { put, url, blob, remove, resolve, open, size, icon, MAX };
 })();

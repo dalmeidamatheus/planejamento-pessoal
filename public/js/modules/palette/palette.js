@@ -1,7 +1,7 @@
 "use strict";
 let pal = { res: [], i: 0 };
 function openPalette(q = "") {
-  $("#overlay").innerHTML = `<div class="scrim" data-act="scrim" style="padding-top:12vh"><div class="pal"><input type="text" id="palIn" placeholder="Buscar ou criar… ex.: reunião amanhã 14h · gasto 45 mercado · toda terça e quinta 19h academia" autocomplete="off" value="${esc(q)}"><button type="button" class="palmic" data-act="palMic" title="Falar um comando (ex.: nota comprar pão · tarefa enviar proposta)">🎙</button><div class="res" id="palRes"></div><div class="hint"><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>Enter</kbd> executar · <kbd>Esc</kbd> fechar</div></div></div>`;
+  $("#overlay").innerHTML = `<div class="scrim" data-act="scrim" style="padding-top:12vh"><div class="pal"><input type="text" id="palIn" placeholder="Buscar ou criar… ex.: reunião amanhã 14h · gasto 45 mercado · toda terça e quinta 19h academia" autocomplete="off" value="${esc(q)}"><button type="button" class="palmic" data-act="palMic" title="Falar um comando (ex.: nota comprar pão · tarefa enviar proposta)">${ic("mic", 16)}</button><div class="res" id="palRes"></div><div class="hint"><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>Enter</kbd> executar · <kbd>Esc</kbd> fechar</div></div></div>`;
   const inp = $("#palIn");
   inp.focus();
   palUpdate();
@@ -123,7 +123,7 @@ function palUpdate() {
       go("trips");
       setTimeout(() => openTrip(t.id), 40);
     } }));
-    (S.birthdays || []).filter((t) => has(t.name)).slice(0, 3).forEach((t) => res.push({ g: "Aniversários", label: "🎂 " + t.name, sub: pad(t.day) + "/" + pad(t.month), ic: "calendar", run: () => openBirthday(t.id) }));
+    (S.birthdays || []).filter((t) => has(t.name)).slice(0, 3).forEach((t) => res.push({ g: "Aniversários", label: "" + t.name, sub: pad(t.day) + "/" + pad(t.month), ic: "calendar", run: () => openBirthday(t.id) }));
   }
   pal.res = res;
   pal.i = 0;
@@ -164,7 +164,7 @@ ACT.palMic = () => {
     onFinal: (t) => {
       inp.value = VoiceCmd.normalize(t);
       palUpdate();
-      if (pal.res[0] && pal.res[0].g === "Criar") { const r = pal.res[0]; closeModal(); r.run(); toast("🎙 “" + t + "”"); }
+      if (pal.res[0] && pal.res[0].g === "Criar") { const r = pal.res[0]; closeModal(); r.run(); toast("“" + t + "”"); }
     },
     onEnd: () => { palVoice = null; btn.classList.remove("on"); inp.placeholder = "Buscar ou criar…"; },
     onError: (e) => { if (e !== "no-speech" && e !== "aborted") toast(VoiceCmd.ERR[e] || "Não consegui ouvir", true); }

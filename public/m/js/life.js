@@ -1,21 +1,21 @@
 "use strict";
 /* Mais: menu, hábitos, desejos, viagens, aniversários e ajustes */
 MV.more = () => `<div class="usercard"><span class="av">${esc((user.email || "?")[0])}</span><div class="grow"><b class="ell">${esc(user.email)}</b><div class="sm muted"><span id="sync2">${sb ? "Sincronizado com a nuvem" : "Salvo neste aparelho"}</span></div></div></div>
-  <div class="menu-list">${[["finance", "💰", "Finanças", "Lançamentos, cartões e investimentos"], ["habits", "🔥", "Hábitos", "Sequências e consistência"], ["wish", "🎁", "Desejos", "Lista de compras e preços"], ["trips", "✈️", "Viagens", "Caixinhas e planejamento"]].map(([v, e, n, d]) => `<a class="mi" href="#/${v}"><span class="emo">${e}</span><div class="grow"><b>${n}</b><div class="sm muted">${d}</div></div>${mIc("right", 18)}</a>`).join("")}
-   <button class="mi" data-act="bdOpen"><span class="emo">🎂</span><div class="grow"><b>Aniversários</b><div class="sm muted">${(S.birthdays || []).length} cadastrado(s)</div></div>${mIc("right", 18)}</button>
-   <button class="mi" data-act="settingsM"><span class="emo">⚙️</span><div class="grow"><b>Ajustes</b></div>${mIc("right", 18)}</button>
-   <button class="mi" data-act="goDesktop"><span class="emo">🖥️</span><div class="grow"><b>Abrir versão desktop</b></div>${mIc("right", 18)}</button>
-   <button class="mi neg" data-act="logout"><span class="emo">🚪</span><div class="grow"><b>Sair</b></div></button></div>`;
+  <div class="menu-list">${[["finance", "wallet", "Finanças", "Lançamentos, cartões e investimentos"], ["habits", "habits", "Hábitos", "Sequências e consistência"], ["wish", "gift", "Desejos", "Lista de compras e preços"], ["trips", "plane", "Viagens", "Caixinhas e planejamento"]].map(([v, e, n, d]) => `<a class="mi" href="#/${v}"><span class="emo">${mIc(e, 22)}</span><div class="grow"><b>${n}</b><div class="sm muted">${d}</div></div>${mIc("right", 18)}</a>`).join("")}
+   <button class="mi" data-act="bdOpen"><span class="emo">${mIc("cake", 22)}</span><div class="grow"><b>Aniversários</b><div class="sm muted">${(S.birthdays || []).length} cadastrado(s)</div></div>${mIc("right", 18)}</button>
+   <button class="mi" data-act="settingsM"><span class="emo">${mIc("settings", 22)}</span><div class="grow"><b>Ajustes</b></div>${mIc("right", 18)}</button>
+   <button class="mi" data-act="goDesktop"><span class="emo">${mIc("monitor", 22)}</span><div class="grow"><b>Abrir versão desktop</b></div>${mIc("right", 18)}</button>
+   <button class="mi neg" data-act="logout"><span class="emo">${mIc("logout", 22)}</span><div class="grow"><b>Sair</b></div></button></div>`;
 ACT.goDesktop = () => { try { LS.setItem("norte:desktop", "1"); } catch {} location.href = "/"; };
-ACT.settingsM = () => openLayer(`<h2>Ajustes</h2><div class="stack tight">
-  <button class="listbtn" data-act="syncNow"><span>🔄</span>Sincronizar agora</button></div><p class="sm muted">Fuso horário: ${esc(S.settings.tz)}</p>`, { cls: "menu" });
-ACT.syncNow = async () => { closeModal(); if (sb) { setSync("saving"); await pushCloud(); toast("Sincronizado ✓"); } else toast("Modo local: nada a sincronizar"); };
+ACT.settingsM = () => { openLayer(`<h2>Ajustes</h2><div class="stack tight">
+  <button class="listbtn" data-act="syncNow"><span>${mIc("repeat", 18)}</span>Sincronizar agora</button></div><p class="sm muted">Fuso horário: ${esc(S.settings.tz)}</p>${AiStatus.html()}`, { cls: "menu" }); AiStatus.load(); };
+ACT.syncNow = async () => { closeModal(); if (sb) { setSync("saving"); await pushCloud(); toast("Sincronizado"); } else toast("Modo local: nada a sincronizar"); };
 
 /* ---------- aniversários ---------- */
 let dBdM = null;
 ACT.bdOpen = () => {
   const L = [...(S.birthdays || [])].sort((a, b) => bdNext(a).days - bdNext(b).days);
-  openLayer(`<h2>Aniversários</h2><div class="stack tight scroll">${L.map((b) => { const n = bdNext(b); return `<button class="listbtn" data-act="bdEditM" data-id="${b.id}"><span>🎂</span><span class="grow ell">${esc(b.name)} · ${pad(b.day)}/${pad(b.month)}</span><small class="muted">${n.days === 0 ? "hoje!" : "em " + n.days + "d"}</small></button>`; }).join("") || '<div class="empty">Nenhum aniversário.</div>'}</div><button class="btn primary big" data-act="bdEditM" data-id="">+ Novo aniversário</button>`, { cls: "menu" });
+  openLayer(`<h2>Aniversários</h2><div class="stack tight scroll">${L.map((b) => { const n = bdNext(b); return `<button class="listbtn" data-act="bdEditM" data-id="${b.id}"><span>${mIc("cake", 18)}</span><span class="grow ell">${esc(b.name)} · ${pad(b.day)}/${pad(b.month)}</span><small class="muted">${n.days === 0 ? "hoje!" : "em " + n.days + "d"}</small></button>`; }).join("") || '<div class="empty">Nenhum aniversário.</div>'}</div><button class="btn primary big" data-act="bdEditM" data-id="">+ Novo aniversário</button>`, { cls: "menu" });
 };
 ACT.bdEditM = (el) => {
   const id = el.dataset.id, old = id && (S.birthdays || []).find((x) => x.id === id), b = old || { name: "", day: "", month: new Date().getMonth() + 1, year: "", before: 0, notes: "" };
@@ -31,7 +31,7 @@ SUBMIT.mBd = (f, fd) => {
   const o = { name: fd.get("name").trim(), day, month, year: +fd.get("year") || null, before: +fd.get("before") || 0, notes: "" };
   S.birthdays = S.birthdays || [];
   if (dBdM) Object.assign(S.birthdays.find((x) => x.id === dBdM), o); else S.birthdays.push({ id: uid(), ...o });
-  save(); closeModal(); render(); toast("Aniversário salvo 🎂");
+  save(); closeModal(); render(); toast("Aniversário salvo");
 };
 ACT.bdDelM = () => { const id = dBdM; mConfirm("Excluir este aniversário?", "Excluir", () => { S.birthdays = S.birthdays.filter((x) => x.id !== id); save(); LAYERS.slice().forEach(removeLayer); syncHistory(); render(); }); };
 
@@ -41,7 +41,7 @@ const hAdh = (h, n = 30) => { let c = 0; const t = wd(todayStr()); for (let i = 
 MV.habits = () => {
   if (!S.habits.length) return `<div class="empty">Nenhum hábito ainda.<br><br><button class="btn primary" data-act="habNew">+ Criar hábito</button></div>`;
   const t = wd(todayStr()), days = Array.from({ length: 7 }, (_, i) => addDays(t, i - 6));
-  return S.habits.map((h) => `<div class="hab" style="--c:${h.color}"><div class="row"><span class="dot"></span><b class="grow ell" data-act="habEdit" data-id="${h.id}">${esc(h.name)}</b><span class="pill">🔥 ${hStreak(h)}</span><span class="pill">${hAdh(h)}%</span></div><div class="hdays">${days.map((d) => { const k = ymd(d); return `<button class="hd ${h.log[k] ? "on" : ""} ${k === todayStr() ? "today" : ""}" data-act="habToggle" data-id="${h.id}" data-d="${k}"><small>${DSEM[d.getUTCDay()][0]}</small><b>${d.getUTCDate()}</b></button>`; }).join("")}</div></div>`).join("") + `<button class="fab" data-act="habNew" aria-label="Novo hábito">${mIc("plus", 26)}</button>`;
+  return S.habits.map((h) => `<div class="hab" style="--c:${h.color}"><div class="row"><span class="dot"></span><b class="grow ell" data-act="habEdit" data-id="${h.id}">${esc(h.name)}</b><span class="pill">${mIc("habits", 12)} ${hStreak(h)}</span><span class="pill">${hAdh(h)}%</span></div><div class="hdays">${days.map((d) => { const k = ymd(d); return `<button class="hd ${h.log[k] ? "on" : ""} ${k === todayStr() ? "today" : ""}" data-act="habToggle" data-id="${h.id}" data-d="${k}"><small>${DSEM[d.getUTCDay()][0]}</small><b>${d.getUTCDate()}</b></button>`; }).join("")}</div></div>`).join("") + `<button class="fab" data-act="habNew" aria-label="Novo hábito">${mIc("plus", 26)}</button>`;
 };
 ACT.habToggle = (el) => {
   const h = S.habits.find((x) => x.id === el.dataset.id), d = el.dataset.d;
@@ -69,7 +69,7 @@ MV.wish = () => {
   const st = ui.m.wst, L = S.wishlist.filter((i) => (i.bought ? "bought" : "want") === st).sort((a, b) => TaskOps.rank(a) - TaskOps.rank(b));
   const want = S.wishlist.filter((i) => !i.bought), tot = want.reduce((s, i) => s + curPrice(i), 0);
   return `<div class="stats one"><div><span>${want.length} desejo(s) · total à vista</span><b>${brl(tot)}</b></div></div><div class="segbar">${[["want", "Desejos"], ["bought", "Comprados"]].map(([k, n]) => `<button class="${st === k ? "on" : ""}" data-act="wishSt" data-s="${k}">${n}</button>`).join("")}</div>` +
-    (L.length ? L.map((it) => { const p = curPrice(it), ch = priceChange(it), fin = financing(it); return `<div class="wcard-m ${it.bought ? "bought" : ""}" data-act="wishOpen" data-id="${it.id}"><div class="row"><b class="grow ell">${esc(it.name)}</b>${prioPill(it.prio)}</div><div class="big-n">${brl(p)}${ch ? ` <span class="pill ${ch.pct < 0 ? "ok" : "bad"}">${signedPct(ch.pct)}</span>` : ""}</div><div class="sm muted">${it.inst > 1 ? `${it.inst}× ${brl(fin.parcela)}` : "à vista"}${it.target > 0 ? ` · 🎯 ${brl(it.target)}` : ""}${it.by ? ` · até ${fmtDay(it.by)}` : ""}</div></div>`; }).join("") : '<div class="empty">Nada por aqui.</div>') + `<button class="fab" data-act="wishNew" aria-label="Novo desejo">${mIc("plus", 26)}</button>`;
+    (L.length ? L.map((it) => { const p = curPrice(it), ch = priceChange(it), fin = financing(it); return `<div class="wcard-m ${it.bought ? "bought" : ""}" data-act="wishOpen" data-id="${it.id}"><div class="row"><b class="grow ell">${esc(it.name)}</b>${prioPill(it.prio)}</div><div class="big-n">${brl(p)}${ch ? ` <span class="pill ${ch.pct < 0 ? "ok" : "bad"}">${signedPct(ch.pct)}</span>` : ""}</div><div class="sm muted">${it.inst > 1 ? `${it.inst}× ${brl(fin.parcela)}` : "à vista"}${it.target > 0 ? ` · ${mIc("target", 12)} ${brl(it.target)}` : ""}${it.by ? ` · até ${fmtDay(it.by)}` : ""}</div></div>`; }).join("") : '<div class="empty">Nada por aqui.</div>') + `<button class="fab" data-act="wishNew" aria-label="Novo desejo">${mIc("plus", 26)}</button>`;
 };
 ACT.wishSt = (el) => { ui.m.wst = el.dataset.s; render(); };
 let dWishM = null;
@@ -85,7 +85,7 @@ function openWish(id) {
    <div class="grid2"><label class="field"><span>Preço-alvo</span><input type="number" name="target" step="0.01" min="0" value="${it.target || ""}" inputmode="decimal"></label><label class="field"><span>Comprar até</span><input type="date" name="by" value="${it.by || ""}"></label></div>
    <label class="field"><span>Link do produto</span><input type="url" name="url" value="${esc(it.url || "")}" placeholder="https://"></label>
    <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(it.notes || "")}</textarea></label>
-   ${old ? `${it.url ? `<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">Abrir link</a> ` : ""}<button type="button" class="btn ${it.bought ? "" : "primary"}" data-act="wishBoughtM">${it.bought ? "Voltar para desejos" : "Marcar como comprado 🎉"}</button>${hist.length ? `<div class="hist"><b class="sm">Histórico de preço</b>${hist.map((h) => `<div class="sm row"><span class="grow">${fmtDay(h.d)}/${h.d.slice(2, 4)}</span><b>${brl(h.p)}</b></div>`).join("")}</div>` : ""}` : ""}`, { del: old ? "wishDelM" : "" });
+   ${old ? `${it.url ? `<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">Abrir link</a> ` : ""}<button type="button" class="btn ${it.bought ? "" : "primary"}" data-act="wishBoughtM">${it.bought ? "Voltar para desejos" : "Marcar como comprado"}</button>${hist.length ? `<div class="hist"><b class="sm">Histórico de preço</b>${hist.map((h) => `<div class="sm row"><span class="grow">${fmtDay(h.d)}/${h.d.slice(2, 4)}</span><b>${brl(h.p)}</b></div>`).join("")}</div>` : ""}` : ""}`, { del: old ? "wishDelM" : "" });
 }
 SUBMIT.mWish = (f, fd) => {
   const o = { name: fd.get("nm").trim(), url: fd.get("url").trim(), prio: fd.get("prio"), inst: Math.max(1, +fd.get("inst") || 1), rate: +fd.get("rate") || 0, target: +fd.get("target") || 0, by: fd.get("by"), notes: fd.get("notes") }, price = +fd.get("price");
@@ -97,7 +97,7 @@ ACT.wishBoughtM = () => {
   const it = S.wishlist.find((x) => x.id === dWishM);
   it.bought = !it.bought;
   if (it.bought) it.monitor = false;
-  save(); closeModal(); render(); toast(it.bought ? "Marcado como comprado 🎉" : "Voltou para a lista");
+  save(); closeModal(); render(); toast(it.bought ? "Marcado como comprado" : "Voltou para a lista");
 };
 ACT.wishDelM = () => { const id = dWishM; mConfirm("Excluir este item da lista?", "Excluir", () => { S.wishlist = S.wishlist.filter((x) => x.id !== id); save(); LAYERS.slice().forEach(removeLayer); syncHistory(); render(); }); };
 
@@ -113,11 +113,11 @@ function tripCalcM(t) {
   const months = left == null ? 1 : Math.max(1, Math.ceil(left / 30.44));
   return { days, people, items, total, saved, remaining, left, months, perMonth: left != null && left < 0 ? 0 : remaining / months, pct: total ? Math.min(100, saved / total * 100) : 0 };
 }
-const leftLbl = (c) => (c.left == null ? "" : c.left > 1 ? `faltam ${c.left} dias` : c.left === 1 ? "é amanhã!" : c.left === 0 ? "é hoje! ✈️" : "já passou");
+const leftLbl = (c) => (c.left == null ? "" : c.left > 1 ? `faltam ${c.left} dias` : c.left === 1 ? "é amanhã!" : c.left === 0 ? "é hoje!" : "já passou");
 MV.trips = () => {
   const st = ui.m.tripSt, L = S.trips.filter((t) => { const l = tripCalcM(t).left; return st === "all" || (st === "next" ? l == null || l >= 0 : l != null && l < 0); });
   return `<div class="segbar">${[["next", "Próximas"], ["past", "Passadas"], ["all", "Todas"]].map(([k, n]) => `<button class="${st === k ? "on" : ""}" data-act="tripSt" data-s="${k}">${n}</button>`).join("")}</div>` +
-    (L.length ? L.map((t) => { const c = tripCalcM(t); return `<div class="trip" data-act="tripOpen" data-id="${t.id}"><div class="row"><span class="emo">${esc(t.emoji || "✈️")}</span><div class="grow"><b>${esc(t.name)}</b><div class="sm muted">${esc(t.dest || "")}${t.start ? ` · ${fmtDay(t.start)}${t.end ? "–" + fmtDay(t.end) : ""}` : ""}</div></div><span class="pill blue">${leftLbl(c)}</span></div><div class="row spread"><span><b class="big-n">${brl(c.saved)}</b> <small class="muted">de ${brl(c.total)}</small></span><b>${c.pct.toFixed(0)}%</b></div><div class="bar-t"><i style="width:${c.pct}%"></i></div>${c.remaining > 0.005 && !(c.left != null && c.left < 0) ? `<div class="sm">Separe <b>${brl(c.perMonth)}/mês</b> por ${c.months} ${c.months > 1 ? "meses" : "mês"}</div>` : ""}</div>`; }).join("") : '<div class="empty">Nenhuma viagem.</div>') + `<button class="fab" data-act="tripNew" aria-label="Nova viagem">${mIc("plus", 26)}</button>`;
+    (L.length ? L.map((t) => { const c = tripCalcM(t); return `<div class="trip" data-act="tripOpen" data-id="${t.id}"><div class="row"><span class="emo">${mIc("plane", 22)}</span><div class="grow"><b>${esc(t.name)}</b><div class="sm muted">${esc(t.dest || "")}${t.start ? ` · ${fmtDay(t.start)}${t.end ? "–" + fmtDay(t.end) : ""}` : ""}</div></div><span class="pill blue">${leftLbl(c)}</span></div><div class="row spread"><span><b class="big-n">${brl(c.saved)}</b> <small class="muted">de ${brl(c.total)}</small></span><b>${c.pct.toFixed(0)}%</b></div><div class="bar-t"><i style="width:${c.pct}%"></i></div>${c.remaining > 0.005 && !(c.left != null && c.left < 0) ? `<div class="sm">Separe <b>${brl(c.perMonth)}/mês</b> por ${c.months} ${c.months > 1 ? "meses" : "mês"}</div>` : ""}</div>`; }).join("") : '<div class="empty">Nenhuma viagem.</div>') + `<button class="fab" data-act="tripNew" aria-label="Nova viagem">${mIc("plus", 26)}</button>`;
 };
 ACT.tripSt = (el) => { ui.m.tripSt = el.dataset.s; render(); };
 let dTripM = null;
@@ -128,7 +128,7 @@ function openTripSheet(id) {
   if (!t) return;
   dTripM = id;
   const c = tripCalcM(t);
-  const html = `<div class="shead"><h2>${esc(t.emoji || "✈️")} ${esc(t.name)}</h2><button type="button" class="icon-btn" data-act="layerClose">${mIc("x")}</button></div><div class="sbody">
+  const html = `<div class="shead"><h2>${esc(t.name)}</h2><button type="button" class="icon-btn" data-act="layerClose">${mIc("x")}</button></div><div class="sbody">
    <div class="muted sm">${esc(t.dest || "")}${t.start ? ` · ${fmtDay(t.start)}${t.end ? "–" + fmtDay(t.end) : ""}` : ""} · ${c.people} pessoa(s) · ${c.days} dia(s)</div>
    <div class="stats"><div><span>Total</span><b>${brl(c.total)}</b></div><div><span>Guardado</span><b class="pos">${brl(c.saved)}</b></div><div><span>Falta</span><b class="neg">${brl(c.remaining)}</b></div></div>
    <div class="bar-t"><i style="width:${c.pct}%"></i></div>${c.remaining > 0.005 && !(c.left != null && c.left < 0) ? `<p class="sm">Separe <b>${brl(c.perMonth)}/mês</b> por ${c.months} ${c.months > 1 ? "meses" : "mês"} (${leftLbl(c)}).</p>` : ""}
@@ -141,15 +141,15 @@ function openTripSheet(id) {
 }
 ACT.tripEdit = () => openTripForm(dTripM);
 function openTripForm(id) {
-  const old = id && S.trips.find((x) => x.id === id), t = old || { name: "", dest: "", emoji: "✈️", start: "", end: "", people: 1, notes: "" };
+  const old = id && S.trips.find((x) => x.id === id), t = old || { name: "", dest: "", start: "", end: "", people: 1, notes: "" };
   dTripM = id;
   formSheet(old ? "Editar viagem" : "Nova viagem", "mTrip", `<label class="field"><span>Nome</span><input type="text" name="name" value="${esc(t.name)}" required placeholder="Férias em Lisboa"></label><label class="field"><span>Destino</span><input type="text" name="dest" value="${esc(t.dest || "")}"></label>
    <div class="grid2"><label class="field"><span>Ida</span><input type="date" name="start" value="${t.start || ""}"></label><label class="field"><span>Volta</span><input type="date" name="end" value="${t.end || ""}"></label></div>
-   <div class="grid2"><label class="field"><span>Pessoas</span><input type="number" name="people" min="1" value="${t.people || 1}" inputmode="numeric"></label><label class="field"><span>Ícone</span><select name="emoji">${["✈️", "🏖️", "🏔️", "🏙️", "🚗", "🚢", "⛺", "🎡", "🗺️"].map((e) => `<option ${t.emoji === e ? "selected" : ""}>${e}</option>`).join("")}</select></label></div>
+   <div class="grid2"><label class="field"><span>Pessoas</span><input type="number" name="people" min="1" value="${t.people || 1}" inputmode="numeric"></label></div>
    <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(t.notes || "")}</textarea></label>`);
 }
 SUBMIT.mTrip = (f, fd) => {
-  const o = { name: fd.get("name").trim(), dest: fd.get("dest").trim(), start: fd.get("start"), end: fd.get("end"), people: Math.max(1, +fd.get("people") || 1), emoji: fd.get("emoji"), notes: fd.get("notes") };
+  const o = { name: fd.get("name").trim(), dest: fd.get("dest").trim(), start: fd.get("start"), end: fd.get("end"), people: Math.max(1, +fd.get("people") || 1), notes: fd.get("notes") };
   if (o.start && o.end && o.end < o.start) { toast("A volta precisa ser depois da ida", true); return; }
   let t;
   if (dTripM) { t = S.trips.find((x) => x.id === dTripM); Object.assign(t, o); } else { t = { id: uid(), items: [], deposits: [], ...o }; S.trips.push(t); }
@@ -165,7 +165,7 @@ SUBMIT.mTripDep = (f, fd) => {
   const t = S.trips.find((x) => x.id === dTripM), a = R2(+fd.get("a")), d = fd.get("d");
   (t.deposits || (t.deposits = [])).push({ id: uid(), date: d, amount: a });
   if (fd.get("tx")) S.tx.push({ id: uid(), type: "out", desc: "Caixinha — " + t.name, amount: a, date: d, cat: "Viagens", sub: t.dest || "", method: "transfer", status: "paid" });
-  save(); closeModal(); openTripSheet(dTripM); render(); toast(brl(a) + " guardados 💰");
+  save(); closeModal(); openTripSheet(dTripM); render(); toast(brl(a) + " guardados");
 };
 ACT.tripDepDel = (el) => { const t = S.trips.find((x) => x.id === dTripM); t.deposits = t.deposits.filter((d) => d.id !== el.dataset.id); save(); openTripSheet(dTripM); render(); };
 ACT.tripDelM = () => { const id = dTripM; mConfirm("Excluir esta viagem?", "Excluir", () => { const t = S.trips.find((x) => x.id === id); if (t && t.eventId) S.events = S.events.filter((e) => e.id !== t.eventId); S.trips = S.trips.filter((x) => x.id !== id); save(); LAYERS.slice().forEach(removeLayer); syncHistory(); render(); }); };

@@ -6,7 +6,7 @@ function pushNotif(msg, key) {
   }
   S.notifs.unshift({ id: uid(), msg, ts: Date.now(), read: false });
   S.notifs = S.notifs.slice(0, 60);
-  toast("🔔 " + msg);
+  toast("" + msg);
   try {
     if ("Notification" in window && Notification.permission === "granted") new Notification("Norte", { body: msg });
   } catch {

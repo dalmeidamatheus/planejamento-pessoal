@@ -92,7 +92,7 @@ INP.evChk = () => {
       return;
     }
     const c = findConflicts(sMs, eMs, dEv.id);
-    box.innerHTML = c.length ? `<div class="infobox">⇄ Acontece ao mesmo tempo que (pode salvar normalmente): ${c.map((o) => `<b>${esc(o.e.title)}</b> (${hm(o.ds)}–${hm(o.de)})`).join(", ")}</div>` : "";
+    box.innerHTML = c.length ? `<div class="infobox">Acontece ao mesmo tempo que (pode salvar normalmente): ${c.map((o) => `<b>${esc(o.e.title)}</b> (${hm(o.ds)}–${hm(o.de)})`).join(", ")}</div>` : "";
   } catch {
     box.innerHTML = "";
   }

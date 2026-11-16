@@ -12,7 +12,7 @@ function holidaysOf(y) {
   L.push({ date: at(-48), name: "Carnaval", opt: true }, { date: at(-47), name: "Carnaval", opt: true }, { date: at(-2), name: "Sexta-feira Santa", opt: false }, { date: p, name: "Páscoa", opt: true }, { date: at(60), name: "Corpus Christi", opt: true });
   return holCache[y] = L.sort((a, b) => a.date - b.date);
 }
-const holEvent = (h) => ({ id: "hol:" + ymd(h.date), title: "🎉 " + h.name, tag: "lazer", prio: "baixa", allDay: true, rec: { freq: "none" }, ex: [], start: ymd(h.date) + "T00:00", end: ymd(addDays(h.date, 1)) + "T00:00", remind: null, holiday: true, opt: h.opt, notes: h.opt ? "Ponto facultativo / data comemorativa" : "Feriado nacional" });
+const holEvent = (h) => ({ id: "hol:" + ymd(h.date), title: "" + h.name, tag: "lazer", prio: "baixa", allDay: true, rec: { freq: "none" }, ex: [], start: ymd(h.date) + "T00:00", end: ymd(addDays(h.date, 1)) + "T00:00", remind: null, holiday: true, opt: h.opt, notes: h.opt ? "Ponto facultativo / data comemorativa" : "Feriado nacional" });
 function holidayOccs(fromW, toW) {
   if (S.settings.showHolidays === false) return [];
   const out = [], lo = dayStart(fromW);
@@ -30,7 +30,7 @@ function holidayList() {
 function openHoliday(key) {
   const d = wd(key), h = holidaysOf(d.getUTCFullYear()).find((x) => ymd(x.date) === key);
   if (!h) return;
-  modal(`<h2>🎉 ${esc(h.name)}</h2><p class="muted">${fmtDay(key)}/${key.slice(0, 4)} · ${h.opt ? "ponto facultativo / data comemorativa" : "feriado nacional"}</p>
+  modal(`<h2>${esc(h.name)}</h2><p class="muted">${fmtDay(key)}/${key.slice(0, 4)} · ${h.opt ? "ponto facultativo / data comemorativa" : "feriado nacional"}</p>
    <label class="row sm" style="margin:10px 0"><input type="checkbox" data-ch="calHol" checked> Mostrar feriados no calendário</label>
    <div class="foot"><span class="grow"></span><button class="btn" data-act="close">Fechar</button></div>`);
 }

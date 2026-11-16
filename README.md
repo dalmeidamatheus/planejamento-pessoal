@@ -133,9 +133,9 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Hábitos:** marcação diária dos últimos 14 dias, sequência atual e melhor sequência, aderência em 30 dias, gráfico diário e mapa de 13 semanas.
 - **Notas com editor rico:** botão **Nova nota** na própria página; negrito, itálico, sublinhado, ~~riscado~~ (`Ctrl+Shift+S`), destaque, cores, títulos, listas, checklist, citação, código, blocos de destaque, tabelas e alinhamento. Aceita Markdown ao digitar (`# `, `- `, `[] `, `1. `, `> `). **Imagens, GIFs, vídeos, áudios, YouTube/Vimeo e arquivos** (colar, arrastar ou pelos botões), **ícone, capa e fonte** por nota, busca e **vínculo a um evento ou a uma transação**. Notas antigas em Markdown são convertidas na primeira abertura.
 - **Matemática nas notas:** fórmulas em LaTeX (KaTeX) com atalhos para ∫, d/dx, ∂, lim, Σ, √, matrizes… e **cálculo simbólico** (derivada, integral indefinida/definida, resolver equação, simplificar) via Nerdamer: digite `x^2*sin(x)` e o resultado entra na nota já formatado. `Ctrl+Shift+M` abre o painel; clique numa fórmula para editá-la.
-- **Reuniões:** *Gravar reunião* escreve **na própria nota, ao vivo**, enquanto você fala (o trecho provisório aparece em cinza) e você pode continuar digitando e corrigindo ao mesmo tempo. Frases viram parágrafos com marcação de tempo, com pontuação e maiúsculas automáticas e comandos de voz (“vírgula”, “ponto final”, “nova linha”). Dois motores: **navegador** (instantâneo, grátis) e **Whisper** (mais preciso, exige `OPENAI_API_KEY`). Ao parar, o sistema gera **resumo, decisões e ações** (com `ANTHROPIC_API_KEY` usa IA; sem ela, resumo local) e oferece criar tarefas das ações.
-- **Foto → texto (OCR):** botão 📷 no editor: tire uma foto (ou escolha da galeria) de uma conta, documento ou anotação e o texto entra na nota. Com `ANTHROPIC_API_KEY` usa Claude com visão (`/api/ocr`, bem melhor para manuscrito); sem ela, usa Tesseract.js direto no navegador.
-- **Comando por voz:** botão 🎙 na busca (Ctrl+K) e na barra do app mobile: diga “nota comprar pão”, “tarefa enviar proposta”, “reunião amanhã 14h”, “gasto 45 mercado” e o item é criado na hora.
+- **Reuniões:** *Gravar reunião* escreve **na própria nota, ao vivo**, enquanto você fala (o trecho provisório aparece em cinza) e você pode continuar digitando e corrigindo ao mesmo tempo. Frases viram parágrafos com marcação de tempo, com pontuação e maiúsculas automáticas e comandos de voz (“vírgula”, “ponto final”, “nova linha”). Dois motores: **navegador** (instantâneo, grátis) e **Whisper** (mais preciso; chave gratuita do Groq em `GROQ_API_KEY`, ou `OPENAI_API_KEY` pago). Ao parar, o sistema gera **resumo, decisões e ações** (com `GEMINI_API_KEY`, gratuita, ou `ANTHROPIC_API_KEY`, paga, usa IA; sem chave, resumo local) e oferece criar tarefas das ações.
+- **Foto → texto (OCR):** botão de câmera no editor: tire uma foto (ou escolha da galeria) de uma conta, documento ou anotação e o texto entra na nota. Com `GEMINI_API_KEY` (gratuita) ou `ANTHROPIC_API_KEY` (paga) usa IA de visão (`/api/ocr`, bem melhor para manuscrito); sem chave, usa Tesseract.js direto no navegador.
+- **Comando por voz:** botão de microfone na busca (Ctrl+K) e na barra do app mobile: diga “nota comprar pão”, “tarefa enviar proposta”, “reunião amanhã 14h”, “gasto 45 mercado” e o item é criado na hora.
 - **Anexos em tarefas e notas:** envie arquivos (até 50 MB) em qualquer tarefa; ficam no IndexedDB do aparelho e, com Supabase, também no Storage privado (bucket `attachments`, rode o `supabase/schema.sql` atualizado).
 
 ### Lista de desejos
@@ -349,3 +349,14 @@ Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) e rod
 ## Licença
 
 Distribuído sob a licença MIT. Veja [LICENSE](LICENSE).
+
+## Recursos de IA e custo
+
+Nada exige pagamento: sem chaves, o resumo é local, o OCR roda no navegador (Tesseract) e a voz usa o reconhecimento do navegador. As chaves só melhoram a qualidade e são configuradas como variáveis de ambiente na Vercel (veja `.env.example`; *Ajustes → Recursos de IA* mostra o que está ativo).
+
+| Recurso | Gratuito | Pago por uso |
+|---|---|---|
+| Resumo e foto → texto | `GEMINI_API_KEY` (Google AI Studio) | `ANTHROPIC_API_KEY` |
+| Transcrição precisa | `GROQ_API_KEY` (Groq) | `OPENAI_API_KEY` |
+
+Planos gratuitos têm limite de uso e podem mudar; no plano gratuito do Google o conteúdo enviado pode ser usado para melhorar produtos. A assinatura do Claude.ai ou do ChatGPT não inclui acesso à API.

@@ -16,6 +16,7 @@
   "js/core/summarizer.js",
   "js/core/ocr.js",
   "js/core/voicecmd.js",
+  "js/core/aistatus.js",
   "js/modules/calendar/occurrences.js",
   "js/modules/calendar/views.js",
   "js/modules/calendar/list.js",

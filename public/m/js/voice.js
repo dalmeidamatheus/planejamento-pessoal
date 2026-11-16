@@ -1,5 +1,5 @@
 "use strict";
-/* Comando por voz (celular): toque no 🎙 da barra superior e diga "nota comprar pão", "tarefa enviar proposta",
+/* Comando por voz (celular): toque no da barra superior e diga "nota comprar pão", "tarefa enviar proposta",
    "reunião amanhã 14h", "gasto 45 mercado"… O parser de texto é o mesmo do desktop (palette/nl-parser.js). */
 (() => {
   // o parser navega com go("calendar"/"finance"/…): traduz para as telas do app mobile
@@ -20,7 +20,7 @@ function voiceListen() {
     onFinal: (t) => {
       let r = null;
       try { r = VoiceCmd.execute(t); } catch (e) { console.error(e); }
-      if (r) { closeModal(); toast("🎙 " + r.label); return; }
+      if (r) { closeModal(); toast("" + r.label); return; }
       if ($("#vtxt")) { $("#vtxt").textContent = "Não entendi “" + t + "”"; $("#vretry").classList.remove("hidden"); }
     },
     onEnd: () => { vReco = null; const b = $("#vbox"); b && b.classList.remove("on"); },
