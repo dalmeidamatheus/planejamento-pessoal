@@ -1,0 +1,42 @@
+"use strict";
+/* Foto de um documento/anotação → texto.
+   1) /api/ocr (Claude com visão; melhor para manuscrito, tabelas e fotos tortas) quando ANTHROPIC_API_KEY está configurada;
+   2) caso contrário, Tesseract.js (roda no próprio navegador, sem chave; mais fraco para manuscrito). */
+const OCR = (() => {
+  async function shrink(file, max = 1800) {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    const g = c.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+    g.drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise((ok) => c.toBlob(ok, "image/jpeg", 0.86));
+    return blob;
+  }
+  const b64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(blob); });
+  async function viaApi(blob) {
+    try {
+      const tk = typeof sb !== "undefined" && sb ? ((await sb.auth.getSession()).data.session || {}).access_token : "";
+      const res = await fetch("/api/ocr", { method: "POST", headers: { "Content-Type": "application/json", ...(tk ? { Authorization: "Bearer " + tk } : {}) }, body: JSON.stringify({ image: await b64(blob), mime: "image/jpeg" }) });
+      if (!res.ok) return null;
+      const j = await res.json();
+      return typeof j.text === "string" ? j.text : null;
+    } catch { return null; }
+  }
+  async function viaTesseract(blob) {
+    await RT.load("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
+    const r = await window.Tesseract.recognize(blob, "por");
+    return (r.data.text || "").trim();
+  }
+  /** Devolve o texto reconhecido ("" se não achou texto). Lança erro se nada funcionou. */
+  async function run(file) {
+    const blob = await shrink(file);
+    const t = await viaApi(blob);
+    if (t !== null) return t.trim();
+    return viaTesseract(blob);
+  }
+  /** Texto → HTML do editor (parágrafos separados por linha em branco, quebras simples viram <br>). */
+  const toHtml = (t) => t.split(/\n{2,}/).map((p) => "<p>" + p.split("\n").map((l) => esc(l.trim())).filter(Boolean).join("<br>") + "</p>").filter((p) => p !== "<p></p>").join("");
+  return { run, toHtml };
+})();

@@ -61,7 +61,7 @@ function clRow(r) {
 }
 function clBar() {
   const n = ui.cl.sel.size;
-  if (!n) return `<div class="muted sm" style="margin-bottom:10px">Marque compromissos na lista para alterar vários de uma vez: categoria, prioridade, lembrete, repetição, concluir ou excluir.</div>`;
+  if (!n) return "";
   return `<div class="selbar"><b>${n} selecionado${n > 1 ? "s" : ""}</b>
    <select style="width:150px" data-ch="clTag"><option value="">Categoria…</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}">${v.n}</option>`).join("")}</select>
    <select style="width:140px" data-ch="clPrio"><option value="">Prioridade…</option>${Object.entries(PRIO).map(([k, v]) => `<option value="${k}">${v.n}</option>`).join("")}</select>
@@ -129,7 +129,6 @@ INP.clRemind = (el) => {
 ACT.clRepeat = () => {
   const n = ui.cl.sel.size, evs = S.events.filter((e) => ui.cl.sel.has(e.id)), same = evs.length && evs.every((e) => recLabel(e.rec) === recLabel(evs[0].rec));
   modal(`<form data-form="clRec"><h2>Repetição de ${n} compromisso${n > 1 ? "s" : ""}</h2>
-   <p class="muted sm">A repetição escolhida vale para a série inteira de cada compromisso selecionado e substitui a que existia. Para parar de repetir, escolha “Não repete”.</p>
    ${recFields(same ? evs[0].rec : { freq: "none" })}
    <div class="foot"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Aplicar</button></div></form>`);
 };

@@ -3,15 +3,13 @@
 MV.more = () => `<div class="usercard"><span class="av">${esc((user.email || "?")[0])}</span><div class="grow"><b class="ell">${esc(user.email)}</b><div class="sm muted"><span id="sync2">${sb ? "Sincronizado com a nuvem" : "Salvo neste aparelho"}</span></div></div></div>
   <div class="menu-list">${[["finance", "💰", "Finanças", "Lançamentos, cartões e investimentos"], ["habits", "🔥", "Hábitos", "Sequências e consistência"], ["wish", "🎁", "Desejos", "Lista de compras e preços"], ["trips", "✈️", "Viagens", "Caixinhas e planejamento"]].map(([v, e, n, d]) => `<a class="mi" href="#/${v}"><span class="emo">${e}</span><div class="grow"><b>${n}</b><div class="sm muted">${d}</div></div>${mIc("right", 18)}</a>`).join("")}
    <button class="mi" data-act="bdOpen"><span class="emo">🎂</span><div class="grow"><b>Aniversários</b><div class="sm muted">${(S.birthdays || []).length} cadastrado(s)</div></div>${mIc("right", 18)}</button>
-   <button class="mi" data-act="settingsM"><span class="emo">⚙️</span><div class="grow"><b>Ajustes</b><div class="sm muted">Dados de exemplo, sincronização</div></div>${mIc("right", 18)}</button>
-   <button class="mi" data-act="goDesktop"><span class="emo">🖥️</span><div class="grow"><b>Abrir versão desktop</b><div class="sm muted">Interface completa para tela grande</div></div>${mIc("right", 18)}</button>
+   <button class="mi" data-act="settingsM"><span class="emo">⚙️</span><div class="grow"><b>Ajustes</b></div>${mIc("right", 18)}</button>
+   <button class="mi" data-act="goDesktop"><span class="emo">🖥️</span><div class="grow"><b>Abrir versão desktop</b></div>${mIc("right", 18)}</button>
    <button class="mi neg" data-act="logout"><span class="emo">🚪</span><div class="grow"><b>Sair</b></div></button></div>`;
 ACT.goDesktop = () => { try { LS.setItem("norte:desktop", "1"); } catch {} location.href = "/"; };
 ACT.settingsM = () => openLayer(`<h2>Ajustes</h2><div class="stack tight">
-  <button class="listbtn" data-act="syncNow"><span>🔄</span>Sincronizar agora</button>
-  <button class="listbtn" data-act="seedAsk"><span>🧪</span>Carregar dados de exemplo</button></div><p class="sm muted">Fuso horário: ${esc(S.settings.tz)}</p>`, { cls: "menu" });
+  <button class="listbtn" data-act="syncNow"><span>🔄</span>Sincronizar agora</button></div><p class="sm muted">Fuso horário: ${esc(S.settings.tz)}</p>`, { cls: "menu" });
 ACT.syncNow = async () => { closeModal(); if (sb) { setSync("saving"); await pushCloud(); toast("Sincronizado ✓"); } else toast("Modo local: nada a sincronizar"); };
-ACT.seedAsk = () => { closeModal(); setTimeout(() => mConfirm("Isso adiciona compromissos, transações, tarefas, hábitos e notas de exemplo aos seus dados.", "Carregar", () => ACT.seed(), { title: "Dados de exemplo", danger: false }), 0); };
 
 /* ---------- aniversários ---------- */
 let dBdM = null;

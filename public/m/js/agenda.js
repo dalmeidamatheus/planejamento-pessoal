@@ -42,8 +42,7 @@ function openEvent(id, key) {
    <div class="grid2"><label class="field"><span>Fim</span><input type="date" name="ed" value="${ed}" required></label><label class="field tm-f ${ad ? "hidden" : ""}"><span>Hora</span><input type="time" name="et" value="${et || "10:00"}"></label></div>
    <div class="grid2"><label class="field"><span>Categoria</span><select name="tag">${opts(Object.entries(TAGS).map(([k, v]) => [k, v.n]), e.tag)}</select></label><label class="field"><span>Prioridade</span><select name="prio">${opts(Object.entries(PRIO).map(([k, v]) => [k, v.n]), e.prio)}</select></label></div>
    <div class="grid2"><label class="field"><span>Lembrete</span><select name="remind">${opts(REMINDS, e.remind == null ? "" : e.remind)}</select></label><label class="field"><span>Repetir</span><select name="rep">${rv === "keep" ? `<option value="keep" selected>${esc(recLabel(e.rec))} (atual)</option>` : ""}${opts(REPS, rv)}</select></label></div>
-   <label class="field"><span>Notas</span><textarea name="notes" rows="3">${esc(e.notes || "")}</textarea></label>
-   ${old && old.rec && old.rec.freq !== "none" ? '<p class="sm muted">Evento recorrente: ao salvar você escolhe se vale só para este evento ou para todos.</p>' : ""}`, { del: old ? "evDel" : "", layer: { full: false } });
+   <label class="field"><span>Notas</span><textarea name="notes" rows="3">${esc(e.notes || "")}</textarea></label>`, { del: old ? "evDel" : "", layer: { full: false } });
 }
 INP.evAD = (el) => $$(".tm-f", el.closest("form")).forEach((x) => x.classList.toggle("hidden", el.checked));
 let evScopeM = null;

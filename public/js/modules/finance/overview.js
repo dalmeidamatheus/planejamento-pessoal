@@ -17,7 +17,7 @@ function finGeral() {
   }
   const up = [...monthTx(cur), ...monthTx(addM(cur, 1))].filter((t) => t.type === "out" && t.status !== "paid").sort((a, b) => a.date.localeCompare(b.date)).slice(0, 7);
   const empty = !S.tx.length && !S.recur.length && !S.cards.length;
-  return `${empty ? `<div class="card flat" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><div class="grow"><b>Comece lançando sua primeira transação</b><div class="muted sm">Ou carregue dados de exemplo para explorar o sistema.</div></div><button class="btn" data-act="seed">Carregar exemplo</button></div>` : ""}
+  return `
   <div class="cols c4" style="margin-bottom:14px">
    <div class="card stat"><div class="l">Entradas</div><div class="v pos">${brl(T.in)}</div><div class="s">${brl(T.inP)} recebido</div></div>
    <div class="card stat"><div class="l">Saídas</div><div class="v neg">${brl(T.out)}</div><div class="s">${brl(T.outP)} pago${T.in ? " · " + fmtPct(T.out / T.in * 100) + " da renda" : ""}</div></div>

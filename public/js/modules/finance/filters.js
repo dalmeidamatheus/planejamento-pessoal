@@ -27,7 +27,7 @@ function finTx() {
    <input type="number" step="0.01" min="0" style="width:96px" placeholder="Valor máx." value="${esc(f.max)}" data-in="finF" data-k="max">
    <select style="width:140px" data-ch="finF" data-k="sort">${TX_SORTS.map(([v, l]) => opt(v, f.sort, l)).join("")}</select>
    ${txActive() ? `<button class="btn sm ghost" data-act="finClear">Limpar filtros</button>` : ""}</div>
-  <div id="txBody">${txRows()}</div><p class="muted sm">Despesas no cartão entram no mês de vencimento da fatura (cada parcela no seu mês). Em períodos que incluem meses futuros, recorrências aparecem como previstas.</p>`;
+  <div id="txBody">${txRows()}</div>`;
 }
 INP.finF = (el, e) => {
   ui.fin.f[el.dataset.k] = el.value;

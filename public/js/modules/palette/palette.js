@@ -1,7 +1,7 @@
 "use strict";
 let pal = { res: [], i: 0 };
 function openPalette(q = "") {
-  $("#overlay").innerHTML = `<div class="scrim" data-act="scrim" style="padding-top:12vh"><div class="pal"><input type="text" id="palIn" placeholder="Buscar ou criar… ex.: reunião amanhã 14h · gasto 45 mercado · toda terça e quinta 19h academia" autocomplete="off" value="${esc(q)}"><div class="res" id="palRes"></div><div class="hint"><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>Enter</kbd> executar · <kbd>Esc</kbd> fechar</div></div></div>`;
+  $("#overlay").innerHTML = `<div class="scrim" data-act="scrim" style="padding-top:12vh"><div class="pal"><input type="text" id="palIn" placeholder="Buscar ou criar… ex.: reunião amanhã 14h · gasto 45 mercado · toda terça e quinta 19h academia" autocomplete="off" value="${esc(q)}"><button type="button" class="palmic" data-act="palMic" title="Falar um comando (ex.: nota comprar pão · tarefa enviar proposta)">🎙</button><div class="res" id="palRes"></div><div class="hint"><kbd>↑</kbd> <kbd>↓</kbd> navegar · <kbd>Enter</kbd> executar · <kbd>Esc</kbd> fechar</div></div></div>`;
   const inp = $("#palIn");
   inp.focus();
   palUpdate();
@@ -150,3 +150,24 @@ function palRun(i) {
 ACT.palPick = (el) => palRun(+el.dataset.i);
 ACT.palette = () => openPalette();
 ACT.quick = () => openPalette();
+
+/* Comando por voz na barra de busca: fala → texto → cria na hora (nota, tarefa, evento, gasto…) ou mostra os resultados. */
+let palVoice = null;
+ACT.palMic = () => {
+  const btn = $(".palmic"), inp = $("#palIn");
+  if (palVoice) { try { palVoice.stop(); } catch {} return; }
+  if (!VoiceCmd.supported()) { toast(VoiceCmd.ERR.unsupported, true); return; }
+  btn.classList.add("on");
+  inp.placeholder = "Ouvindo…";
+  palVoice = VoiceCmd.listen({
+    onInterim: (t) => { inp.value = t; },
+    onFinal: (t) => {
+      inp.value = VoiceCmd.normalize(t);
+      palUpdate();
+      if (pal.res[0] && pal.res[0].g === "Criar") { const r = pal.res[0]; closeModal(); r.run(); toast("🎙 “" + t + "”"); }
+    },
+    onEnd: () => { palVoice = null; btn.classList.remove("on"); inp.placeholder = "Buscar ou criar…"; },
+    onError: (e) => { if (e !== "no-speech" && e !== "aborted") toast(VoiceCmd.ERR[e] || "Não consegui ouvir", true); }
+  });
+  if (!palVoice) btn.classList.remove("on");
+};

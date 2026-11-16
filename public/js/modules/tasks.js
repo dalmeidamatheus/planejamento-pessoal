@@ -217,7 +217,7 @@ function openTask(id) {
    <label class="field"><span>Prioridade</span><select name="prio">${Object.entries(PRIO).map(([k, v]) => `<option value="${k}" ${t.prio === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label>
    <label class="field"><span>Categoria</span><select name="tag"><option value="">—</option>${Object.entries(TAGS).map(([k, v]) => `<option value="${k}" ${t.tag === k ? "selected" : ""}>${v.n}</option>`).join("")}</select></label></div>
   <div class="row" style="gap:16px;align-items:flex-end;flex-wrap:wrap"><label class="field grow"><span>Prazo</span><input type="date" name="due" value="${t.due || ""}"></label><label class="row" style="margin-bottom:12px;gap:6px"><input type="checkbox" name="pin" ${t.pin ? "checked" : ""}> ${ic("pin", 14)} Fixar no topo da coluna</label></div>
-  <div class="field"><span>Subtarefas <b id="tprog" class="muted"></b></span><ul class="subs" id="tsubs"></ul><div class="row"><input type="text" id="tsubIn" placeholder="Adicionar subtarefa e Enter"><button type="button" class="btn" data-act="tsubAdd">${ic("plus")}</button></div></div>
+  <div class="field"><span>Subtarefas <b id="tprog" class="muted"></b></span><details class="tdone-box hidden" id="tsubsDoneBox"><summary id="tsubsDoneSum"></summary><ul class="subs" id="tsubsDone"></ul></details><ul class="subs" id="tsubs"></ul><div class="row"><input type="text" id="tsubIn" placeholder="Adicionar subtarefa e Enter"><button type="button" class="btn" data-act="tsubAdd">${ic("plus")}</button></div></div>
   ${recFields(t.rec)}
   <label class="field"><span>Notas</span><textarea name="notes" rows="2">${esc(t.notes || "")}</textarea></label>
   <div class="field"><span>Anexos <small class="muted">(imagens, PDFs, qualquer arquivo até 50 MB)</small></span><div id="tfiles" data-track></div><label class="btn sm fpick">${ic("clip", 14)} Anexar arquivos<input type="file" multiple hidden data-ch="tfileAdd"></label></div>
@@ -320,8 +320,14 @@ ACT.subToggle = (el, e) => {
 function renderTSubs() {
   const u = $("#tsubs");
   if (!u) return;
-  u.innerHTML = dTaskSubs.map((s, i) => `<li data-i="${i}"><span class="grip" draggable="true" data-i="${i}" title="Arraste para reordenar">⋮⋮</span><input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow sub-edit ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tsubTxt" data-i="${i}" title="Editar subtarefa"><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`).join("");
-  const d = dTaskSubs.filter((s) => s.d).length;
+  const li = (s, i) => `<li data-i="${i}">${s.d ? "" : `<span class="grip" draggable="true" data-i="${i}" title="Arraste para reordenar">⋮⋮</span>`}<input type="checkbox" data-ch="tsubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow sub-edit ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tsubTxt" data-i="${i}" title="Editar subtarefa"><button type="button" class="icon-btn" data-act="tsubDel" data-i="${i}">${ic("x", 13)}</button></li>`;
+  const idx = dTaskSubs.map((s, i) => [s, i]), done = idx.filter(([s]) => s.d), open = idx.filter(([s]) => !s.d);
+  u.innerHTML = open.map(([s, i]) => li(s, i)).join("");
+  const box = $("#tsubsDoneBox");
+  box.classList.toggle("hidden", !done.length);
+  $("#tsubsDoneSum").textContent = done.length + " concluída" + (done.length > 1 ? "s" : "");
+  $("#tsubsDone").innerHTML = done.map(([s, i]) => li(s, i)).join("");
+  const d = done.length;
   $("#tprog").textContent = dTaskSubs.length ? `(${d}/${dTaskSubs.length})` : "";
 }
 ACT.tsubAdd = () => {

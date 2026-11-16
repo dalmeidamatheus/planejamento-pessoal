@@ -24,7 +24,7 @@ function recFields(r) {
     <label class="field rec-until ${on ? "" : "hidden"}"><span>Até (opcional)</span><input type="date" name="rec_until" value="${esc(r.until || "")}" data-in="recUpd"></label>
    </div>
    <label class="field rec-unit hidden"><span>Unidade do intervalo</span><select name="rec_u" data-ch="recUnit">${REC_UNITS.map(([k, n]) => `<option value="${k}" ${unit === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-   <div class="field rec-wk ${p === "weekly" ? "" : "hidden"}"><span>Nos dias da semana</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" data-ch="recUpd" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n}</span></label>`).join("")}</div><small class="muted">Deixe sem marcar para repetir no mesmo dia da semana do início. Para quinzenal, use “A cada 2”.</small></div>
+   <div class="field rec-wk ${p === "weekly" ? "" : "hidden"}"><span>Nos dias da semana</span><div class="wdays">${DSEM.map((n, i) => `<label class="wd"><input type="checkbox" name="rec_wd" value="${i}" data-ch="recUpd" ${(r.days || []).includes(i) ? "checked" : ""}><span>${n}</span></label>`).join("")}</div></div>
    <p class="rec-sum">${recSummary(r, r.until)}</p></div>`;
 }
 function recFromForm(fd) {

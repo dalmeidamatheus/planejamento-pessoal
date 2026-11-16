@@ -118,7 +118,7 @@ function formSheet(title, name, body, o = {}) {
 
 /* ---------- roteamento e shell ---------- */
 function shell() {
-  $("#app").innerHTML = `<div class="mshell"><header class="mtop"><button class="icon-btn hidden" id="mback" data-act="goMore" aria-label="Voltar">${mIc("left")}</button><h1 id="mtitle"></h1><span class="grow"></span><span id="recpill" class="recpill hidden" data-act="recGo"></span><span id="sync"></span></header>
+  $("#app").innerHTML = `<div class="mshell"><header class="mtop"><button class="icon-btn hidden" id="mback" data-act="goMore" aria-label="Voltar">${mIc("left")}</button><h1 id="mtitle"></h1><span class="grow"></span><button class="icon-btn" data-act="voiceOpen" aria-label="Comando por voz">${mIc("mic")}</button><span id="recpill" class="recpill hidden" data-act="recGo"></span><span id="sync"></span></header>
    <main id="main"></main>
    <nav class="tabs">${MTABS.map(([k, n, i]) => `<a href="#/${k}" data-v="${k}">${mIc(i, 22)}<span>${n}</span></a>`).join("")}</nav></div>`;
   setSync(sb ? "saved" : "local");

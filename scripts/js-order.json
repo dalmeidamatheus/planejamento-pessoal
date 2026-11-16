@@ -14,6 +14,8 @@
   "js/core/taskops.js",
   "js/core/transcriber.js",
   "js/core/summarizer.js",
+  "js/core/ocr.js",
+  "js/core/voicecmd.js",
   "js/modules/calendar/occurrences.js",
   "js/modules/calendar/views.js",
   "js/modules/calendar/list.js",
@@ -48,6 +50,5 @@
   "js/modules/palette/nl-parser.js",
   "js/modules/palette/palette.js",
   "js/modules/settings.js",
-  "js/modules/seed.js",
   "js/main.js"
 ]

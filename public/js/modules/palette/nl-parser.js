@@ -190,8 +190,7 @@ function parseNL(q) {
   if (m = n.match(/^(nota|anotar|anotacao)[:\s]+(.+)$/)) {
     const t = raw.slice(m[1].length).replace(/^[:\s]+/, "").trim();
     return { g: "Criar", label: `Nova nota: ${t.slice(0, 50)}`, sub: "Notas", run() {
-      const x = { id: uid(), title: t.slice(0, 60), body: t, created: Date.now(), updated: Date.now() };
-      S.notes.push(x);
+      const x = NoteDoc.create({ title: t.slice(0, 60), html: "<p>" + esc(t) + "</p>", body: t });
       ui.notes.sel = x.id;
       save();
       toast("Nota criada");

@@ -124,13 +124,13 @@ const RT = (() => {
     ["h1", "H1", "Título 1 (Ctrl+Shift+1)"], ["h2", "H2", "Título 2 (Ctrl+Shift+2)"], ["h3", "H3", "Título 3 (Ctrl+Shift+3)"], "|",
     ["ul", "•", "Lista (Ctrl+Shift+8)"], ["ol", "1.", "Lista numerada (Ctrl+Shift+7)"], ["todo", "☑", "Checklist (Ctrl+Shift+9)"], ["quote", "❝", "Citação"], ["code", "</>", "Bloco de código"], ["callout", "💡", "Bloco de destaque"], "|",
     ["left", "⇤", "Alinhar à esquerda"], ["center", "↔", "Centralizar"], ["right", "⇥", "Alinhar à direita"], "|",
-    ["link", "🔗", "Link (Ctrl+Shift+L)"], ["media", "🖼️", "Imagem, GIF ou vídeo"], ["file", "📎", "Anexar arquivo"], ["url", "🌐", "Mídia por link (YouTube, GIF…)"], ["table", "▦", "Tabela"], ["hr", "―", "Divisor"], ["math", "∑", "Fórmula / cálculo (Ctrl+Shift+M)"], ["clear", "⌫", "Limpar formatação"]
+    ["link", "🔗", "Link (Ctrl+Shift+L)"], ["media", "🖼️", "Imagem, GIF ou vídeo"], ["file", "📎", "Anexar arquivo"], ["url", "🌐", "Mídia por link (YouTube, GIF…)"], ["ocr", "📷", "Foto → texto (tirar foto de uma conta, documento ou anotação)"], ["table", "▦", "Tabela"], ["hr", "―", "Divisor"], ["math", "∑", "Fórmula / cálculo (Ctrl+Shift+M)"], ["clear", "⌫", "Limpar formatação"]
   ];
 
   function mount(host, opt = {}) {
     host.classList.add("rt");
-    host.innerHTML = `<div class="rt-bar" data-ui="1">${BTN.map((b) => b === "|" ? '<i class="rt-sep"></i>' : `<button type="button" class="rt-b" data-c="${b[0]}" title="${b[2]}" style="${b[3] || ""}">${b[1]}</button>`).join("")}</div><div class="rt-pop hidden" data-ui="1"></div><div class="rt-body" contenteditable="true" spellcheck="true" data-placeholder="${opt.placeholder || "Escreva aqui…"}"></div><input type="file" class="rt-file hidden" multiple data-ui="1">`;
-    const bar = $(".rt-bar", host), el = $(".rt-body", host), pop = $(".rt-pop", host), fin = $(".rt-file", host);
+    host.innerHTML = `<div class="rt-bar" data-ui="1">${BTN.map((b) => b === "|" ? '<i class="rt-sep"></i>' : `<button type="button" class="rt-b" data-c="${b[0]}" title="${b[2]}" style="${b[3] || ""}">${b[1]}</button>`).join("")}</div><div class="rt-pop hidden" data-ui="1"></div><div class="rt-body" contenteditable="true" spellcheck="true" data-placeholder="${opt.placeholder || "Escreva aqui…"}"></div><input type="file" class="rt-file hidden" multiple data-ui="1"><input type="file" class="rt-ocr hidden" accept="image/*" data-ui="1">`;
+    const bar = $(".rt-bar", host), el = $(".rt-body", host), pop = $(".rt-pop", host), fin = $(".rt-file", host), focr = $(".rt-ocr", host);
     let range = null, imgSel = null, readonly = false, tm = null;
     const ed = { el, bar, host };
     try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch {}
@@ -220,7 +220,7 @@ const RT = (() => {
         <div class="rt-prev"></div></div>
        <div data-p="calc" class="hidden"><div class="rt-row"><select class="rt-op"><option value="diff">Derivada</option><option value="int">Integral indefinida</option><option value="defint">Integral definida</option><option value="solve">Resolver equação</option><option value="simp">Simplificar / calcular</option></select><input class="rt-var" value="x" size="3" title="Variável"><input class="rt-a" placeholder="de" size="4"><input class="rt-b" placeholder="até" size="4"></div>
         <input class="rt-expr" placeholder="Expressão: x^2*sin(x)   ·   para resolver: x^2-5x+6=0">
-        <div class="rt-hint">Use * para multiplicar e ^ para potência. Funções: sin, cos, tan, log, exp, sqrt, abs, atan…</div>
+        <div class="rt-hint">Use * para multiplicar e ^ para potência. Funções: sin, cos, tan, log, exp, sqrt, abs…</div>
         <div class="rt-prev rt-cprev"></div><div class="rt-err"></div></div>
        <div class="rt-foot"><button type="button" class="btn" data-x="cancel">Cancelar</button><button type="button" class="btn primary" data-x="ok">Inserir</button></div></div>`;
       document.body.appendChild(d);
@@ -319,6 +319,7 @@ const RT = (() => {
         const h = mediaFromUrl(u);
         h ? html(h) : notify("Use um link https:// válido", true);
       },
+      ocr: () => { saveRange(); focr.click(); },
       table: () => html('<table><tbody>' + "<tr><td><br></td><td><br></td><td><br></td></tr>".repeat(3) + "</tbody></table><p><br></p>"),
       hr: () => html("<hr><p><br></p>"),
       math: () => { restore(); mathDialog(null); },
@@ -342,6 +343,18 @@ const RT = (() => {
       closePop();
     });
     fin.addEventListener("change", () => { insertFiles(fin.files); fin.value = ""; });
+    focr.addEventListener("change", async () => {
+      const f = focr.files[0];
+      focr.value = "";
+      if (!f) return;
+      notify("Lendo o texto da imagem… (pode levar alguns segundos)");
+      try {
+        const t = await OCR.run(f);
+        if (!t) { notify("Não encontrei texto nessa imagem", true); return; }
+        html(OCR.toHtml(t) + "<p><br></p>");
+        notify("Texto transcrito para a nota ✓");
+      } catch (e) { notify("Não consegui ler a imagem (verifique a internet)", true); }
+    });
 
     /* ---------- atalhos de teclado ---------- */
     const KEYS = { KeyS: "strike", KeyH: "hilite-last", KeyM: "math", KeyL: "link", Digit1: "h1", Digit2: "h2", Digit3: "h3", Digit7: "ol", Digit8: "ul", Digit9: "todo" };

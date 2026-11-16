@@ -126,10 +126,9 @@ const defAsset = () => ui.inv.sel !== "all" ? ui.inv.sel : S.assets[0]?.id;
 ACT.newCheck = () => {
   if (!needAsset()) return;
   const a0 = S.assets.find((a) => a.id === defAsset());
-  modal(`<form data-form="check"><h2>Conferir saldo</h2><p class="muted sm">Digite o valor que aparece hoje no app do banco ou da corretora. A diferença para a conferência anterior, descontando o que você aportou ou resgatou, vira rendimento.</p>
+  modal(`<form data-form="check"><h2>Conferir saldo</h2>
   <label class="field"><span>Investimento</span><select name="a" data-ch="checkAsset">${assetOpts(a0.id)}</select></label>
   <div class="grid2"><label class="field"><span>Saldo (R$)</span><input type="number" step="0.01" min="0" name="v" id="chkV" value="${R2(assetVal(a0))}" required></label><label class="field"><span>Data da conferência</span><input type="date" name="d" value="${todayStr()}" required></label></div>
-  <div class="muted sm">Se você aportou ou resgatou no mesmo dia, registre em <b>Movimentar</b> e informe aqui o saldo já com essa movimentação.</div>
   <div class="foot"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
 };
 INP.checkAsset = (el) => {
@@ -150,7 +149,7 @@ SUBMIT.check = (f, fd) => {
 };
 ACT.newMove = () => {
   if (!needAsset()) return;
-  modal(`<form data-form="move"><h2>Movimentar</h2><p class="muted sm">Registre só o dinheiro que <b>você</b> colocou ou tirou. Todo o resto da variação entre duas conferências é contado como rendimento.</p>
+  modal(`<form data-form="move"><h2>Movimentar</h2>
   <label class="field"><span>Investimento</span><select name="a">${assetOpts(defAsset())}</select></label>
   <div class="grid3"><label class="field"><span>Tipo</span><select name="k"><option value="aporte">Aporte</option><option value="resgate">Resgate</option></select></label><label class="field"><span>Valor (R$)</span><input type="number" step="0.01" min="0.01" name="v" required></label><label class="field"><span>Data</span><input type="date" name="d" value="${todayStr()}" required></label></div>
   <label class="row sm"><input type="checkbox" name="cash" checked> Descontar do (ou creditar no) <b>dinheiro disponível</b></label>

@@ -49,7 +49,7 @@ AFTER.notes = () => {
   const ed = RT.mount(host, {
     html: n.html,
     readonly: ui.notes.mode === "view",
-    placeholder: "Escreva aqui…  ( # título · - lista · [] tarefa · Ctrl+Shift+S riscar · ∑ fórmulas )",
+    placeholder: "Escreva aqui…",
     onChange: (h, t) => {
       if (h === n.html) return;
       n.html = h; n.body = t; n.updated = Date.now();

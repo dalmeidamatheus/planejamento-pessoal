@@ -32,7 +32,6 @@ MV.tasks = () => {
   <div class="segbar">${MCOLS.map(([k, nm]) => `<button class="${col === k ? "on" : ""}" data-act="tkCol" data-c="${k}">${nm}<b>${cnt(k)}</b></button>`).join("")}</div>
   <form data-form="mTkQuick" class="quick"><input type="text" name="t" placeholder="+ Adicionar tarefa em “${MCOLS.find((c) => c[0] === col)[1]}”" autocomplete="off" enterkeyhint="done"></form>
   <div id="tklist">${L.length ? L.map(tkCard).join("") : `<div class="empty">${ui.m.tq ? "Nada encontrado." : "Nenhuma tarefa aqui."}</div>`}</div>
-  ${L.length ? '<p class="sm muted hint">Segure ⠿ e arraste para reordenar · 📌 fixa no topo · segure um cartão para selecionar vários.</p>' : ""}
   ${n ? `<div class="bulk"><span>${n} selecionada${n > 1 ? "s" : ""}</span><button class="btn primary" data-act="bulkDone">Concluir (${n})</button><button class="btn danger-fill" data-act="bulkDel">Excluir (${n})</button></div>` : ""}
   ${selMode() ? "" : `<button class="fab" data-act="tkNew" aria-label="Nova tarefa">${mIc("plus", 26)}</button>`}`;
 };
@@ -163,7 +162,9 @@ document.addEventListener("pointerdown", (e) => {
 let dTk = null;
 ACT.tkNew = () => openTask(null);
 function tkSubsHtml() {
-  return dTk.subs.map((s, i) => `<li data-i="${i}"><input type="checkbox" data-ch="tkSubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tkSubTxt" data-i="${i}" placeholder="Subtarefa"><button type="button" class="icon-btn" data-act="tkSubMove" data-i="${i}" data-n="-1" aria-label="Subir">${mIc("up", 16)}</button><button type="button" class="icon-btn" data-act="tkSubMove" data-i="${i}" data-n="1" aria-label="Descer">${mIc("down", 16)}</button><button type="button" class="icon-btn" data-act="tkSubDel" data-i="${i}" aria-label="Remover">${mIc("x", 16)}</button></li>`).join("");
+  const li = (s, i) => `<li data-i="${i}"><input type="checkbox" data-ch="tkSubChk" data-i="${i}" ${s.d ? "checked" : ""}><input type="text" class="grow ${s.d ? "muted" : ""}" value="${esc(s.t)}" data-in="tkSubTxt" data-i="${i}" placeholder="Subtarefa">${s.d ? "" : `<button type="button" class="icon-btn" data-act="tkSubMove" data-i="${i}" data-n="-1" aria-label="Subir">${mIc("up", 16)}</button><button type="button" class="icon-btn" data-act="tkSubMove" data-i="${i}" data-n="1" aria-label="Descer">${mIc("down", 16)}</button>`}<button type="button" class="icon-btn" data-act="tkSubDel" data-i="${i}" aria-label="Remover">${mIc("x", 16)}</button></li>`;
+  const idx = dTk.subs.map((s, i) => [s, i]), done = idx.filter(([s]) => s.d), open = idx.filter(([s]) => !s.d);
+  return (done.length ? `<li class="donegrp"><details ${window._tkDoneOpen ? "open" : ""} ontoggle="window._tkDoneOpen=this.open"><summary>${done.length} concluída${done.length > 1 ? "s" : ""}</summary><ul class="subsm">${done.map(([s, i]) => li(s, i)).join("")}</ul></details></li>` : "") + open.map(([s, i]) => li(s, i)).join("");
 }
 function tkFilesHtml() {
   return dTk.files.length ? dTk.files.map((f) => `<div class="fitem"><span>${Files.icon(f.type)}</span><a href="#" class="grow ell" data-act="fileOpen" data-fid="${f.id}" data-name="${esc(f.name)}">${esc(f.name)} <small class="muted">${Files.size(f.size)}</small></a><button type="button" class="icon-btn" data-act="tkFileDel" data-fid="${f.id}" aria-label="Remover anexo">${mIc("x", 16)}</button></div>`).join("") : '<p class="sm muted">Nenhum anexo.</p>';
@@ -191,7 +192,7 @@ document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.
 ACT.tkSubDel = (el) => { dTk.subs.splice(+el.dataset.i, 1); tkSubsRender(); };
 ACT.tkSubMove = (el) => { const i = +el.dataset.i, j = i + +el.dataset.n; if (j < 0 || j >= dTk.subs.length) return; dTk.subs.splice(j, 0, dTk.subs.splice(i, 1)[0]); tkSubsRender(); };
 INP.tkSubTxt = (el) => { dTk.subs[+el.dataset.i].t = el.value; };
-INP.tkSubChk = (el) => { dTk.subs[+el.dataset.i].d = el.checked; tkProg(); };
+INP.tkSubChk = (el) => { dTk.subs[+el.dataset.i].d = el.checked; tkSubsRender(); };
 INP.tkFileAdd = async (el) => {
   const fs = [...el.files];
   el.value = "";

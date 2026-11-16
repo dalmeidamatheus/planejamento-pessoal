@@ -5,7 +5,7 @@ VIEWS.home = () => {
   const up = [...monthTx(cur), ...monthTx(addM(cur, 1))].filter((x) => x.type === "out" && x.status !== "paid").slice(0, 4);
   const notes = [...S.notes].sort((a, b) => b.updated - a.updated).slice(0, 4);
   return `<div style="margin-bottom:16px"><h2 style="font-size:20px">${g}, ${esc(user.email.split("@")[0])}</h2><div class="muted">${DSEML[t.getUTCDay()]}, ${t.getUTCDate()} de ${MES[t.getUTCMonth()]} · ${os.length} compromisso(s) hoje</div></div>
-  ${!S.events.length && !S.tx.length && !S.tasks.length ? `<div class="card flat" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><div class="grow"><b>Bem-vindo ao Norte</b><div class="muted sm">Pressione <kbd>Ctrl</kbd> <kbd>K</kbd> e digite, por exemplo: <i>reunião amanhã 14h</i>, <i>gasto 45 mercado</i>, <i>tarefa enviar proposta</i>.</div></div><button class="btn" data-act="seed">Carregar exemplo</button></div>` : ""}
+  ${!S.events.length && !S.tx.length && !S.tasks.length ? `<div class="card flat" style="margin-bottom:14px;display:flex;align-items:center;gap:12px"><div class="grow"><b>Bem-vindo ao Norte</b><div class="muted sm">Pressione <kbd>Ctrl</kbd> <kbd>K</kbd> e digite, por exemplo: <i>reunião amanhã 14h</i>, <i>gasto 45 mercado</i>, <i>tarefa enviar proposta</i>.</div></div></div>` : ""}
   <div class="cols c4" style="margin-bottom:14px"><div class="card stat"><div class="l">Saldo do mês</div><div class="v ${T.in - T.out < 0 ? "neg" : ""}">${brl(T.in - T.out)}</div><div class="s">${brl(T.in)} entradas · ${brl(T.out)} saídas</div></div>
    ${statCash()}${statInv()}${statNet()}</div>
   <div class="cols c2"><div class="card"><div class="hd"><h2>Hoje na agenda</h2><button class="btn sm ghost" data-act="goCal">Abrir calendário</button></div>

@@ -33,7 +33,7 @@ function openBudget(id) {
   const b = id ? S.budgets.find((x) => x.id === id) : { cat: CATS_OUT[0], limit: "" };
   dBud = id;
   modal(`<form data-form="budget"><h2>${id ? "Editar" : "Novo"} orçamento</h2><label class="field"><span>Categoria</span><select name="cat">${CATS_OUT.map((c) => `<option ${b.cat === c ? "selected" : ""}>${c}</option>`).join("")}</select></label><label class="field"><span>Teto mensal (R$)</span><input type="number" step="0.01" min="1" name="limit" value="${b.limit}" required></label>
-  <div class="muted sm">A barra fica amarela em 80% e vermelha em 100% do teto.</div><div class="foot">${id ? `<button type="button" class="btn danger" data-act="budDel">Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
+  <div class="foot">${id ? `<button type="button" class="btn danger" data-act="budDel">Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
 }
 SUBMIT.budget = (f, fd) => {
   const o = { cat: fd.get("cat"), limit: +fd.get("limit") };
@@ -63,7 +63,6 @@ function openGoal(id) {
   modal(`<form data-form="goal"><h2>${id ? "Editar" : "Nova"} meta</h2><label class="field"><span>Nome</span><input type="text" name="name" value="${esc(g.name)}" required placeholder="Reserva de emergência, Viagem…"></label>
   <div class="grid2"><label class="field"><span>Tipo</span><select name="kind"><option value="mensal" ${g.kind === "mensal" ? "selected" : ""}>Economia mensal</option><option value="anual" ${g.kind === "anual" ? "selected" : ""}>Economia anual</option><option value="obj" ${g.kind === "obj" ? "selected" : ""}>Objetivo</option></select></label><label class="field"><span>Valor alvo (R$)</span><input type="number" step="0.01" min="1" name="target" value="${g.target}" required></label></div>
   <div class="grid2"><label class="field"><span>Já guardado (objetivo)</span><input type="number" step="0.01" name="saved" value="${g.saved || 0}"></label><label class="field"><span>Prazo (opcional)</span><input type="date" name="deadline" value="${g.deadline || ""}"></label></div>
-  <div class="muted sm">Economia mensal e anual são calculadas sozinhas pelas suas transações; Objetivo você atualiza em “Já guardado”.</div>
   <div class="foot">${id ? `<button type="button" class="btn danger" data-act="goalDel">Excluir</button>` : ""}<span class="grow"></span><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
 }
 SUBMIT.goal = (f, fd) => {
