@@ -352,11 +352,12 @@ Distribuído sob a licença MIT. Veja [LICENSE](LICENSE).
 
 ## Recursos de IA e custo
 
-Nada exige pagamento: sem chaves, o resumo é local, o OCR roda no navegador (Tesseract) e a voz usa o reconhecimento do navegador. As chaves só melhoram a qualidade e são configuradas como variáveis de ambiente na Vercel (veja `.env.example`; *Ajustes → Recursos de IA* mostra o que está ativo).
+Nada exige pagamento nem chave. Cada recurso tem uma **fila de provedores do melhor para o pior**: o servidor usa o primeiro que tiver chave configurada e, se ele falhar ou a cota acabar, passa para o próximo. No fim há sempre uma reserva gratuita que roda no próprio navegador. As chaves são variáveis de ambiente na Vercel (veja `.env.example`); *Ajustes → Recursos de IA* mostra a fila e o que está ativo.
 
-| Recurso | Gratuito | Pago por uso |
-|---|---|---|
-| Resumo e foto → texto | `GEMINI_API_KEY` (Google AI Studio) | `ANTHROPIC_API_KEY` |
-| Transcrição precisa | `GROQ_API_KEY` (Groq) | `OPENAI_API_KEY` |
+| Recurso | Ordem de uso (melhor → pior) |
+|---|---|
+| Foto → texto | Claude (pago) → Gemini → Mistral OCR → Groq Llama 4 Scout → OpenRouter → OCR.space → **Tesseract no navegador** |
+| Transcrição de voz | Groq Whisper → OpenAI Whisper (pago) → AssemblyAI → Mistral Voxtral → Cloudflare Whisper → **Whisper local no navegador** (~75 MB, uma vez) → **reconhecimento de voz do navegador** |
+| Resumo de reunião | Claude (pago) → Gemini → Groq Llama 3.3 → Mistral → OpenRouter → **resumo local** |
 
-Planos gratuitos têm limite de uso e podem mudar; no plano gratuito do Google o conteúdo enviado pode ser usado para melhorar produtos. A assinatura do Claude.ai ou do ChatGPT não inclui acesso à API.
+Só Claude e OpenAI são pagos por uso (a assinatura do Claude.ai ou do ChatGPT não inclui a API). Os planos gratuitos têm limites que mudam com o tempo e, em alguns, o provedor pode usar o conteúdo enviado.

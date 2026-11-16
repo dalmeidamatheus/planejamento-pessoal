@@ -3,6 +3,31 @@
    Motor "browser": Web Speech API — instantâneo, mostra texto provisório enquanto você fala.
    Motor "whisper": grava trechos de ~12 s e envia para /api/transcribe (mais preciso; requer OPENAI_API_KEY no servidor).
    No modo whisper o texto provisório do navegador continua aparecendo, e o texto final vem do Whisper. */
+/* Whisper rodando no próprio navegador (Transformers.js): grátis, sem chave, funciona offline depois do 1º download (~75 MB). */
+const LocalWhisper = (() => {
+  let pipe = null, loading = null;
+  const LANG = { pt: "portuguese", en: "english", es: "spanish", fr: "french", de: "german", it: "italian" };
+  async function load() {
+    if (pipe) return pipe;
+    if (!loading) loading = (async () => {
+      const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2");
+      pipe = await pipeline("automatic-speech-recognition", "Xenova/whisper-base");
+      return pipe;
+    })().catch((e) => { loading = null; throw e; });
+    return loading;
+  }
+  async function pcm(blob) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    try { return (await ctx.decodeAudioData(await blob.arrayBuffer())).getChannelData(0); } finally { ctx.close(); }
+  }
+  async function run(blob, lang) {
+    const p = await load();
+    const r = await p(await pcm(blob), { language: LANG[lang] || "portuguese", task: "transcribe", chunk_length_s: 30 });
+    return String(r.text || "").trim();
+  }
+  return { run, ready: () => !!pipe };
+})();
+
 const Transcriber = (() => {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const supported = () => !!SR;
@@ -69,17 +94,29 @@ const Transcriber = (() => {
       const mime = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
       if (!mime) { h.whisper = false; o.onError && o.onError("whisper-unavailable"); }
       else {
+        const viaServer = async (blob) => {
+          const tk = sb ? ((await sb.auth.getSession()).data.session || {}).access_token : "";
+          const res = await fetch((typeof CONFIG !== "undefined" && CONFIG.TRANSCRIBE_ENDPOINT) || "/api/transcribe", { method: "POST", headers: { "Content-Type": "application/json", ...(tk ? { Authorization: "Bearer " + tk } : {}) }, body: JSON.stringify({ audio: await b64(blob), mime: blob.type, lang: (o.lang || "pt-BR").slice(0, 2) }) });
+          if (res.status === 501 || res.status === 404) { h.serverDead = true; throw new Error("sem servidor"); }
+          if (!res.ok) throw new Error(String(res.status));
+          return String((await res.json()).text || "");
+        };
         const send = (blob) => {
           if (blob.size < 2000) return;
           h.q = h.q.then(async () => {
-            try {
-              const tk = sb ? ((await sb.auth.getSession()).data.session || {}).access_token : "";
-              const res = await fetch((typeof CONFIG !== "undefined" && CONFIG.TRANSCRIBE_ENDPOINT) || "/api/transcribe", { method: "POST", headers: { "Content-Type": "application/json", ...(tk ? { Authorization: "Bearer " + tk } : {}) }, body: JSON.stringify({ audio: await b64(blob), mime: blob.type, lang: (o.lang || "pt-BR").slice(0, 2) }) });
-              if (res.status === 501 || res.status === 404) { h.whisperFailed = true; o.onError && o.onError("whisper-unavailable"); return; }
-              if (!res.ok) throw new Error(res.status);
-              const j = await res.json();
-              if (j.text) emit(j.text);
-            } catch { o.onError && o.onError("whisper-error"); }
+            let t = null;
+            if (!h.serverDead) { try { t = await viaServer(blob); } catch {} }
+            if (t === null && !h.localDead) {
+              try {
+                if (!LocalWhisper.ready()) o.onError && o.onError("local-loading");
+                t = await LocalWhisper.run(blob, (o.lang || "pt-BR").slice(0, 2));
+              } catch { h.localDead = true; }
+            }
+            if (t === null) {
+              if (!h.whisperFailed) { h.whisperFailed = true; o.onError && o.onError("whisper-unavailable"); }
+              return;
+            }
+            if (t.trim()) emit(t);
           });
         };
         const cycle = () => {

@@ -4,5 +4,5 @@ const ai = require("../lib/ai");
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (!await userFromToken(bearer(req))) return res.status(401).json({ error: "Não autenticado" });
-  return res.status(200).json(ai.providers());
+  return res.status(200).json(ai.status());
 };

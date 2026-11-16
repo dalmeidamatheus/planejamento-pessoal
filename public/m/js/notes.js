@@ -54,7 +54,7 @@ ACT.noteMenu = () => {
   openLayer(`<h2>Nota</h2><div class="stack tight">
    <button class="listbtn" data-act="nSummary"><span>${mIc("sparkle", 18)}</span>Resumir reunião / nota</button>
    <button class="listbtn" data-act="noteLinkMenu"><span>${mIc("link", 18)}</span>${n.link && linkLabel(n.link) ? "Vínculo: " + esc(linkLabel(n.link)) : "Vincular a um compromisso"}</button>
-   <button class="listbtn" data-act="nEngine"><span>${mIc("mic", 18)}</span>Transcrição: ${eng === "whisper" ? "IA precisa (Whisper)" : "Navegador (ao vivo)"} — trocar</button>
+   <button class="listbtn" data-act="nEngine"><span>${mIc("mic", 18)}</span>Transcrição: ${eng === "whisper" ? "precisa (IA + reserva)" : "Navegador (ao vivo)"} — trocar</button>
    <button class="listbtn" data-act="nMath"><span>∑</span>Inserir fórmula / calcular</button>
    <button class="listbtn neg" data-act="nDel"><span>${mIc("trash", 18)}</span>Excluir nota</button></div>`, { cls: "menu" });
 };
@@ -95,7 +95,7 @@ function recPillUpdate() {
 ACT.recGo = () => { if (M.rec) openNote(M.rec.noteId); };
 ACT.recToggle = () => { if (M.rec) recStop(); else recStart(M.cur); };
 function recErr(code) {
-  const msg = { mic: "Permita o acesso ao microfone para gravar.", unsupported: "Este navegador não suporta reconhecimento de voz. Use o Chrome (Android) ou o Safari (iOS 14.5+).", network: "Sem conexão com o serviço de voz — tentando de novo…", "whisper-unavailable": "Transcrição por IA não configurada no servidor — voltando ao modo navegador.", "whisper-error": "Falha ao enviar um trecho para a IA." }[code] || "Erro na gravação";
+  const msg = { "local-loading": "Preparando o Whisper local (download único de ~75 MB).", mic: "Permita o acesso ao microfone para gravar.", unsupported: "Este navegador não suporta reconhecimento de voz. Use o Chrome (Android) ou o Safari (iOS 14.5+).", network: "Sem conexão com o serviço de voz — tentando de novo…", "whisper-unavailable": "Transcrição por IA não configurada no servidor — voltando ao modo navegador.", "whisper-error": "Falha ao enviar um trecho para a IA." }[code] || "Erro na gravação";
   if (code === "network" && Date.now() - (M.lastNet || 0) < 20000) return;
   if (code === "network") M.lastNet = Date.now();
   toast(msg, true);
@@ -146,7 +146,7 @@ async function summarize(n) {
   toast("Gerando resumo…");
   const r = await Summarizer.run(text);
   NoteDoc.mutate(n, (root) => NoteDoc.setSummary(root, r), M.ed);
-  toast(r.source === "ai" ? "Resumo gerado com IA" : "Resumo gerado");
+  toast(r.source === "ai" ? "Resumo gerado (" + r.provider + ")" : "Resumo gerado (modo local)");
   if (r.actions.length) {
     window._acts = r.actions;
     openLayer(`<h2>Criar tarefas das ações?</h2><form data-form="mActions"><div class="stack tight">${r.actions.map((a, k) => `<label class="swrow"><span>${esc(a)}</span><input type="checkbox" name="a" value="${k}" checked></label>`).join("")}</div><div class="stack"><button class="btn primary big">Criar tarefas</button><button type="button" class="btn big" data-act="layerClose">Agora não</button></div></form>`, { cls: "ask" });

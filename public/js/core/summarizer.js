@@ -20,7 +20,7 @@ const Summarizer = (() => {
         const res = await fetch(CONFIG.AI_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", ...(tk ? { Authorization: "Bearer " + tk } : {}) }, body: JSON.stringify({ text }) });
         if (!res.ok) throw new Error(res.status);
         const j = await res.json();
-        return { summary: String(j.summary || "").split("\n").filter(Boolean), actions: j.actions || [], decisions: j.decisions || [], source: "ai" };
+        return { summary: String(j.summary || "").split("\n").filter(Boolean), actions: j.actions || [], decisions: j.decisions || [], source: "ai", provider: j.provider || "IA" };
       } catch (e) {
         if (!/^(401|404|501)$/.test(e.message) && typeof toast === "function") toast("IA indisponível — usando resumo local", true);
       }

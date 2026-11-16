@@ -5,7 +5,7 @@ const MAX_CHARS = 6e4;
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ error: "Método não permitido" });
-  if (!ai.providers().text) return res.status(501).json({ error: "IA não configurada" });
+  if (!ai.configured("text")) return res.status(501).json({ error: "IA não configurada" });
   if (!await userFromToken(bearer(req))) return res.status(401).json({ error: "Não autenticado" });
   let text = "";
   try {
@@ -22,10 +22,11 @@ Não invente informações que não estejam na transcrição.
 TRANSCRIÇÃO:
 ${text}`;
   try {
-    const raw = await ai.text(prompt, 1200);
-    const json = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+    const parse = (raw) => JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
+    const { text: raw, name } = await ai.run("text", { prompt, max: 1200, validate: parse });
+    const json = parse(raw);
     const arr = (a) => Array.isArray(a) ? a.map(String).slice(0, 12) : [];
-    return res.status(200).json({ summary: String(json.summary || ""), decisions: arr(json.decisions), actions: arr(json.actions) });
+    return res.status(200).json({ summary: String(json.summary || ""), decisions: arr(json.decisions), actions: arr(json.actions), provider: name });
   } catch {
     return res.status(502).json({ error: "Falha ou resposta inválida da IA" });
   }

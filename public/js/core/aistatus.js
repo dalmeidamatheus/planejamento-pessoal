@@ -1,30 +1,32 @@
 "use strict";
-/* Bloco "Recursos de IA" dos Ajustes: mostra o que está ativo e o caminho para ativar (opções gratuitas). */
+/* Bloco "Recursos de IA" dos Ajustes: mostra, para cada recurso, a fila de provedores do melhor ao pior
+   (o app usa o primeiro configurado e, se ele falhar ou a cota acabar, passa para o próximo)
+   e o caminho para ativar cada um. Sempre termina em uma reserva gratuita que roda no navegador. */
 const AiStatus = (() => {
-  const NAMES = { gemini: "Google Gemini", claude: "Claude", groq: "Groq Whisper", openai: "OpenAI Whisper" };
-  const rows = (s) => [
-    ["Resumo de reuniões", s.text ? "IA ativa · " + NAMES[s.text] : "Resumo local gratuito (palavras-chave)"],
-    ["Foto → texto", s.vision ? "IA ativa · " + NAMES[s.vision] : "OCR gratuito no navegador (Tesseract)"],
-    ["Transcrição de voz", s.stt ? "Whisper ativo · " + NAMES[s.stt] : "Reconhecimento de voz do navegador (gratuito)"]
+  const KINDS = [
+    ["vision", "Foto → texto", [["Tesseract (OCR no navegador)", true]]],
+    ["stt", "Transcrição de voz", [["Whisper local no navegador", true], ["Reconhecimento de voz do navegador", true]]],
+    ["text", "Resumo de reuniões", [["Resumo local por palavras-chave", true]]]
   ];
-  const draw = (s) => `<div class="aibox"><h3>Recursos de IA</h3>${rows(s).map(([a, b]) => `<div class="airow"><span>${a}</span><b>${b}</b></div>`).join("")}
-    ${s.text && s.vision && s.stt ? "" : `<details class="aihow"><summary>Como ativar (gratuito)</summary><ol>
-      <li>Crie uma chave grátis no <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> (resumo e foto → texto).</li>
-      <li>Opcional, para voz mais precisa: chave grátis no <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a>.</li>
-      <li>Na Vercel: Projeto → Settings → Environment Variables → adicione <code>GEMINI_API_KEY</code> e, se quiser, <code>GROQ_API_KEY</code> → Deployments → Redeploy.</li></ol>
-      <p>Os planos gratuitos têm limite de uso, e o Google pode usar o conteúdo enviado no plano gratuito. Sem chaves, tudo continua funcionando nos modos gratuitos acima.</p></details>`}</div>`;
+  const chip = (c, t) => `<span class="aichip ${c}">${t}</span>`;
+  const row = (n, p) => p.configured
+    ? `<li class="on"><b>${esc(p.name)}</b> ${chip("ok", "ativo")} ${chip("", p.free ? "gratuito" : "pago")}</li>`
+    : `<li><span>${esc(p.name)}</span> ${chip("", p.free ? "gratuito" : "pago")} <small>variável <code>${p.env.join("</code> + <code>")}</code> · <a href="${esc(p.link)}" target="_blank" rel="noopener">obter chave</a></small></li>`;
+  const draw = (s) => `<div id="aiBox" class="aibox"><h3>Recursos de IA</h3>
+    <p class="aiintro">Cada recurso usa o primeiro provedor ativo, do melhor para o pior. Se um falhar ou a cota acabar, passa para o próximo; no fim sempre há uma reserva gratuita no navegador. Nenhuma chave é obrigatória.</p>
+    ${KINDS.map(([k, title, tail]) => `<details class="aik" ${(s[k] || []).some((p) => p.configured) ? "" : ""}><summary>${title} <small>${(s[k] || []).filter((p) => p.configured).length} de ${(s[k] || []).length} ativos</small></summary><ol>${(s[k] || []).map((p, i) => row(i, p)).join("")}${tail.map(([n]) => `<li class="on"><b>${n}</b> ${chip("ok", "sempre disponível")} ${chip("", "gratuito")}</li>`).join("")}</ol></details>`).join("")}
+    <p class="aihow">Para ativar: crie a chave no site do provedor e adicione a variável em Vercel → Projeto → Settings → Environment Variables → Deployments → Redeploy. Planos gratuitos têm limites de uso e podem mudar; em alguns, o provedor pode usar o conteúdo enviado.</p></div>`;
   const html = () => '<div id="aiBox" class="aibox"><h3>Recursos de IA</h3><div class="muted sm">Verificando…</div></div>';
   async function load() {
-    const box = document.getElementById("aiBox");
-    if (!box) return;
-    let s = { text: null, vision: null, stt: null };
+    if (!document.getElementById("aiBox")) return;
+    let s = { text: [], vision: [], stt: [] };
     try {
       const tk = typeof sb !== "undefined" && sb ? ((await sb.auth.getSession()).data.session || {}).access_token : "";
       const r = await fetch("/api/ai-status", { headers: tk ? { Authorization: "Bearer " + tk } : {} });
       if (r.ok) s = await r.json();
     } catch {}
     const b = document.getElementById("aiBox");
-    if (b) b.outerHTML = draw(s).replace('<div class="aibox">', '<div id="aiBox" class="aibox">');
+    if (b) b.outerHTML = draw(s);
   }
   return { html, load };
 })();

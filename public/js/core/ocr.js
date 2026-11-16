@@ -11,7 +11,9 @@ const OCR = (() => {
     const g = c.getContext("2d");
     g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
     g.drawImage(bmp, 0, 0, c.width, c.height);
-    const blob = await new Promise((ok) => c.toBlob(ok, "image/jpeg", 0.86));
+    let blob = await new Promise((ok) => c.toBlob(ok, "image/jpeg", 0.86));
+    // alguns provedores gratuitos (OCR.space) só aceitam até ~1 MB
+    for (let q = 0.72; blob.size > 950 * 1024 && q > 0.3; q -= 0.14) blob = await new Promise((ok) => c.toBlob(ok, "image/jpeg", q));
     return blob;
   }
   const b64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = no; r.readAsDataURL(blob); });
@@ -21,7 +23,7 @@ const OCR = (() => {
       const res = await fetch("/api/ocr", { method: "POST", headers: { "Content-Type": "application/json", ...(tk ? { Authorization: "Bearer " + tk } : {}) }, body: JSON.stringify({ image: await b64(blob), mime: "image/jpeg" }) });
       if (!res.ok) return null;
       const j = await res.json();
-      return typeof j.text === "string" ? j.text : null;
+      return typeof j.text === "string" ? { text: j.text, provider: j.provider || "IA" } : null;
     } catch { return null; }
   }
   async function viaTesseract(blob) {
@@ -29,12 +31,12 @@ const OCR = (() => {
     const r = await window.Tesseract.recognize(blob, "por");
     return (r.data.text || "").trim();
   }
-  /** Devolve o texto reconhecido ("" se não achou texto). Lança erro se nada funcionou. */
+  /** Devolve { text, provider } ("" se não achou texto). Ordem: provedores do servidor (do melhor ao pior) -> Tesseract no navegador. */
   async function run(file) {
     const blob = await shrink(file);
-    const t = await viaApi(blob);
-    if (t !== null) return t.trim();
-    return viaTesseract(blob);
+    const r = await viaApi(blob);
+    if (r) return { text: r.text.trim(), provider: r.provider };
+    return { text: await viaTesseract(blob), provider: "Tesseract (no navegador)" };
   }
   /** Texto → HTML do editor (parágrafos separados por linha em branco, quebras simples viram <br>). */
   const toHtml = (t) => t.split(/\n{2,}/).map((p) => "<p>" + p.split("\n").map((l) => esc(l.trim())).filter(Boolean).join("<br>") + "</p>").filter((p) => p !== "<p></p>").join("");

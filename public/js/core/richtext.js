@@ -349,10 +349,10 @@ const RT = (() => {
       if (!f) return;
       notify("Lendo o texto da imagem… (pode levar alguns segundos)");
       try {
-        const t = await OCR.run(f);
+        const r = await OCR.run(f), t = r.text;
         if (!t) { notify("Não encontrei texto nessa imagem", true); return; }
         html(OCR.toHtml(t) + "<p><br></p>");
-        notify("Texto transcrito para a nota");
+        notify("Texto transcrito para a nota (" + r.provider + ")");
       } catch (e) { notify("Não consegui ler a imagem (verifique a internet)", true); }
     });
 

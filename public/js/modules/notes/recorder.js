@@ -11,7 +11,7 @@ function recWrite(n, fn, transient) {
     if (!transient) NED.changed();
   } else if (!transient) NoteDoc.mutate(n, fn, null);
 }
-const RECERR = { mic: "Permita o acesso ao microfone para gravar.", unsupported: "Este navegador não suporta reconhecimento de voz. Use Chrome, Edge ou Safari — ou escolha o motor Whisper.", network: "Sem conexão com o serviço de voz do navegador — tentando de novo…", "whisper-unavailable": "Transcrição Whisper não está configurada neste servidor — usando o reconhecimento do navegador.", "whisper-error": "Falha ao transcrever um trecho (rede). Seguindo com o próximo." };
+const RECERR = { mic: "Permita o acesso ao microfone para gravar.", unsupported: "Este navegador não suporta reconhecimento de voz. Use Chrome, Edge ou Safari — ou escolha o motor Whisper.", network: "Sem conexão com o serviço de voz do navegador — tentando de novo…", "whisper-unavailable": "Nenhum serviço de transcrição disponível — usando o reconhecimento de voz do navegador.", "local-loading": "Preparando o Whisper local (download único de ~75 MB). Enquanto isso, o texto provisório continua aparecendo.", "whisper-error": "Falha ao transcrever um trecho (rede). Seguindo com o próximo." };
 ACT.recStart = async () => {
   if (REC.on) { toast("Já há uma gravação em andamento"); return; }
   const engine = ui.notes.engine === "whisper" ? "whisper" : "browser";
