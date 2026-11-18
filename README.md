@@ -138,6 +138,14 @@ Não há framework nem etapa de build de front-end: são arquivos estáticos org
 - **Comando por voz:** botão de microfone na busca (Ctrl+K) e na barra do app mobile: diga “nota comprar pão”, “tarefa enviar proposta”, “reunião amanhã 14h”, “gasto 45 mercado” e o item é criado na hora.
 - **Anexos em tarefas e notas:** envie arquivos (até 50 MB) em qualquer tarefa; ficam no IndexedDB do aparelho e, com Supabase, também no Storage privado (bucket `attachments`, rode o `supabase/schema.sql` atualizado).
 
+### Dieta
+
+- **Importar o plano:** cole o texto ou envie um **PDF, arquivo de texto ou foto** da dieta. O sistema identifica as refeições, as opções por refeição, o cardápio por dia (ciclo de 30 dias, por exemplo) e as regras do que **adicionar** e **evitar**. Com uma IA configurada a leitura entende textos livres; sem IA, entende títulos de refeição com opções embaixo e tabelas “Dia | Café da manhã | Almoço…”.
+- **O que comer hoje:** mostra café, almoço, lanche e jantar do dia (pelo ciclo ou rotacionando as opções), com botão para **sugerir outra opção** e um cartão na página inicial.
+- **Registrar o que comi:** descreva a refeição (ou mande uma **foto**) e o sistema confere com o plano: cada alimento sai como *dentro*, *fora* ou *não consta*, com explicação e sugestão para a próxima refeição. Sem IA a conferência é simples (compara palavras com o plano e com a lista de evitar); com IA ela entende substituições, e a foto exige uma IA de visão.
+- **Aderência dos últimos 7 dias** e histórico por dia. É um apoio de acompanhamento, não substitui nutricionista.
+- O texto da dieta e o que você registra são enviados ao provedor de IA configurado; sem chaves nada sai do aparelho.
+
 ### Lista de desejos
 
 - Um **bloco por item** com link, preço, prioridade, foto (quando o link a fornece) e etiquetas.

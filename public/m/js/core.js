@@ -3,8 +3,8 @@
    Reusa S/save()/ACT/SUBMIT/INP/ui dos módulos compartilhados; telas ficam em MV[nome]() e ganham MA[nome]() após o render. */
 const MV = {}, MA = {};
 const MTABS = [["home", "Início", "home"], ["agenda", "Agenda", "calendar"], ["tasks", "Tarefas", "tasks"], ["notes", "Notas", "notes"], ["more", "Mais", "menu"]];
-const MORE_VIEWS = ["more", "finance", "habits", "wish", "trips"];
-const MTITLES = { home: "Início", agenda: "Agenda", tasks: "Tarefas", notes: "Notas", more: "Mais", finance: "Finanças", habits: "Hábitos", wish: "Desejos", trips: "Viagens" };
+const MORE_VIEWS = ["more", "finance", "habits", "diet", "wish", "trips"];
+const MTITLES = { home: "Início", agenda: "Agenda", tasks: "Tarefas", notes: "Notas", more: "Mais", finance: "Finanças", habits: "Hábitos", diet: "Dieta", wish: "Desejos", trips: "Viagens" };
 Object.assign(I, { menu: '<path d="M4 7h16M4 12h16M4 17h16"/>', pin: '<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3zM12 14v7"/>', more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>', clip: '<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L14 7"/>', up: '<path d="m6 15 6-6 6 6"/>', down: '<path d="m6 9 6 6 6-6"/>', send: '<path d="m4 12 16-8-6 16-3-7z"/>' });
 ui.cl = ui.cl || { sel: new Set() };
 ui.m = { day: null, tcol: "todo", tsel: new Set(), tselMode: false, tq: "", nq: "", ym: null, fin: "mov", ftype: "all", wst: "want", tripSt: "next", habitsOpen: false, engine: (() => { try { return LS.getItem("norte:engine") || "browser"; } catch { return "browser"; } })() };

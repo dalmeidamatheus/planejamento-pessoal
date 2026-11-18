@@ -40,5 +40,5 @@ const OCR = (() => {
   }
   /** Texto → HTML do editor (parágrafos separados por linha em branco, quebras simples viram <br>). */
   const toHtml = (t) => t.split(/\n{2,}/).map((p) => "<p>" + p.split("\n").map((l) => esc(l.trim())).filter(Boolean).join("<br>") + "</p>").filter((p) => p !== "<p></p>").join("");
-  return { run, toHtml };
+  return { run, toHtml, shrink, b64 };
 })();

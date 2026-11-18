@@ -208,3 +208,6 @@ input.bigin{font-size:24px!important;height:56px;font-weight:600}
 .vmic{width:84px;height:84px;border-radius:50%;border:0;background:#eef2f7;color:var(--ink);display:flex;align-items:center;justify-content:center}
 .vbox.on .vmic{background:var(--bad,#e5484d);color:#fff;animation:pl 1.2s infinite}
 .vtxt{text-align:center;font-size:17px;min-height:48px;margin:0 0 12px}
+.mdiet{padding:4px 2px 24px}.mdiet textarea{width:100%;font-size:15px;box-sizing:border-box;margin:8px 0}
+.mdiet .dmeal{margin-bottom:10px}.dh3{font-size:14px;margin:16px 0 8px}
+.mdiet .dweek{height:80px}

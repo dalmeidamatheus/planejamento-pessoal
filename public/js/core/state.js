@@ -1,8 +1,8 @@
 "use strict";
 let S = null, user = null, sb = null, view = "home", saveT = null;
 const ui = { cal: { mode: "week", d: null }, fin: { tab: "geral", ym: null, f: { type: "", status: "", cat: "", q: "" } }, notes: { sel: null, mode: "both", q: "" }, tasks: { filter: "all" } };
-const emptyData = () => ({ v: 1, _ts: 0, settings: { tz: TZ0, clocks: [], opening: 0 }, events: [], tx: [], recur: [], cards: [], budgets: [], goals: [], assets: [], divs: [], tasks: [], habits: [], notes: [], notifs: [], fired: {}, birthdays: [], wishlist: [], trips: [] });
-const ACT = {}, SUBMIT = {}, INP = {}, VIEWS = {}, AFTER = {}, TITLES = { home: "Início", calendar: "Calendário", tasks: "Tarefas", finance: "Finanças", habits: "Hábitos", notes: "Notas", wishlist: "Lista de desejos", trips: "Viagens" };
+const emptyData = () => ({ v: 1, _ts: 0, settings: { tz: TZ0, clocks: [], opening: 0 }, events: [], tx: [], recur: [], cards: [], budgets: [], goals: [], assets: [], divs: [], tasks: [], habits: [], notes: [], notifs: [], fired: {}, birthdays: [], wishlist: [], trips: [], diet: { plan: null, log: {}, over: {} } });
+const ACT = {}, SUBMIT = {}, INP = {}, VIEWS = {}, AFTER = {}, TITLES = { home: "Início", calendar: "Calendário", tasks: "Tarefas", finance: "Finanças", habits: "Hábitos", notes: "Notas", wishlist: "Lista de desejos", trips: "Viagens", diet: "Dieta" };
 const LS = (() => {
   try {
     localStorage.setItem("_t", "1");

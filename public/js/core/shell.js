@@ -1,5 +1,5 @@
 "use strict";
-const NAV = [["home", "Início", "home"], ["calendar", "Calendário", "calendar"], ["tasks", "Tarefas", "tasks"], ["finance", "Finanças", "wallet"], ["habits", "Hábitos", "habits"], ["notes", "Notas", "notes"], ["wishlist", "Desejos", "gift"], ["trips", "Viagens", "plane"]];
+const NAV = [["home", "Início", "home"], ["calendar", "Calendário", "calendar"], ["tasks", "Tarefas", "tasks"], ["finance", "Finanças", "wallet"], ["habits", "Hábitos", "habits"], ["diet", "Dieta", "diet"], ["notes", "Notas", "notes"], ["wishlist", "Desejos", "gift"], ["trips", "Viagens", "plane"]];
 function shell() {
   $("#app").innerHTML = `<div class="shell"><aside class="side">
    <div class="brand"><span class="logo"></span><span>Norte</span></div>
@@ -176,7 +176,7 @@ document.addEventListener("keydown", (e) => {
       else tryClose();
     } else $("#notifPop")?.remove();
   }
-  if (e.altKey && /^[1-8]$/.test(e.key) && user) {
+  if (e.altKey && /^[1-9]$/.test(e.key) && user) {
     e.preventDefault();
     go(NAV[+e.key - 1][0]);
   }
