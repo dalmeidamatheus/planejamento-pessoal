@@ -369,3 +369,10 @@ Nada exige pagamento nem chave. Cada recurso tem uma **fila de provedores do mel
 | Resumo de reunião | Gemini → Groq Llama 3.3 → Mistral → OpenRouter → **resumo local** |
 
 Só são usados serviços com plano gratuito; nenhum recurso pago é utilizado. Os limites gratuitos mudam com o tempo e, em alguns, o provedor pode usar o conteúdo enviado.
+
+### Barreira de finanças (a IA não acessa suas finanças)
+
+- **Arquitetura:** só quatro endpoints falam com IA (`/api/summarize`, `/api/ocr`, `/api/transcribe`, `/api/diet`) e cada um aceita uma lista fixa de campos; qualquer campo extra é rejeitado com erro 400. Lançamentos, cartões, orçamentos, metas, investimentos, saldo e renda nunca são lidos por esses endpoints nem pelos módulos de IA do navegador.
+- **Teste automático:** `npm run check` falha se algum arquivo de IA passar a referenciar dados financeiros.
+- **Filtro de conteúdo:** todo texto enviado à IA é limpo no servidor antes de sair (`lib/guard.js`): números de cartão, CPF, CNPJ, agência/conta/Pix/senha/saldo/fatura/limite com número e valores em reais viram marcadores como `[valor]`.
+- **Limite conhecido:** fotos (foto → texto e foto da refeição) vão como imagem e não podem ser inspecionadas; não envie extratos, faturas ou documentos financeiros nesses recursos.

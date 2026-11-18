@@ -1,5 +1,6 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
+const guard = require("../lib/guard");
 /* Foto → texto com IA de visão (fila de provedores gratuitos). Sem chave: 501 e o app usa o OCR do navegador. */
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
@@ -12,6 +13,7 @@ module.exports = async (req, res) => {
   } catch {
     return res.status(400).json({ error: "JSON inválido" });
   }
+  if (guard.only(body, ["image", "mime"]).length) return res.status(400).json({ error: "Campos não permitidos" });
   const image = String(body?.image || "");
   const mime = ["image/jpeg", "image/png", "image/webp"].includes(body?.mime) ? body.mime : "image/jpeg";
   if (!image || image.length > 6e6) return res.status(400).json({ error: "Imagem ausente ou grande demais" });

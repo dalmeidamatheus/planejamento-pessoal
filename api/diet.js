@@ -1,5 +1,6 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
+const guard = require("../lib/guard");
 /* Dieta com IA (fila de provedores gratuitos de lib/ai.js):
    - action "parse": texto do plano alimentar -> plano estruturado (refeições, cardápio por dia, opções, regras)
    - action "check": compara o que foi comido (texto e/ou foto) com o plano
@@ -18,9 +19,10 @@ module.exports = async (req, res) => {
   } catch {
     return res.status(400).json({ error: "JSON inválido" });
   }
+  if (guard.only(body, ["action", "text", "plan", "meal", "image", "mime"]).length) return res.status(400).json({ error: "Campos não permitidos" });
   try {
     if (body && body.action === "parse") {
-      const text = String(body.text || "").trim().slice(0, 40000);
+      const text = guard.scrub(String(body.text || "").trim().slice(0, 40000));
       if (text.length < 20) return res.status(400).json({ error: "Texto muito curto" });
       const prompt = `Extraia o plano alimentar do texto abaixo. Responda SOMENTE com JSON válido, sem markdown, neste formato:
 {"name":"nome curto do plano","meals":[{"id":"cafe","name":"Café da manhã","time":"07:30"}],"days":[{"n":1,"m":{"cafe":"...","almoco":"..."}}],"options":{"cafe":["opção 1","opção 2"]},"add":["..."],"avoid":["..."],"tips":["..."]}
@@ -38,7 +40,7 @@ ${text}`;
       return res.status(200).json({ plan: J(r.text), provider: r.name });
     }
     if (body && body.action === "check") {
-      const plan = String(body.plan || "").slice(0, 6000), meal = String(body.meal || "refeição").slice(0, 60), text = String(body.text || "").slice(0, 1500);
+      const plan = guard.scrub(String(body.plan || "").slice(0, 6000)), meal = guard.scrub(String(body.meal || "refeição").slice(0, 60)), text = guard.scrub(String(body.text || "").slice(0, 1500));
       if (!text && !body.image) return res.status(400).json({ error: "Informe o que foi comido" });
       const common = `Você é um assistente de acompanhamento de dieta (não é médico nem nutricionista). Compare o que a pessoa comeu com o plano alimentar dela.
 Responda SOMENTE com JSON válido, sem markdown:

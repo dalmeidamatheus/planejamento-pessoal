@@ -1,5 +1,6 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
+const guard = require("../lib/guard");
 /* Transcrição de alta precisão (Whisper e similares, com fallback entre provedores). Sem chave: 501 e o app usa o
    reconhecimento de voz do navegador. Recebe trechos curtos de áudio em base64. */
 module.exports = async (req, res) => {
@@ -13,6 +14,7 @@ module.exports = async (req, res) => {
   } catch {
     return res.status(400).json({ error: "JSON inválido" });
   }
+  if (guard.only(body, ["audio", "mime", "lang"]).length) return res.status(400).json({ error: "Campos não permitidos" });
   const b64 = String(body?.audio || "");
   if (!b64 || b64.length > 6e6) return res.status(400).json({ error: "Áudio ausente ou grande demais" });
   const mime = /^audio\/(webm|mp4|ogg|wav|mpeg)/.test(body?.mime || "") ? body.mime : "audio/webm";

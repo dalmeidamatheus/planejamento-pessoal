@@ -1,5 +1,6 @@
 const { userFromToken, bearer } = require("../lib/auth");
 const ai = require("../lib/ai");
+const guard = require("../lib/guard");
 const MAX_CHARS = 6e4;
 /* Resumo de reunião com IA (fila de provedores gratuitos). Sem chave: responde 501 e o app usa o resumo local. */
 module.exports = async (req, res) => {
@@ -9,11 +10,13 @@ module.exports = async (req, res) => {
   if (!await userFromToken(bearer(req))) return res.status(401).json({ error: "Não autenticado" });
   let text = "";
   try {
-    text = String((typeof req.body === "string" ? JSON.parse(req.body) : req.body)?.text || "");
+    const b = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    if (guard.only(b, ["text"]).length) return res.status(400).json({ error: "Campos não permitidos" });
+    text = String(b?.text || "");
   } catch {
     return res.status(400).json({ error: "JSON inválido" });
   }
-  text = text.trim().slice(0, MAX_CHARS);
+  text = guard.scrub(text.trim().slice(0, MAX_CHARS));
   if (text.length < 40) return res.status(400).json({ error: "Texto muito curto" });
   const prompt = `Você recebe a transcrição (em português) de uma reunião. Responda SOMENTE com JSON válido, sem markdown, no formato:
 {"summary":"resumo objetivo em até 6 linhas, uma por \\n","decisions":["..."],"actions":["verbo no infinitivo + responsável/prazo se citado"]}
