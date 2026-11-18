@@ -169,6 +169,12 @@ const Diet = (() => {
       "DICAS DO PLANO: " + cut(p.tips)
     ].join("\n").slice(0, 6000);
   }
+  /* Equivalência dentro do mesmo tipo de carne: se o plano tem "patinho" ou "carne", almôndega/bife também contam. */
+  const GROUPS = [
+    ["carne", ["carne", "patinho", "bife", "almondega", "acem", "coxao", "alcatra", "maminha", "file", "moida", "carne moida", "cubos", "tiras", "hamburguer caseiro", "bovina"]],
+    ["frango", ["frango", "peito", "sobrecoxa", "coxa", "galinha", "desfiado"]],
+    ["peixe", ["tilapia", "peixe", "salmao", "merluza", "atum", "sardinha", "pescada"]]
+  ].map(([g, ws]) => [g, new Set(ws.map((w) => stem(norm(w))))]);
   function checkLocal(mealId, text, date) {
     const p = D().plan, m = menu(date), allow = new Set(), avoidW = new Set(AVOID_DEFAULT);
     const feed = (s) => words(s).forEach((w) => allow.add(stem(w)));
@@ -184,6 +190,11 @@ const Diet = (() => {
       const bad = [...avoidW].find((a) => nf.includes(a) || ws.includes(a));
       if (bad) return { food, status: "fora", note: "Está na lista do que evitar (" + bad + ")." };
       if (ws.some((w) => allow.has(w))) return { food, status: "dentro", note: "Consta no plano." };
+      for (const [g, set] of GROUPS) {
+        if (!ws.some((w) => set.has(w))) continue;
+        const inPlan = [...allow].find((w) => set.has(w));
+        if (inPlan) return { food, status: "dentro", note: "Mesmo tipo de proteína do plano (" + g + ", como " + inPlan + ")." };
+      }
       return { food, status: "nao_consta", note: "Não aparece no seu plano para essa refeição." };
     });
     const out = items.filter((i) => i.status === "fora").length, ok = items.filter((i) => i.status === "dentro").length;
