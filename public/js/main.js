@@ -1,6 +1,7 @@
 "use strict";
 let tickH = null;
 function startApp() {
+  try { NoteDoc.migrateAll(); } catch (e) { console.error(e); }
   loadWatch();
   if (!location.hash || location.hash === "#/") location.hash = "#/home";
   $("#app").innerHTML = "";

@@ -153,6 +153,7 @@ function go(v) {
 }
 ACT.goMore = () => go("more");
 function startApp() {
+  try { NoteDoc.migrateAll(); } catch (e) { console.error(e); }
   if (!location.hash || location.hash === "#/") history.replaceState(history.state, "", "#/home");
   $("#app").innerHTML = "";
   route();

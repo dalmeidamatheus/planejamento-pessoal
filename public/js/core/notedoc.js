@@ -93,5 +93,18 @@ const NoteDoc = (() => {
     n.updated = Date.now();
     save();
   }
-  return { ensure, create, mutate, addFinal, setInterim, setSummary, sourceText, transcriptText, meetingHtml, isMeeting, mmss };
+  /** Atualiza as notas já existentes: fórmulas escritas como texto LaTeX (\[ ... \], $$ ... $$, \( ... \)) viram fórmulas. */
+  function migrateAll() {
+    let ch = 0;
+    S.notes.forEach((n) => {
+      ensure(n);
+      if (!/[\\$]/.test(n.html || "")) return;
+      const d = document.createElement("div");
+      d.innerHTML = RT.clean(n.html);
+      if (RT.convertMath(d)) { n.html = RT.serialize(d); n.body = RT.text(n.html); ch++; }
+    });
+    if (ch) save();
+    return ch;
+  }
+  return { migrateAll, ensure, create, mutate, addFinal, setInterim, setSummary, sourceText, transcriptText, meetingHtml, isMeeting, mmss };
 })();

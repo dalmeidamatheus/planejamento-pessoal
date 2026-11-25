@@ -80,6 +80,7 @@ const RT = (() => {
         cb && cb.remove();
       });
     });
+    convertMath(d);
     return d.innerHTML;
   }
 
@@ -114,6 +115,56 @@ const RT = (() => {
     else { els.forEach((m) => { if (!m.textContent) m.textContent = m.dataset.tex; }); loadKatex().then(paint).catch(() => {}); }
   }
 
+  /* Fórmulas escritas como texto LaTeX viram fórmulas de verdade: \[ ... \] e $$ ... $$ (em bloco), \( ... \) e $ ... $ (na linha).
+     Também junta fórmulas em bloco quebradas em vários parágrafos. Devolve quantas fórmulas converteu. */
+  const MATH_RE = /\\\[([\s\S]+?)\\\]|\$\$([\s\S]+?)\$\$|\\\(([\s\S]+?)\\\)|(?<![\w\\$])\$(?![\s$])([^$\n]+?)(?<![\s\\])\$(?![\w$])/g;
+  const texClean = (t) => String(t).replace(/\s+/g, " ").trim();
+  const mathSpan = (tex, display) => {
+    const s = document.createElement("span");
+    s.className = "math"; s.dataset.tex = texClean(tex); s.dataset.display = display ? "1" : "0"; s.setAttribute("contenteditable", "false");
+    return s;
+  };
+  function convertMath(root) {
+    let n = 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (t) => (t.parentElement && t.parentElement.closest(".math,code,pre,a")) || !/[\\$]/.test(t.nodeValue) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((t) => {
+      const str = t.nodeValue, frag = document.createDocumentFragment();
+      let last = 0, hit = false, m;
+      MATH_RE.lastIndex = 0;
+      while ((m = MATH_RE.exec(str))) {
+        const inl$ = m[4] !== undefined;
+        if (inl$ && !/[\\^_{}=<>]/.test(m[4]) && !/^[a-zA-Z]$/.test(m[4].trim())) continue;
+        if (m.index > last) frag.appendChild(document.createTextNode(str.slice(last, m.index)));
+        frag.appendChild(mathSpan(m[1] ?? m[2] ?? m[3] ?? m[4], m[1] !== undefined || m[2] !== undefined));
+        last = m.index + m[0].length; hit = true; n++;
+      }
+      if (!hit) return;
+      if (last < str.length) frag.appendChild(document.createTextNode(str.slice(last)));
+      t.replaceWith(frag);
+    });
+    // fórmula em bloco quebrada em vários parágrafos:  \[ linha 1 </p><p> linha 2 \]
+    [...root.querySelectorAll("p,div,li")].forEach((b) => {
+      if (!root.contains(b) || b.querySelector("p,div,li,ul,ol,table") || b.closest(".math")) return;
+      const tx = b.textContent.trim(), open = tx.startsWith("\\[") ? ["\\[", "\\]"] : tx.startsWith("$$") ? ["$$", "$$"] : null;
+      if (!open || tx.indexOf(open[1], open[0].length) >= 0) return;
+      let parts = [tx], cur = b.nextElementSibling, used = [], ok = false;
+      for (let i = 0; cur && i < 12; i++, cur = cur.nextElementSibling) {
+        const c = cur.textContent.trim();
+        used.push(cur); parts.push(c);
+        if (c.includes(open[1])) { ok = true; break; }
+      }
+      if (!ok) return;
+      const joined = parts.join(" "), a = open[0].length, z = joined.lastIndexOf(open[1]);
+      b.replaceChildren(mathSpan(joined.slice(a, z), true));
+      if (joined.slice(z + open[1].length).trim()) b.appendChild(document.createTextNode(" " + joined.slice(z + open[1].length).trim()));
+      used.forEach((u) => u.remove());
+      n++;
+    });
+    return n;
+  }
+
   const SW = ["#1d1c1a", "#e5484d", "#f59e0b", "#16a34a", "#2563eb", "#8b5cf6", "#64748b"];
   const HL = ["#fff3a3", "#ffd9d6", "#d4f5dd", "#d6e4ff", "#e6dcff", "#e9eef5"];
   const SYMS = [["∫", "\\int_{a}^{b} f(x)\\,dx"], ["d/dx", "\\frac{d}{dx}\\left(f(x)\\right)"], ["∂", "\\frac{\\partial f}{\\partial x}"], ["lim", "\\lim_{x \\to 0} \\frac{\\sin x}{x}"], ["Σ", "\\sum_{i=1}^{n} i"], ["√", "\\sqrt{x}"], ["a/b", "\\frac{a}{b}"], ["xⁿ", "x^{n}"], ["∞", "\\infty"], ["π", "\\pi"], ["≤", "\\leq"], ["≈", "\\approx"], ["matriz", "\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}"]];
@@ -136,8 +187,10 @@ const RT = (() => {
     try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch {}
     const setHtml = (h) => {
       el.innerHTML = clean(h) || "<p><br></p>";
+      const conv = convertMath(el);
       Files.resolve(el);
       renderMath(el);
+      if (conv) changed();
     };
     const changed = () => { clearTimeout(tm); tm = setTimeout(() => opt.onChange && opt.onChange(serialize(el), text(el.innerHTML)), 250); };
     const flush = () => { clearTimeout(tm); opt.onChange && opt.onChange(serialize(el), text(el.innerHTML)); };
@@ -458,7 +511,8 @@ const RT = (() => {
       const fs = e.dataTransfer && [...e.dataTransfer.files];
       if (fs && fs.length) { e.preventDefault(); const r = document.caretRangeFromPoint && document.caretRangeFromPoint(e.clientX, e.clientY); if (r) range = r; insertFiles(fs); }
     });
-    el.addEventListener("blur", () => { flush(); });
+    el.addEventListener("blur", () => { if (convertMath(el)) renderMath(el); flush(); });
+    el.addEventListener("paste", () => setTimeout(() => { if (convertMath(el)) { renderMath(el); changed(); } }, 30));
 
     ed.setHtml = setHtml;
     ed.html = () => serialize(el);
@@ -472,5 +526,5 @@ const RT = (() => {
     if (opt.readonly) ed.setReadonly(true);
     return ed;
   }
-  return { mount, clean, serialize, text, fromMarkdown, renderMath, load, loadKatex };
+  return { mount, clean, serialize, text, fromMarkdown, renderMath, convertMath, load, loadKatex };
 })();
